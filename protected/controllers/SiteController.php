@@ -78,20 +78,7 @@ class SiteController extends Controller
             }
         }
 
-		$entries = array();
-
-		if(ConfigUtil::getUrlFopen())
-		{
-			$xml = @simplexml_load_file('http://feeds.launchpad.net/chive/announcements.atom');
-
-			if($xml != null)
-			{
-				$entries = $xml->entry;
-			}
-		}
-
 		$this->render('index', array(
-			'entries' => $entries,
 			'formatter' => Yii::app()->getDateFormatter()
 		));
 	}
