@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,11 +20,10 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 define('URL_MATCH', '([^\/]*)');
 
-return array(
-	'basePath' => dirname(__FILE__) . DIRECTORY_SEPARATOR . '..',
+$config = array(
+	'basePath' => __DIR__ . DIRECTORY_SEPARATOR . '..',
 	'name' => 'Chive',
 	'theme' => 'standard',
 
@@ -238,3 +237,11 @@ return array(
 	// There is no source language ...
 	'sourceLanguage' => 'xxx',
 );
+
+$userConfigs = glob(__DIR__ . DIRECTORY_SEPARATOR . "user" . DIRECTORY_SEPARATOR . "*.php");
+foreach ($userConfigs as $userConfigFile) {
+	$userConfig = require($userConfigFile);
+	$config["params"] = array_merge_recursive($config["params"], $userConfig);
+}
+
+return $config;
