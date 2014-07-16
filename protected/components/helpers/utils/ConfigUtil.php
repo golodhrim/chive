@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,71 +20,59 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class ConfigUtil 
 {
-	
 	/**
 	 * Checks if allow_url_fopen is on or off
 	 *
-	 * @return	bool
+	 * @return bool
 	 */
 	public static function getUrlFopen() 
 	{
-		if(ini_get("allow_url_fopen"))
-		{
+		if (ini_get("allow_url_fopen")) {
 			return true;
-		}
-		else
-		{
+		} else {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Returns the maximum filesize to upload
 	 *
-	 * @param	bool		return as formatted string
-	 * @return	mixed
+	 * @param bool return as formatted string
+	 * @return mixed
 	 */
 	public static function getMaxUploadSize($_asString = false, $_value = null) 
 	{
 		$maxUpload = ConfigUtil::ini2bytes(ini_get("upload_max_filesize"));
 		$maxPost = ConfigUtil::ini2bytes(ini_get("post_max_size"));
-		
-		if($_value != null) 
-		{
-			if($_value < $maxUpload)
-			{
+
+		if ($_value != null) {
+			if ($_value < $maxUpload) {
 				$maxUpload = $_value;
 			}
-			if($_value < $maxPost)
-			{
+			if ($_value < $maxPost) {
 				$maxPost = $_value;
 			}
 		}
-		
-		if($maxPost < $maxUpload)
-		{
+
+		if ($maxPost < $maxUpload) {
 			$maxUpload = $maxPost;
 		}
-			
-		if($_asString)
-		{
+
+		if ($_asString) {
 			return Formatter::fileSize($maxUpload);
-		}
-		else
-		{
+		} else {
 			return $maxUpload;
 		}
 	}
-	
+
 	public static function ini2bytes($_value) 
 	{
 	   $_value = trim($_value);
 	   $last = strtolower(substr($_value, strlen($_value) - 1));
 
-	   switch($last) 
+	   switch ($last)
 	   {
 	       case 'g':
 	           $_value *= 1024;
@@ -94,7 +82,6 @@ class ConfigUtil
 	           $_value *= 1024;
 	   }
 
-	   return (int)$_value;
+	   return (int) $_value;
 	}
-	
 }

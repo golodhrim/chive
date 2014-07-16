@@ -1,13 +1,13 @@
 <?php
 
-switch($type) {
-
+switch ($type)
+{
 	case 'single':
-		echo CHtml::activeTextField($row, $column->name, array_merge((array)$htmlOptions, array('maxlength'=>$column->size, 'class'=>'text')));
+		echo CHtml::activeTextField($row, $column->name, array_merge((array) $htmlOptions, array('maxlength' => $column->size, 'class' => 'text')));
 		break;
 
 	case 'number':
-		echo CHtml::activeTextField($row, $column->name, array_merge((array)$htmlOptions, array('maxlength'=>$column->precision)));
+		echo CHtml::activeTextField($row, $column->name, array_merge((array) $htmlOptions, array('maxlength' => $column->precision)));
 		break;
 
 	case 'select':
@@ -15,11 +15,11 @@ switch($type) {
 		break;
 		
 	case 'select-multiple':
-		echo CHtml::activeListBox($row, $column->name, $this->getEnumValues(), array_merge((array)$htmlOptions, array('multiple'=>'multiple')));
+		echo CHtml::activeListBox($row, $column->name, $this->getEnumValues(), array_merge((array) $htmlOptions, array('multiple' => 'multiple')));
 		break;
 
 	case 'text':
-		echo CHtml::activeTextArea($row, $column->name, array_merge((array)$htmlOptions, array('style'=>'min-width: 500px; min-height: 100px;')));
+		echo CHtml::activeTextArea($row, $column->name, array_merge((array) $htmlOptions, array('style' => 'min-width: 500px; min-height: 100px;')));
 		break;
 
 	case 'file':
@@ -57,4 +57,5 @@ switch($type) {
 					</script>';
 		break;
 
- } ?>
+}
+

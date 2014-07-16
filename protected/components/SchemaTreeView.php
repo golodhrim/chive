@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,14 +20,12 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class SchemaTreeView extends CTreeView
 {
-	public $items=array();
+	public $items = array();
 
 	public function init()
 	{
-
 		// Add ordering
 		$criteria = new CDbCriteria;
 		$criteria->order = "SCHEMA_NAME ASC";
@@ -37,43 +35,34 @@ class SchemaTreeView extends CTreeView
 		$dbSeperator = "_";
 		$items = $root = $children = $items = array();
 
-		foreach($schemata AS $schema) {
-
+		foreach ($schemata AS $schema) {
 			// Find prefix in name
-			if($position = strpos($schema->SCHEMA_NAME, $dbSeperator)) {
+			if ($position = strpos($schema->SCHEMA_NAME, $dbSeperator)) {
 				$prefix = substr($schema->SCHEMA_NAME, 0, $position);
 				$root[$prefix] = $prefix;
 				$children[$prefix][] = substr($schema->SCHEMA_NAME, $position+1);
-			}
-			else
+			} else {
 				$root[] = $schema->SCHEMA_NAME;
-
+			}
 		}
 
 		$i = 0;
-		foreach($root AS $key=>$item) {
-
+		foreach ($root AS $key=>$item) {
 			$childs = array();
 			$childrenCount = count($children[$item]);
 
-			if($childrenCount > 1)
-			{
-
-				foreach($children[$item] AS $child) {
-
+			if ($childrenCount > 1) {
+				foreach ($children[$item] AS $child) {
 					$childs[] = array(
 						'text' => CHtml::link($child, SchemaController::createUrl("/schema/" . $item . $dbSeperator . $child)),
 					);
-
 				}
-			}
-			else
-			{
-
-				if($childrenCount == 1)
+			} else {
+				if ($childrenCount == 1) {
 					$name = $item . $dbSeperator . $children[$item][0];
-				else
+				} else {
 					$name = $item;
+				}
 
 				$items[] = array(
 					'text' => CHtml::link($name, SchemaController::createUrl("/schema/" . $name)),
@@ -81,7 +70,6 @@ class SchemaTreeView extends CTreeView
 
 				$i++;
 				continue;
-
 			}
 
 			$items[] = array(
@@ -91,11 +79,9 @@ class SchemaTreeView extends CTreeView
 			);
 
 			$i++;
-
 		}
 
 		$this->data = $items;
 		parent::init();
-
 	}
 }

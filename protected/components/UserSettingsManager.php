@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,10 +20,8 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class UserSettingsManager
 {
-
 	private $configPath;
 	private $host, $user;
 	private $defaultSettings = array();
@@ -31,7 +29,6 @@ class UserSettingsManager
 
 	public function __construct($host, $user)
 	{
-
 		$this->host = $host;
 		$this->user = $user;
 
@@ -40,38 +37,29 @@ class UserSettingsManager
 
 		// Load settings
 		$this->loadSettings();
-
 	}
 
 	/**
 	 * Creates JavaScript representation of settings.
-	 * @todo(mburtscher): Support arrays.
+	 * @todo (mburtscher): Support arrays.
 	 * @return	string
 	 */
 	public function getJsObject()
 	{
 		$jsSettings = 'var userSettings = {};' . "\n";
-		foreach($this->defaultSettings AS $key => $value) {
-
+		foreach ($this->defaultSettings as $key => $value) {
 			$value = $value[null];
-			if(is_array($value))
-			{
+			if (is_array($value)) {
 				continue;
 			}
-			if(isset($this->userSettings[$key]))
-			{
-				foreach($this->userSettings[$key] AS $key2 => $value2)
-				{
-					if(is_array($value2))
-					{
+			if (isset($this->userSettings[$key])) {
+				foreach ($this->userSettings[$key] as $key2 => $value2) {
+					if (is_array($value2)) {
 						continue;
 					}
-					if(!$key2)
-					{
+					if (!$key2) {
 						$value = $value2;
-					}
-					else
-					{
+					} else {
 						$jsSettings .= 'userSettings.' . $key . '__' . str_replace('.', '_', $key2) . ' = "' . str_replace('"', '\"', $value2) . '";' . "\n";
 					}
 				}
@@ -85,45 +73,27 @@ class UserSettingsManager
 	{
 		$id = $this->getSettingId($name, $scope);
 
-		if(isset($this->userSettings[$id]))
-		{
-			if(isset($this->userSettings[$id][$object]))
-			{
-				if($attribute && $value)
-				{
+		if (isset($this->userSettings[$id])) {
+			if (isset($this->userSettings[$id][$object])) {
+				if ($attribute && $value) {
 					return self::findByAttributeValue($this->userSettings[$id][$object], $attribute, $value);
-				}
-				else
-				{
+				} else {
 					return $this->userSettings[$id][$object];
 				}
-			}
-			elseif(isset($this->userSettings[$id][null]))
-			{
-				if($attribute && $value)
-				{
+			} elseif (isset($this->userSettings[$id][null])) {
+				if ($attribute && $value) {
 					return self::findByAttributeValue($this->userSettings[$id][null], $attribute, $value);
-				}
-				else
-				{
+				} else {
 					return $this->userSettings[$id][null];
 				}
-
 			}
-		}
-		elseif(isset($this->defaultSettings[$id]))
-		{
-			if($attribute && $value)
-			{
+		} elseif (isset($this->defaultSettings[$id])) {
+			if ($attribute && $value) {
 				return self::findByAttributeValue($this->defaultSettings[$id][null], $attribute, $value);
-			}
-			else
-			{
+			} else {
 				return $this->defaultSettings[$id][null];
 			}
-		}
-		else
-		{
+		} else {
 			throw new CException(Yii::t('core','The setting {setting} does not exist.',
 				array('{setting}' => $id)));
 		}
@@ -132,14 +102,11 @@ class UserSettingsManager
 	public function set($name, $value, $scope = null, $object = null)
 	{
 		$id = $this->getSettingId($name, $scope);
-		if(isset($this->defaultSettings[$id]))
-		{
+		if (isset($this->defaultSettings[$id])) {
 			$this->userSettings[$id][$object] = $value;
-		}
-		else
-		{
+		} else {
 			throw new CException(Yii::t('core','The setting {setting} does not exist.',
-				array('{setting}'=>$id)));
+				array('{setting}' => $id)));
 		}
 	}
 
@@ -147,8 +114,7 @@ class UserSettingsManager
 	{
 		// Load settings
 		$this->defaultSettings = $this->loadSettingsFile($this->configPath . 'default.xml');
-		if(is_file($this->configPath . $this->host . '.' . $this->user . '.xml'))
-		{
+		if (is_file($this->configPath . $this->host . '.' . $this->user . '.xml')) {
 			$this->userSettings = $this->loadSettingsFile($this->configPath . $this->host . '.' . $this->user . '.xml');
 		}
 	}
@@ -157,15 +123,11 @@ class UserSettingsManager
 	{
 		$defaultXml = new SimpleXMLElement(file_get_contents($filename));
 		$settings = array();
-		foreach($defaultXml->children() AS $setting)
-		{
+		foreach ($defaultXml->children() as $setting) {
 			$name = $setting->getName();
-			if(isset($setting['serialized']))
-			{
-				$value = unserialize((string)$setting);
-			}
-			else
-			{
+			if (isset($setting['serialized'])) {
+				$value = unserialize((string) $setting);
+			} else {
 				$value = (string)$setting;
 			}
 			$scope = (isset($setting['scope']) ? (string)$setting['scope'] : null);
@@ -180,41 +142,30 @@ class UserSettingsManager
 
 	public function saveSettings()
 	{
-		if(count($this->userSettings) > 0)
-		{
+		if (count($this->userSettings) > 0) {
 			$xml = new SimpleXmlElement('<settings host="' . $this->host . '" user="' . $this->user . '" />');
-			foreach($this->userSettings AS $key => $values)
-			{
+			foreach ($this->userSettings as $key => $values) {
 				list($name, $scope) = $this->getSettingNameScope($key);
-				foreach($values AS $object => $value)
-				{
-					if(is_array($value))
-					{
+				foreach ($values as $object => $value) {
+					if (is_array($value)) {
 						$value = serialize($value);
 						$setSerialized = true;
-					}
-					else
-					{
+					} else {
 						$setSerialized = false;
 					}
 					$settingXml = $xml->addChild($name, $value);
-					if($setSerialized)
-					{
+					if ($setSerialized) {
 						$settingXml['serialized'] = true;
 					}
-					if($scope)
-					{
+					if ($scope) {
 						$settingXml['scope'] = $scope;
 					}
-					if($object)
-					{
+					if ($object) {
 						$settingXml['object'] = $object;
 					}
 				}
 			}
-		}
-		elseif(is_file($this->configPath . $this->host . '.' . $this->user . '.xml'))
-		{
+		} elseif (is_file($this->configPath . $this->host . '.' . $this->user . '.xml')) {
 			unlink($this->configPath . $this->host . '.' . $this->user . '.xml');
 		}
 		$xml->asXML($this->configPath . $this->host . '.' . $this->user . '.xml');
@@ -228,20 +179,14 @@ class UserSettingsManager
 	private function getSettingNameScope($id)
 	{
 		$return = explode('__', $id);
-		if(is_array($return))
-		{
-			if(isset($return[1]))
-			{
+		if (is_array($return)) {
+			if (isset($return[1])) {
 				$return[1] = str_replace("_", ".", $return[1]);
-			}
-			else
-			{
+			} else {
 				$return[1] = null;
 			}
 			return $return;
-		}
-		else
-		{
+		} else {
 			return array($return, null);
 		}
 	}
@@ -250,13 +195,12 @@ class UserSettingsManager
 	{
 		$array = CPropertyValue::ensureArray($array);
 
-		foreach($array AS $key=>$entry)
-		{
-			if($entry[$attribute] == $value)
+		foreach ($array as $key => $entry) {
+			if ($entry[$attribute] == $value) {
 				return $entry;
+			}
 		}
 
 		return false;
 	}
-
 }

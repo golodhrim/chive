@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -19,26 +19,25 @@
  * You should have received a copy of the GNU General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
+
 class TabMenu extends CWidget
 {
-	public $items=array();
+	public $items = array();
 
 	public function run()
 	{
+		$items = array();
 
-		$items=array();
+		$controller = $this->controller;
+		$action = $controller->action;
 
-		$controller=$this->controller;
-		$action=$controller->action;
-
-		foreach($this->items as $item)
-		{
-
-			if(isset($item['visible']) && !$item['visible'])
+		foreach ($this->items as $item) {
+			if (isset($item['visible']) && !$item['visible']) {
 				continue;
+			}
 
-			$item2=array();
-			$item2['label']=$item['label'];
+			$item2 = array();
+			$item2['label'] = $item['label'];
 
 			$item2['htmlOptions'] = isset($item['htmlOptions']) ? $item['htmlOptions'] : array();
 
@@ -46,16 +45,12 @@ class TabMenu extends CWidget
 			$item2['a']['htmlOptions'] = $item['link']['htmlOptions'];
 
 
-			if(isset($item['icon']))
-			{
+			if (isset($item['icon'])) {
 				$item2['icon']=$item['icon'];
 
-				if(isset($item['htmlOptions']['class']))
-				{
+				if (isset($item['htmlOptions']['class'])) {
 					$item2['a']['htmlOptions']['class'] .= ' icon';
-				}
-				else
-				{
+				} else {
 					$item2['a']['htmlOptions']['class'] = 'icon';
 				}
 			}
@@ -63,33 +58,25 @@ class TabMenu extends CWidget
 			$item2['icon'] = isset($item['icon']) ? $item['icon'] : null;
 			$item2['a']['href'] = $item['link']['url'];
 
-			if($this->isActive($item['link']['url'], $action->id))
-			{
-				if(isset($item['htmlOptions']['class']))
-				{
+			if ($this->isActive($item['link']['url'], $action->id)) {
+				if (isset($item['htmlOptions']['class'])) {
 					$item2['htmlOptions']['class'] .= ' active';
-				}
-				else
-				{
+				} else {
 					$item2['htmlOptions']['class'] = 'active';
 				}
 			}
 
-
 			$items[]=$item2;
 		}
 
-		$this->render('tabMenu',array('items'=>$items));
+		$this->render('tabMenu', array('items' => $items));
 	}
 
-	protected function isActive($url,$action)
+	protected function isActive($url, $action)
 	{
-		if(preg_match('/'.$action.'$/i', $url, $res))
-		{
-			return (bool)$res[0];
-		}
-		else
-		{
+		if (preg_match('/'.$action.'$/i', $url, $res)) {
+			return (bool) $res[0];
+		} else {
 			return false;
 		}
 	}

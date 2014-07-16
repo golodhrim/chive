@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,21 +20,21 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class CXmlMessageSource extends CMessageSource 
 {
-
 	const CACHE_KEY_PREFIX = 'Yii.CXmlMessageSource.';
 
 	/**
-	 * @var integer the time in seconds that the messages can remain valid in cache.
+	 * the time in seconds that the messages can remain valid in cache.
 	 * Defaults to 0, meaning the caching is disabled.
+	 * @var int
 	 */
 	public $cachingDuration = 0;
 	
 	/**
-	 * @var string the base path for all translated messages. Defaults to null, meaning
+	 * the base path for all translated messages. Defaults to null, meaning
 	 * the "messages" subdirectory of the application directory (e.g. "protected/messages").
+	 * @var string
 	 */
 	public $basePath;
 
@@ -44,8 +44,7 @@ class CXmlMessageSource extends CMessageSource
 	public function init()
 	{
 		parent::init();
-		if($this->basePath === null)
-		{
+		if ($this->basePath === null) {
 			$this->basePath = Yii::getPathOfAlias('application.messages');
 		}
 	}
@@ -61,8 +60,7 @@ class CXmlMessageSource extends CMessageSource
 		$maxFiletime = null;
 		$packages = array();
 		$files = CFileHelper::findFiles($this->basePath . DIRECTORY_SEPARATOR . 'en');
-		foreach($files as $file)
-		{
+		foreach ($files as $file) {
 			$basename = basename($file);
 			$packages[] = substr($basename, 0, strpos($basename, '.'));
 			$maxFiletime = max($maxFiletime, filemtime($file));
@@ -74,30 +72,22 @@ class CXmlMessageSource extends CMessageSource
 
 		// Check for changes
 		$publish = false;
-		if(!is_dir($assetPath))
-		{
+		if (!is_dir($assetPath)) {
 			mkdir($assetPath);
 			$publish = true;
-		}
-		elseif(!is_file($assetPath . DIRECTORY_SEPARATOR . $language . '.js'))
-		{
+		} elseif (!is_file($assetPath . DIRECTORY_SEPARATOR . $language . '.js')) {
 			$publish = true;
-		}
-		elseif(filemtime($assetPath . DIRECTORY_SEPARATOR . $language . '.js') < $maxFiletime)
-		{
+		} elseif(filemtime($assetPath . DIRECTORY_SEPARATOR . $language . '.js') < $maxFiletime) {
 			$publish = true;
 		}
 
 		// Publish if needed
-		if($publish || YII_DEBUG)
-		{
+		if ($publish || YII_DEBUG) {
 			$code = '';
-			foreach($packages AS $package)
-			{
+			foreach ($packages as $package) {
 				$code .= 'lang.' . $package . ' = [];' . "\n";
 				$data = $this->loadMessages($package, $language);
-				foreach($data AS $key => $value)
-				{
+				foreach ($data as $key => $value) {
 					$code .= 'lang.' . $package . '["' . $key . '"] = ' . CJSON::encode($value) . ';' . "\n";
 				}
 			}
@@ -106,7 +96,7 @@ class CXmlMessageSource extends CMessageSource
 	}
 
 	/**
-	 * @see		CMessageSource::loadMessages()
+	 * @see CMessageSource::loadMessages()
 	 */
 	public function loadMessages($category, $language)
 	{
@@ -115,53 +105,40 @@ class CXmlMessageSource extends CMessageSource
 		$cacheKey = self::CACHE_KEY_PREFIX . $language . '.' . $category;
 
 		// Try to load messages from cache
-		if(!is_null($cache) && ($data = $cache->get($cacheKey)) !== false && !YII_DEBUG)
-		{
+		if (!is_null($cache) && ($data = $cache->get($cacheKey)) !== false && !YII_DEBUG) {
 			return $data;
 		}
-		
+
 		// Load parent messages
-		if(strlen($language) > 2)
-		{
+		if (strlen($language) > 2) {
 			$messages = self::loadMessages($category, substr($language, 0, 2));
-		}
-		elseif($language != 'en')
-		{
+		} elseif($language != 'en') {
 			$messages = self::loadMessages($category, 'en');
-		}
-		else
-		{
+		} else {
 			$messages = array();
 		}
 
 		// Try to load messages from file
 		$messageFile = $this->basePath . DIRECTORY_SEPARATOR . $language . DIRECTORY_SEPARATOR . $category . '.xml';
 		$content = null;
-		if(is_file($messageFile))
-		{
+		if (is_file($messageFile)) {
 			$content = file_get_contents($messageFile);
-		}
-		elseif(is_file($messageFile . ".gz"))
-		{
+		} elseif (is_file($messageFile . ".gz")) {
 			$content = gzuncompress(file_get_contents($messageFile . ".gz"));
 		}
 
-		if($content)
-		{
+		if ($content) {
 			$xml = simplexml_load_string($content);
 
-			foreach($xml AS $entry) 
-			{
-				$messages[(string)$entry->attributes()->id] = (string)$entry;
+			foreach ($xml AS $entry) {
+				$messages[(string) $entry->attributes()->id] = (string) $entry;
 			}
 
-			if(!is_null($cache))
-			{
+			if (!is_null($cache)) {
 				$cache->set($cacheKey, $messages, $this->cachingDuration);
 			}
 		}
-		
+
 		return $messages;
 	}
-
 }

@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,50 +20,43 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class SqlExporter implements IExporter
 {
-	
 	private $items = array();
 	private $rows = array();
 	private $mode;
 	private $schema;
 	private $table;
 	private $settings = array(
-		'addDropObject' => true,		// Adds DROP TABLE statement
-		'addIfNotExists' => true,		// Adds IF NOT EXISTS to CREATE TABLE statement
-		'completeInserts' => true,		// Adds column names to insert statement
-		'exportStructure' => true,		// Export structure
-		'exportTriggers' => true,		// Exporter triggers
-		'exportData' => true,			// Export data
-		'ignoreInserts' => false,		// Adds IGNORE to insert statement (INSERT IGNORE ...)
-		'delayedInserts' => false,		// Adds DELAYED to insert statement (INSERT DELAYED ...)
-		'insertCommand' => 'INSERT',	// Specifies the command for data (INSERT/REPLACE)
-		'rowsPerInsert' => 1000,		// Specifies the number of rows per INSERT statement
-		'hexBlobs' => true,				// Use HEX for blob fields
+		'addDropObject' 	=> true,		// Adds DROP TABLE statement
+		'addIfNotExists' 	=> true,		// Adds IF NOT EXISTS to CREATE TABLE statement
+		'completeInserts' 	=> true,		// Adds column names to insert statement
+		'exportStructure' 	=> true,		// Export structure
+		'exportTriggers' 	=> true,		// Exporter triggers
+		'exportData' 		=> true,		// Export data
+		'ignoreInserts' 	=> false,		// Adds IGNORE to insert statement (INSERT IGNORE ...)
+		'delayedInserts' 	=> false,		// Adds DELAYED to insert statement (INSERT DELAYED ...)
+		'insertCommand' 	=> 'INSERT',	// Specifies the command for data (INSERT/REPLACE)
+		'rowsPerInsert' 	=> 1000,		// Specifies the number of rows per INSERT statement
+		'hexBlobs' 			=> true,		// Use HEX for blob fields
 	);
 	private $stepCount;
 
 	private $result;
 
 	/**
-	 * @see		IExporter::__construct()
+	 * @see IExporter::__construct()
 	 */
 	public function __construct($mode)
 	{
 		$this->mode = $mode;
 
 		// Reload settings from request
-		if($r = @$_REQUEST['Export']['settings']['SqlExporter'])
-		{
-			foreach($this->settings AS $key => $value)
-			{
-				if(is_bool($this->settings[$key]))
-				{
+		if ($r = @$_REQUEST['Export']['settings']['SqlExporter']) {
+			foreach ($this->settings as $key => $value) {
+				if (is_bool($this->settings[$key])) {
 					$this->settings[$key] = isset($r[$key]);
-				}
-				elseif(isset($r[$key]))
-				{
+				} elseif(isset($r[$key])) {
 					$this->settings[$key] = $r[$key];
 				}
 			}
@@ -71,7 +64,7 @@ class SqlExporter implements IExporter
 	}
 
 	/**
-	 * @see		IExporter::getSettingsView()
+	 * @see IExporter::getSettingsView()
 	 */
 	public function getSettingsView()
 	{
@@ -122,7 +115,7 @@ class SqlExporter implements IExporter
 	}
 
 	/**
-	 * @see		IExporter::calculateStepCount()
+	 * @see IExporter::calculateStepCount()
 	 */
 	public function calculateStepCount()
 	{
@@ -132,7 +125,7 @@ class SqlExporter implements IExporter
 	}
 
 	/**
-	 * @see		IExporter::getStepCount()
+	 * @see IExporter::getStepCount()
 	 */
 	public function getStepCount()
 	{
@@ -140,7 +133,7 @@ class SqlExporter implements IExporter
 	}
 
 	/**
-	 * @see		IExporter::setItems()
+	 * @see IExporter::setItems()
 	 */
 	public function setItems(array $items, $schema = null)
 	{
@@ -149,7 +142,7 @@ class SqlExporter implements IExporter
 	}
 	
 	/**
-	 * @see		IExporter::setItems()
+	 * @see IExporter::setItems()
 	 */
 	public function setRows(array $rows, $table = null, $schema = null)
 	{
@@ -159,34 +152,32 @@ class SqlExporter implements IExporter
 	}
 
 	/**
-	 * @see		IExporter::runStep()
+	 * @see IExporter::runStep()
 	 */
 	public function runStep($i, $collect = false)
 	{
-		if($collect)
-		{
+		if ($collect) {
 			ob_start();
 		}
 
-		switch($this->mode)
+		switch ($this->mode)
 		{
 			case 'objects':
 				$this->exportObjects($i);
 				break;
-				
+
 			case 'rows':
 				$this->exportRows($i);
 		}
 
-		if($collect)
-		{
+		if ($collect) {
 			$this->result = ob_get_contents();
 			ob_end_clean();
 		}
 	}
 
 	/**
-	 * @see		IExporter::getResult()
+	 * @see IExporter::getResult()
 	 */
 	public function getResult()
 	{
@@ -194,7 +185,7 @@ class SqlExporter implements IExporter
 	}
 
 	/**
-	 * @see		IExporter::getSupportedModes()
+	 * @see IExporter::getSupportedModes()
 	 */
 	public static function getSupportedModes()
 	{
@@ -202,28 +193,25 @@ class SqlExporter implements IExporter
 	}
 
 	/**
-	 * @see		IExporter::getTitle()
+	 * @see IExporter::getTitle()
 	 */
 	public static function getTitle()
 	{
 		return 'SQL';
 	}
 
-
 	/**
 	 * Exports all specified database objects (tables, views, routines, ...).
 	 *
-	 * @return	boolean
+	 * @return boolean
 	 */
 	private function exportObjects()
 	{
 		// Find elements
 		$tables = $views = $routines = array();
-		if(count($this->items) > 0)
-		{
-			foreach($this->items AS $item)
-			{
-				switch($item{0})
+		if (count($this->items) > 0) {
+			foreach ($this->items as $item) {
+				switch ($item{0})
 				{
 					case 't':
 						$tables[] = substr($item, 2);
@@ -233,23 +221,19 @@ class SqlExporter implements IExporter
 						break;
 					case 'r':
 						$routines[] = substr($item, 2);
-						break;
-						
+						break;						
 				}
 			}
 		}
 
 		// Export everything
-		if(count($tables) > 0)
-		{
+		if (count($tables) > 0) {
 			$this->exportTables($tables);
 		}
-		if(count($views) > 0 && $this->settings['exportStructure'])
-		{
+		if (count($views) > 0 && $this->settings['exportStructure']) {
 			$this->exportViews($views);
 		}
-		if(count($routines) > 0 && $this->settings['exportStructure'])
-		{
+		if (count($routines) > 0 && $this->settings['exportStructure']) {
 			$this->exportRoutines($routines);
 		}
 	}
@@ -257,24 +241,23 @@ class SqlExporter implements IExporter
 	/**
 	 * Exports (selected) rows
 	 *
-	 * @return	boolean
+	 * @return bool
 	 */
 	private function exportRows()
 	{
-		if($this->settings['exportStructure'])
-		{
+		if ($this->settings['exportStructure']) {
 			$table = Table::model()->findByPk(array('TABLE_SCHEMA' => $this->schema, 'TABLE_NAME' => $this->table));
 			$this->exportTableStructure($table);
 		}
-		
+
 		$this->exportRowData();
 	}
-	
+
 	/**
 	 * Exports all tables of the given array and writes the dump to the output buffer.
 	 * @todo	constraints
 	 *
-	 * @param	array					list of tables
+	 * @param array list of tables
 	 */
 	private function exportTables($tables)
 	{
@@ -283,49 +266,38 @@ class SqlExporter implements IExporter
 
 		// Escape all table names
 		$tableNames = array();
-		foreach($tables AS $table)
-		{
+		foreach ($tables as $table) {
 			$tableNames[] = Yii::app()->db->quoteValue($table);
 		}
 
 		// Find all tables
 		$allTables = Table::model()->findAll('TABLE_SCHEMA = ' . Yii::app()->db->quoteValue($this->schema));
 
-		if(count($tables) > 0)
-		{
+		if (count($tables) > 0) {
 			$filteredTables = array();
-			foreach($allTables as $table)
-			{
-				if(in_array($table->TABLE_NAME, $tables))
-				{
+			foreach ($allTables as $table) {
+				if (in_array($table->TABLE_NAME, $tables)) {
 					$filteredTables[] = $table;
 				}
 			}
-		}
-		else
-		{
+		} else {
 			$filteredTables = $allTables;	
 		}
 		
-		foreach($filteredTables AS $table)
-		{
-			
-			if($this->settings['exportStructure'])
-			{
+		foreach ($filteredTables as $table) {
+			if ($this->settings['exportStructure']) {
 				$this->exportTableStructure($table);
 			}
 
-			if($this->settings['exportData'])
-			{
+			if ($this->settings['exportData']) {
 				// Data
 				$this->exportTableData($table);
 			}
 		}
 	}
-	
+
 	private function exportTableStructure($table)
 	{
-
 		// Get DbConnection object
 		$db = Yii::app()->db;
 
@@ -333,45 +305,39 @@ class SqlExporter implements IExporter
 		echo "\n\n";
 
 		// Structure
-		if($this->settings['addDropObject'])
-		{
+		if ($this->settings['addDropObject']) {
 			echo 'DROP TABLE IF EXISTS ', $db->quoteTableName($table->TABLE_NAME), ";\n";
 		}
 
 		$tableStructure = $table->getShowCreateTable();
-		if($this->settings['addIfNotExists'])
-		{
+		if ($this->settings['addIfNotExists']) {
 			$tableStructure = 'CREATE TABLE IF NOT EXISTS' . substr($tableStructure, 12);
 		}
 		echo $tableStructure, ";\n\n";
 
 		// Triggers
-		if($this->settings['exportTriggers'])
-		{
+		if ($this->settings['exportTriggers']) {
 			$triggers = Trigger::model()->findAllByAttributes(array(
 				'EVENT_OBJECT_SCHEMA' => $table->TABLE_SCHEMA,
 				'EVENT_OBJECT_TABLE' => $table->TABLE_NAME,
 			));
-			foreach($triggers AS $trigger)
-			{
+			foreach ($triggers as $trigger) {
 				$this->comment('Trigger ' . $db->quoteTableName($trigger->TRIGGER_NAME) . ' on table ' . $db->quoteTablename($table->TABLE_NAME));
 				echo "\n\n";
 
-				if($this->settings['addDropObject'])
-				{
+				if ($this->settings['addDropObject']) {
 					echo 'DROP TRIGGER IF EXISTS ', $db->quoteTableName($trigger->TRIGGER_NAME), ";\n";
 				}
 
 				echo $trigger->getCreateTrigger(), ";\n\n";
 			}
 		}
-		
 	}
 
 	/**
 	 * Exports data of the specified table and writes the sql dump to the output buffer.
 	 *
-	 * @param	string					name of table
+	 * @param string name of table
 	 */
 	private function exportTableData($table)
 	{
@@ -386,23 +352,18 @@ class SqlExporter implements IExporter
 		$blobCols = array();
 
 		// Create insert statement
-		if($this->settings['completeInserts'])
-		{
+		if ($this->settings['completeInserts']) {
 			$columns = array();
 			$i = 0;
-			foreach($cols AS $col)
-			{
+			foreach ($cols as $col) {
 				$columns[] = $db->quoteColumnName($col->COLUMN_NAME);
-				if(in_array(DataType::getBaseType($col->DATA_TYPE), array('smallblob', 'blob', 'mediumblob', 'longblob')))
-				{
+				if (in_array(DataType::getBaseType($col->DATA_TYPE), array('smallblob', 'blob', 'mediumblob', 'longblob'))) {
 					$blobCols[] = $i;
 				}
 				$i++;
 			}
 			$columns = ' (' . implode(', ', $columns) . ')';
-		}
-		else
-		{
+		} else {
 			$columns = '';
 		}
 		$insert = $this->settings['insertCommand']
@@ -426,31 +387,23 @@ class SqlExporter implements IExporter
 		// Cycle rows
 		$i = 0;
 		$k = 1;
-		while($row = $statement->fetch())
-		{
+		while ($row = $statement->fetch()) {
 			// Add comment
-			if($i == 0)
-			{
+			if ($i == 0) {
 				$this->comment('Data for table ' . $db->quoteTableName($table->TABLE_NAME));
 				echo "\n\n";
 				echo $insert;
 			}
-			
+
 			SqlUtil::FixRow($row);
 
 			// Escape all contents
-			foreach($row AS $key => $value)
-			{
-				if($value === null)
-				{
+			foreach ($row as $key => $value) {
+				if ($value === null) {
 					$row[$key] = 'NULL';
-				}
-				elseif($hexBlobs && in_array($key, $blobCols) && $value)
-				{
+				} elseif($hexBlobs && in_array($key, $blobCols) && $value) {
 					$row[$key] = '0x' . bin2hex($value);
-				}
-				else
-				{
+				} else {
 					$row[$key] = $pdo->quote($value);
 				}
 			}
@@ -458,28 +411,23 @@ class SqlExporter implements IExporter
 			// Add this row
 			echo "\n  (", implode(', ', $row), ')';
 
-			if($i == $rowCount - 1)
-			{
+			if ($i == $rowCount - 1) {
 				echo ";\n\n";
-			}
-			elseif($k == $rowsPerInsert)
-			{
+			} elseif ($k == $rowsPerInsert) {
 				echo ";\n\n", $insert;
 				$k = 0;
-			}
-			else
-			{
+			} else {
 				echo ',';
 			}
 			$i++;
 			$k++;
 		}
 	}
-	
+
 	/**
 	 * Exports all views of the given array and writes the dump to the output buffer.
 	 *
-	 * @param	array					list of views
+	 * @param array list of views
 	 */
 	private function exportViews($views)
 	{
@@ -488,8 +436,7 @@ class SqlExporter implements IExporter
 
 		// Escape all view names
 		$viewNames = array();
-		foreach($views AS $view)
-		{
+		foreach ($views as $view) {
 			$viewNames[] = Yii::app()->db->quoteValue($view);
 		}
 
@@ -497,24 +444,22 @@ class SqlExporter implements IExporter
 		$views = View::model()->findAll('TABLE_NAME IN (' . implode(',', $viewNames) . ') '
 			. 'AND TABLE_SCHEMA = ' . Yii::app()->db->quoteValue($this->schema));
 
-		foreach($views AS $view)
-		{
+		foreach ($views as $view) {
 			$this->comment('View ' . $db->quoteTableName($view->TABLE_NAME));
 			echo "\n\n";
 
 			// Structure
-			if($this->settings['addDropObject'])
-			{
+			if ($this->settings['addDropObject']) {
 				echo 'DROP VIEW IF EXISTS ', $db->quoteTableName($view->TABLE_NAME), ";\n";
 			}
 			echo $view->getCreateView(), ";\n\n";
 		}
 	}
-	
+
 	/**
 	 * Exports all routines of the given array and writes the dump to the output buffer.
 	 *
-	 * @param	array					list of routines
+	 * @param array list of routines
 	 */
 	private function exportRoutines($routines)
 	{
@@ -523,8 +468,7 @@ class SqlExporter implements IExporter
 
 		// Escape all routine names
 		$routineNames = array();
-		foreach($routines AS $routine)
-		{
+		foreach ($routines as $routine) {
 			$routineNames[] = Yii::app()->db->quoteValue($routine);
 		}
 
@@ -532,24 +476,22 @@ class SqlExporter implements IExporter
 		$routines = Routine::model()->findAll('ROUTINE_NAME IN (' . implode(',', $routineNames) . ') '
 			. 'AND ROUTINE_SCHEMA = ' . $db->quoteValue($this->schema));
 
-		foreach($routines AS $routine)
-		{
+		foreach ($routines as $routine) {
 			$this->comment(ucfirst(strtolower($routine->ROUTINE_TYPE)) . ' ' . $db->quoteTableName($routine->ROUTINE_NAME));
 			echo "\n\n";
 
-			if($this->settings['addDropObject'])
-			{
+			if ($this->settings['addDropObject']) {
 				echo 'DROP ', strtoupper($routine->ROUTINE_TYPE), ' IF EXISTS ', $db->quoteTableName($routine->ROUTINE_NAME), ";\n";
 			}
 
 			echo $routine->getCreateRoutine(), ";\n\n";
 		}
 	}
-	
+
 	/**
 	 * Exports all rows of the given array and writes the dump to the output buffer.
 	 *
-	 * @param	array					array with identifiers of rows
+	 * @param array array with identifiers of rows
 	 */
 	private function exportRowData()
 	{
@@ -564,23 +506,18 @@ class SqlExporter implements IExporter
 		$blobCols = array();
 
 		// Create insert statement
-		if($this->settings['completeInserts'])
-		{
+		if ($this->settings['completeInserts']) {
 			$columns = array();
 			$i = 0;
-			foreach($cols AS $col)
-			{
+			foreach ($cols AS $col) {
 				$columns[] = $db->quoteColumnName($col->COLUMN_NAME);
-				if(in_array(DataType::getBaseType($col->DATA_TYPE), array('smallblob', 'blob', 'mediumblob', 'longblob')))
-				{
+				if (in_array(DataType::getBaseType($col->DATA_TYPE), array('smallblob', 'blob', 'mediumblob', 'longblob'))) {
 					$blobCols[] = $i;
 				}
 				$i++;
 			}
 			$columns = ' (' . implode(', ', $columns) . ')';
-		}
-		else
-		{
+		} else {
 			$columns = '';
 		}
 		$insert = $this->settings['insertCommand']
@@ -596,38 +533,30 @@ class SqlExporter implements IExporter
 
 		// Settings
 		$hexBlobs = $this->settings['hexBlobs'];
-		$rowsPerInsert = (int)$this->settings['rowsPerInsert'];
+		$rowsPerInsert = (int) $this->settings['rowsPerInsert'];
 
 		// Cycle rows
 		$i = 0;
 		$k = 1;
 		
-		foreach($this->rows AS $row)
-		{
+		foreach ($this->rows as $row) {
 			// Add comment
-			if($i == 0)
-			{
+			if ($i == 0) {
 				$this->comment('Data for table ' . $db->quoteTableName($this->table));
 				echo "\n\n";
 				echo $insert;
 			}
-			
+
 			$attributes = $row->getAttributes();
 			SqlUtil::FixRow($attributes);
 
 			// Escape all contents
-			foreach($attributes AS $key => $value)
-			{
-				if($value === null)
-				{
+			foreach ($attributes as $key => $value) {
+				if ($value === null) {
 					$attributes[$key] = 'NULL';
-				}
-				elseif($hexBlobs && in_array($key, $blobCols) && $value)
-				{
+				} elseif($hexBlobs && in_array($key, $blobCols) && $value) {
 					$attributes[$key] = '0x' . bin2hex($value);
-				}
-				else
-				{
+				} else {
 					$attributes[$key] = $pdo->quote($value);
 				}
 			}
@@ -635,39 +564,31 @@ class SqlExporter implements IExporter
 			// Add this row
 			echo "\n  (", implode(', ', $attributes), ')';
 
-			if($i == $rowCount - 1)
-			{
+			if ($i == $rowCount - 1) {
 				echo ";\n\n";
-			}
-			elseif($k == $rowsPerInsert)
-			{
+			} elseif ($k == $rowsPerInsert) {
 				echo ";\n\n", $insert;
 				$k = 0;
-			}
-			else
-			{
+			} else {
 				echo ',';
 			}
 			$i++;
 			$k++;
 		}
-		
 	}
 
 	/**
 	 * Writes a sql comment to the output buffer.
 	 *
-	 * @param	array					lines of comment
+	 * @param array lines of comment
 	 */
 	private function comment($items)
 	{
 		$items = (array)$items;
 		echo "-- \n";
-		foreach($items AS $item)
-		{
+		foreach ($items as $item) {
 			echo '-- ', $item, "\n";
 		}
 		echo '-- ';
 	}
-
 }

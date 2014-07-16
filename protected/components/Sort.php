@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,16 +20,13 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class Sort extends CSort
 {
-
 	private $_db;
 	private $_directions;
 	private static $generateJs = true;
-	
+
 	public $postVars = array();
-	
 
 	/**
 	 * Constructor.
@@ -41,22 +38,16 @@ class Sort extends CSort
 		$this->_db = $_db;
 	}
 
-	/**
-	 * @see 
-	 */
 	public function getOrder()
 	{
-
 		$directions=$this->getDirections();
-		
-		if(empty($directions))
+
+		if (empty($directions)) {
 			$order=$this->defaultOrder;
-		else
-		{
+		} else {
 			$order=array();
 			$schema = $this->_db->getSchema();
-			foreach($directions as $attribute=>$direction)
-			{
+			foreach ($directions as $attribute=>$direction) {
 				$attribute=$schema->quoteColumnName($attribute);
 				$order[$attribute] = strtoupper($direction);
 			}
@@ -64,7 +55,6 @@ class Sort extends CSort
 		}
 		
 		return $order;
-
 	}
 
 	/**
@@ -77,35 +67,34 @@ class Sort extends CSort
 	 * @param array additional HTML attributes for the hyperlink tag
 	 * @return string the generated hyperlink
 	 */
-	public function link($attribute,$label=null,$htmlOptions=array())
+	public function link($attribute, $label = null, $htmlOptions = array())
 	{
 		$directions=$this->getDirections();
-		if(isset($directions[$attribute]))
-		{
-			$direction= $directions[$attribute] == 'asc' ? 'desc' : 'asc';
+		if (isset($directions[$attribute])) {
+			$direction = $directions[$attribute] == 'asc' ? 'desc' : 'asc';
 			unset($directions[$attribute]);
 		}
-		else
+		else {
 			$direction = 'asc';
+		}
 			
-		if($this->multiSort)
-			$directions=array_merge(array($attribute=>$direction),$directions);
-		else
-			$directions=array($attribute=>$direction);
+		if ($this->multiSort) {
+			$directions = array_merge(array($attribute => $direction), $directions);
+		} else {
+			$directions = array($attribute=>$direction);
+		}
 
-		if($label===null)
+		if ($label === null) {
 			$label = $attribute;
+		}
 
-		$url=$this->createUrl(Yii::app()->getController(),$directions);
+		$url = $this->createUrl(Yii::app()->getController(), $directions);
 		
-		if($this->postVars)
-		{
-			if(self::$generateJs)
-			{
+		if ($this->postVars) {
+			if (self::$generateJs) {
 				$data = CJSON::encode($this->postVars);
 				$script = '
 					function setSort(_field, _direction) {
-					
 						var data = ' . $data . ';
 						data.'.$this->sortVar.' = _field + "." + _direction; 
 						' . (Yii::app()->getRequest()->getParam('page') ? 'data.page = ' . Yii::app()->getRequest()->getParam('page') : '') . '
@@ -127,14 +116,9 @@ class Sort extends CSort
 			return CHtml::link($label, 'javascript:void(0)', array(
 				'onclick' => 'setSort("' . $attribute . '", "' . $direction . '");',
 			));
-			
-		}
-		else
-		{
+		} else {
 			return $this->createLink($attribute,$label,$url,$htmlOptions);
 		}
-		
-
 	}	
 	
 	/**
@@ -145,40 +129,35 @@ class Sort extends CSort
 	 */
 	public function getDirections()
 	{
-		if($this->_directions===null)
-		{
-			$this->_directions=array();
-			if(isset($_REQUEST[$this->sortVar]))
-			{
-				$attributes=explode($this->separators[0],$_REQUEST[$this->sortVar]);
-				foreach($attributes as $attribute)
-				{
-					if(($pos=strrpos($attribute,$this->separators[1]))!==false)
-					{
+		if ($this->_directions === null) {
+			$this->_directions = array();
+			if (isset($_REQUEST[$this->sortVar])) {
+				$attributes=explode($this->separators[0], $_REQUEST[$this->sortVar]);
+				foreach ($attributes as $attribute) {
+					if (($pos = strrpos($attribute, $this->separators[1])) !== false) {
 						$direction = substr($attribute,$pos+1);
-						
-						if($direction != 'desc' && $direction != 'asc')
-						{
-							$direction = 'asc';
-						}
-						else
-							$attribute=substr($attribute,0,$pos);
-					}
-					else
-						$order = 'asc';
 
-					if(($this->validateAttribute($attribute))!==false) {
+						if ($direction != 'desc' && $direction != 'asc') {
+							$direction = 'asc';
+						} else {
+							$attribute = substr($attribute, 0, $pos);
+						}
+					} else {
+						$order = 'asc';
+					}
+
+					if (($this->validateAttribute($attribute)) !== false) {
 						$this->_directions[$attribute]=$direction;
 					}
 				}
-				if(!$this->multiSort)
-				{
-					foreach($this->_directions as $attribute=>$direction)
-						return $this->_directions=array($attribute=>$direction);
+				if (!$this->multiSort) {
+					foreach ($this->_directions as $attribute=>$direction) {
+						return $this->_directions = array($attribute => $direction);
+					}
 				}
 			}
 		}
-		
+
 		return $this->_directions;
 	}
 

@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,10 +20,8 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 abstract class SqlModel extends CModel
 {
-
 	private static $db;
 	private static $models = array();
 
@@ -31,64 +29,47 @@ abstract class SqlModel extends CModel
 
 	public function __get($name)
 	{
-		if(isset($this->_attributes[$name]))
-		{
+		if (isset($this->_attributes[$name])) {
 			return $this->_attributes[$name];
-		}
-		elseif(in_array($name, $this->attributeNames()))
-		{
+		} elseif (in_array($name, $this->attributeNames())) {
 			return null;
-		}
-		else
-		{
+		} else {
 			return parent::__get($name);
 		}
 	}
 
-	public function __set($name,$value)
+	public function __set($name, $value)
 	{
-		if(in_array($name, $this->attributeNames()))
-		{
+		if (in_array($name, $this->attributeNames())) {
 			$this->_attributes[$name] = $value;
-		}
-		else
-		{
+		} else {
 			parent::__set($name, $value);
 		}
 	}
 
 	public function __isset($name)
 	{
-		if(isset($this->_attributes[$name]))
-		{
+		if (isset($this->_attributes[$name])) {
 			return true;
-		}
-		elseif(in_array($name, $this->attributeNames()))
-		{
+		} elseif (in_array($name, $this->attributeNames())) {
 			return false;
-		}
-		else
-		{
+		} else {
 			return parent::__isset($name);
 		}
 	}
 
 	public function __unset($name)
 	{
-		if(in_array($name, $this->attributeNames()))
-		{
+		if (in_array($name, $this->attributeNames())) {
 			unset($this->_attributes[$name]);
-		}
-		else
-		{
+		} else {
 			parent::__unset($name);
 		}
 	}
 
 	public static function model($class = __CLASS__)
 	{
-		if(!isset(self::$models[$class]))
-		{
+		if (!isset(self::$models[$class])) {
 			self::$models[$class] = new $class();
 		}
 		return self::$models[$class];
@@ -107,12 +88,9 @@ abstract class SqlModel extends CModel
 	public function findByAttributes(array $attributes = array())
 	{
 		$results = $this->queryAll($attributes);
-		if(count($results) > 0)
-		{
+		if (count($results) > 0) {
 			return $this->populateRecord(current($results));
-		}
-		else
-		{
+		} else {
 			return null;
 		}
 	}
@@ -124,20 +102,14 @@ abstract class SqlModel extends CModel
 
 	public function getDbConnection()
 	{
-		if(self::$db !== null)
-		{
+		if (self::$db !== null) {
 			return self::$db;
-		}
-		else
-		{
+		} else {
 			self::$db = Yii::app()->getDb();
-			if(self::$db instanceof CDbConnection)
-			{
+			if (self::$db instanceof CDbConnection) {
 				self::$db->setActive(true);
 				return self::$db;
-			}
-			else
-			{
+			} else {
 				throw new CDbException(Yii::t('core','Active Record requires a "db" CDbConnection application component.'));
 			}
 		}
@@ -147,14 +119,10 @@ abstract class SqlModel extends CModel
 	{
 		$record = $this->instantiate($attributes);
 		$availableAttributes = $this->attributeNames();
-		foreach($attributes as $name => $value)
-		{
-			if(property_exists($record, $name))
-			{
+		foreach ($attributes as $name => $value) {
+			if (property_exists($record, $name)) {
 				$record->$name = $value;
-			}
-			elseif(array_search($name, $availableAttributes) !== false)
-			{
+			} elseif (array_search($name, $availableAttributes) !== false) {
 				$record->_attributes[$name] = $value;
 			}
 		}
@@ -165,8 +133,7 @@ abstract class SqlModel extends CModel
 	public function populateRecords($data)
 	{
 		$records=array();
-		foreach($data as $attributes)
-		{
+		foreach ($data as $attributes) {
 			$records[] = $this->populateRecord($attributes);
 		}
 		return $records;
@@ -182,34 +149,26 @@ abstract class SqlModel extends CModel
 	{
 		$cmd = $this->getDbConnection()->createCommand($this->getSql());
 		$results = $cmd->queryAll();
-		foreach($results AS $key => $result)
-		{
+		foreach ($results as $key => $result) {
 			$isValid = true;
-			foreach($attributes AS $key2 => $value)
-			{
-				if(is_array($value))
-				{
+			foreach ($attributes as $key2 => $value) {
+				if (is_array($value)) {
 					$isValid2 = false;
-					foreach($value AS $value2)
-					{
-						if($result[$key2] == $value2)
-						{
+					foreach ($value AS $value2) {
+						if ($result[$key2] == $value2) {
 							$isValid2 = true;
 						}
 					}
-					if(!$isValid2)
-					{
+					if (!$isValid2) {
 						$isValid = false;
 						break;
 					}
-				}
-				elseif($result[$key2] != $value)
-				{
+				} elseif ($result[$key2] != $value) {
 					$isValid = false;
 					break;
 				}
 			}
-			if(!$isValid){
+			if (!$isValid) {
 				unset($results[$key]);
 			}
 		}
@@ -217,7 +176,5 @@ abstract class SqlModel extends CModel
 	}
 
 	protected abstract function getSql();
-
 }
 
-?>

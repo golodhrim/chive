@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -22,10 +22,10 @@
 
 class PharAssetManager extends CAssetManager
 {
-    public function init()
-    {
-        $this->setBaseUrl(Yii::app()->request->baseUrl . "/index.php/" . self::DEFAULT_BASEPATH);
+	public function init()
+	{
+		$this->setBaseUrl(Yii::app()->request->baseUrl . "/index.php/" . self::DEFAULT_BASEPATH);
 
-        parent::init();
-    }
+		parent::init();
+	}
 }

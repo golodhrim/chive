@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,24 +20,23 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-class Formatter {
-
+class Formatter
+{
 	/*
-	 * @param $_size 		Size in bytes
+	 * @param $_size Size in bytes
 	 */
-	public static function fileSize($_size) {
-
+	public static function fileSize($_size)
+	{
 		$s = array('B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB');
-		$e = floor(log((float)$_size)/log(1000));
+		$e = floor(log((float) $_size) / log(1000));
 
-		if(!$_size || !pow(1000, $e))
+		if (!$_size || !pow(1000, $e)) {
 			return 0 . ' ' . $s[0];
+		}
 
-		$output = sprintf('%.2f '.$s[$e], round($_size/pow(1000, $e),2));
+		$output = sprintf('%.2f ' . $s[$e], round($_size / pow(1000, $e), 2));
 
 		return $output;
-
 	}
-	
 }
+

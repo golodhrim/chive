@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,14 +20,12 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class Pagination extends CPagination
 {
-
 	public $pageSizeVar = 'pageSize';
-	
+
 	public $postVars;
-	
+
 	private $_currentPage;
 
 	/**
@@ -43,72 +41,68 @@ class Pagination extends CPagination
 	 */
 	public function createPageUrl($controller, $page, $pageSize = null)
 	{
-		$params=($this->route==='' || $this->route{0} === '#')?array_intersect_assoc($_GET, $_REQUEST):array();
-		if($page>0) // page 0 is the default
+		$params = ($this->route === '' || $this->route{0} === '#') ? array_intersect_assoc($_GET, $_REQUEST) : array();
+		if ($page>0) {
+			// page 0 is the default
 			$params[$this->pageVar]=$page+1;
-		else
+		} else {
 			unset($params[$this->pageVar]);
-		if($pageSize > 0)
-		{
+		}
+		if ($pageSize > 0) {
 			$params[$this->pageSizeVar] = $pageSize;
 		}
-		
-		return $controller->createUrl($this->route,$params);
-		
+
+		return $controller->createUrl($this->route, $params);
 	}
 
 	/**
 	 * Setup the page size using a page size setting.
 	 *
-	 * @param	string				name of the page size setting
-	 * @param	string				scope of the page size setting
-	 * @return	int					the current page size
+	 * @param string name of the page size setting
+	 * @param string scope of the page size setting
+	 * @return int the current page size
 	 */
 	public function setupPageSize($pageSizeSettingName, $pageSizeSettingScope)
 	{
-		if(isset($_REQUEST[$this->pageSizeVar]))
-		{
+		if (isset($_REQUEST[$this->pageSizeVar])) {
 			$this->setPageSize((int)$_REQUEST[$this->pageSizeVar]);
 			Yii::app()->user->settings->set($pageSizeSettingName, (int)$_REQUEST[$this->pageSizeVar], $pageSizeSettingScope);
-		}
-		else
-		{
+		} else {
 			$this->setPageSize(Yii::app()->user->settings->get($pageSizeSettingName, $pageSizeSettingScope));
 		}
 		return $this->getPageSize();
 	}
-	
+
 	/**
 	 * @param boolean whether to recalculate the current page based on the page size and item count.
-	 * @return integer the zero-based index of the current page. Defaults to 0.
+	 * @return int the zero-based index of the current page. Defaults to 0.
 	 */
-	public function getCurrentPage($recalculate=true)
+	public function getCurrentPage($recalculate = true)
 	{
-		if($this->_currentPage===null || $recalculate)
-		{
-			if(isset($_REQUEST[$this->pageVar]))
-			{
-				$this->_currentPage=(int)$_REQUEST[$this->pageVar]-1;
-				$pageCount=$this->getPageCount();
-				if($this->_currentPage>=$pageCount)
-					$this->_currentPage=$pageCount-1;
-				if($this->_currentPage<0)
-					$this->_currentPage=0;
+		if ($this->_currentPage === null || $recalculate) {
+			if (isset($_REQUEST[$this->pageVar])) {
+				$this->_currentPage = (int) $_REQUEST[$this->pageVar] - 1;
+				$pageCount = $this->getPageCount();
+				if ($this->_currentPage >= $pageCount) {
+					$this->_currentPage = $pageCount-1;
+				}
+				if ($this->_currentPage < 0) {
+					$this->_currentPage = 0;
+				}
+			} else {
+				$this->_currentPage = 0;
 			}
-			else
-				$this->_currentPage=0;
 		}
-		
+
 		return $this->_currentPage;
 	}
 
 	/**
-	 * @param integer the zero-based index of the current page.
+	 * @param int the zero-based index of the current page.
 	 */
 	public function setCurrentPage($value)
 	{
-		$this->_currentPage=$value;
-		$_REQUEST[$this->pageVar]=$value+1;
+		$this->_currentPage = $value;
+		$_REQUEST[$this->pageVar] = $value + 1;
 	}
-
 }

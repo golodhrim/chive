@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -19,12 +19,14 @@
  * You should have received a copy of the GNU General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
+
 class UserIdentity extends CUserIdentity
 {
 	/**
 	 * @var string host
 	 */
 	public $host;
+
 	/**
 	 * @var int port
 	 */
@@ -35,12 +37,12 @@ class UserIdentity extends CUserIdentity
 	 * @param string username
 	 * @param string password
 	 */
-	public function __construct($username,$password,$host,$port)
+	public function __construct($username, $password, $host, $port)
 	{
-		$this->username=$username;
-		$this->password=$password;
-		$this->host=$host;
-		$this->port=$port;
+		$this->username = $username;
+		$this->password = $password;
+		$this->host = $host;
+		$this->port = $port;
 	}
 
 	/*
@@ -49,7 +51,6 @@ class UserIdentity extends CUserIdentity
 	 */
 	public function authenticate()
 	{
-
 		$db = new CDbConnection();
 
 		// Set username and password
@@ -59,7 +60,6 @@ class UserIdentity extends CUserIdentity
 		$db->connectionString = 'mysql:host=' . $this->host . ';dbname=information_schema;port=' . $this->port;
 
 		try {
-
 			$db->active = true;
 
 			Yii::app()->setComponent('db', $db);
@@ -72,16 +72,11 @@ class UserIdentity extends CUserIdentity
 			$this->setState('privileges', new UserPrivilegesManager($this->host, $this->username));
 			$this->setState("host", $this->host);
 			$this->setState("port", $this->port);
-
-		}
-		catch (CDbException $ex)
-		{
+		} catch (CDbException $ex) {
 			$this->errorMessage = $ex->getMessage();
 			return false;
 		}
 
 		return true;
-
 	}
-
 }
