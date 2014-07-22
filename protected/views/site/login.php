@@ -69,7 +69,7 @@
 		<?php foreach ($users as $key => $user): ?>
 			<?php $tempArray[$key] = $user["username"]; ?>
 		<?php endforeach; ?>
-		<?php $hosts[$host . ":" . $users[0]["port"]] = $tempArray; ?>
+		<?php $hosts[$host . ":" . $users[$key]["port"]] = $tempArray; ?>
 	<?php endforeach; ?>
 
 	<div id="login-form">
