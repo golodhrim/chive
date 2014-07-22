@@ -38,7 +38,7 @@ $("#themeDialog").dialog({
 	minWidth: 400
 });
 
-$("#LoginForm_username").focus();
+$("#username").focus();
 
 if ($("#redirectUrl").val() == "") {
 	$("#redirectUrl").val(window.location.href);
@@ -53,6 +53,7 @@ $("#existinghosts").change(function(eventObject) {
 
 	var selectedHost = existingHosts[selected];
 	fillLoginForm(selectedHost.host, selectedHost.port, selectedHost.username);
+	$("#password").focus();
 });
 
 function fillLoginForm(host, port, username) {
