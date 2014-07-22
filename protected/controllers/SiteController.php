@@ -100,11 +100,6 @@ class SiteController extends Controller
             }
         }
 
-		$currentLanguage = Yii::app()->getLanguage();
-		if (strlen($currentLanguage) == 2) {
-			$currentLanguage .= '_' . $currentLanguage;
-		}
-
 		$availableThemes = Yii::app()->getThemeManager()->getThemeNames();
 		$activeTheme = Yii::app()->getTheme()->getName();
 
@@ -153,7 +148,7 @@ class SiteController extends Controller
 			}
 		}
 
-		$this->render('login',array(
+		$this->render('login', array(
 			'form'		=> $form,
 			'languages'	=> $languages,
 			'hosts'		=> $hosts,

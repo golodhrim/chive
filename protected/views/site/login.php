@@ -14,7 +14,7 @@
 					<?php if ($i == ceil($languageCount / 2)): ?>
 						</td>
 						<td style="width: 50%; vertical-align: top">
-					<?php endif ?>
+					<?php endif; ?>
 				<?php endforeach; ?>
 			</td>
 		<?php else: ?>
