@@ -72,6 +72,9 @@ class SiteController extends Controller
             }
         }
 
+		// Ensure the user config file is always saved, even if no settings have been configured.
+		Yii::app()->user->settings->saveSettings();
+
 		$this->render('index', array());
 	}
 
