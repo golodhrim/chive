@@ -139,6 +139,10 @@
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
   }
+
+  #login-form #existinghosts {
+	width: 100%;
+  }
   
   #login-logo {
 	 padding: 10px; 
