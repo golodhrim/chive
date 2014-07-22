@@ -23,14 +23,15 @@
 class UserSettingsManager
 {
 	private $configPath;
-	private $host, $user;
+	private $host, $user, $port;
 	private $defaultSettings = array();
 	private $userSettings = array();
 
-	public function __construct($host, $user)
+	public function __construct($host, $user, $port)
 	{
 		$this->host = $host;
 		$this->user = $user;
+		$this->port = $port;
 
 		// Get config path
 		$this->configPath = Yii::app()->getRuntimePath() . DIRECTORY_SEPARATOR . 'user-config' . DIRECTORY_SEPARATOR;
@@ -105,7 +106,7 @@ class UserSettingsManager
 		if (isset($this->defaultSettings[$id])) {
 			$this->userSettings[$id][$object] = $value;
 		} else {
-			throw new CException(Yii::t('core','The setting {setting} does not exist.',
+			throw new CException(Yii::t('core', 'The setting {setting} does not exist.',
 				array('{setting}' => $id)));
 		}
 	}
@@ -143,7 +144,7 @@ class UserSettingsManager
 	public function saveSettings()
 	{
 		if (count($this->userSettings) > 0) {
-			$xml = new SimpleXmlElement('<settings host="' . $this->host . '" user="' . $this->user . '" />');
+			$xml = new SimpleXmlElement('<settings host="' . $this->host . '" user="' . $this->user . '" port="' . $this->port . '" />');
 			foreach ($this->userSettings as $key => $values) {
 				list($name, $scope) = $this->getSettingNameScope($key);
 				foreach ($values as $object => $value) {
