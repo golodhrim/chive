@@ -153,22 +153,11 @@ class SiteController extends Controller
 			}
 		}
 
-		$validBrowser = true;
-		if($_SERVER['HTTP_USER_AGENT'])
-		{
-			preg_match('/MSIE (\d+)\.\d+/i', $_SERVER['HTTP_USER_AGENT'], $res);
-			if(count($res) == 2 && $res[1] <= 7)
-			{
-				$validBrowser = false;
-			}
-		}
-
 		$this->render('login',array(
-			'form'=>$form,
-			'languages'=>$languages,
-			'hosts'=>$hosts,
-			'themes'=>$themes,
-			'validBrowser' => $validBrowser,
+			'form'		=> $form,
+			'languages'	=> $languages,
+			'hosts'		=> $hosts,
+			'themes'	=> $themes,
 		));
 	}
 

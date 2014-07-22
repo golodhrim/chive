@@ -62,86 +62,60 @@
 		<img src="<?php echo BASEURL; ?>/images/logo-big.png" alt="chive" title="" />
 	</div>
 
-	<?php if($validBrowser) { ?>
+	<?php echo CHtml::errorSummary($form, '', ''); ?>
 
-		<?php echo CHtml::errorSummary($form, '', ''); ?>
-
-		<div id="login-form">
-			<?php echo CHtml::form(); ?>
-			<?php echo CHtml::activeHiddenField($form, "redirectUrl", array("name" => "redirectUrl", "id" => "redirectUrl")); ?>
-			<div class="formItems non-floated" style="text-align: left;">
-				<div class="item row1">
-					<div class="left">
-						<span class="icon">
-							<?php echo CHtml::activeLabel($form,'host'); ?>
-						</span>
-					</div>
-					<div class="right">
-						<?php echo CHtml::activeTextField($form, 'host', array('class'=>'text', 'name' => 'host')); ?>
-					</div>
+	<div id="login-form">
+		<?php echo CHtml::form(); ?>
+		<?php echo CHtml::activeHiddenField($form, "redirectUrl", array("name" => "redirectUrl", "id" => "redirectUrl")); ?>
+		<div class="formItems non-floated" style="text-align: left;">
+			<div class="item row1">
+				<div class="left">
+					<span class="icon">
+						<?php echo CHtml::activeLabel($form,'host'); ?>
+					</span>
 				</div>
-				<div class="item row2">
-					<div class="left">
-						<span class="icon">
-							<?php echo CHtml::activeLabel($form,'port'); ?>
-						</span>
-					</div>
-					<div class="right">
-						<?php echo CHtml::activeTextField($form, 'port', array('class'=>'text', 'name' => 'port')); ?>
-					</div>
-				</div>
-				<div class="item row1">
-					<div class="left" style="float: none;">
-						<span class="icon">
-							<?php echo CHtml::activeLabel($form,'username'); ?>
-						</span>
-					</div>
-					<div class="right">
-						<?php echo CHtml::activeTextField($form,'username', array('class'=>'text', 'name' => 'username')) ?>
-					</div>
-				</div>
-				<div class="item row2">
-					<div class="left">
-						<span class="icon">
-							<?php echo CHtml::activeLabel($form, 'password'); ?>
-						</span>
-					</div>
-					<div class="right">
-						<?php echo CHtml::activePasswordField($form, 'password', array('class' => 'text', 'value' => '', 'name' => 'password', 'autocomplete' => "off")); ?>
-					</div>
+				<div class="right">
+					<?php echo CHtml::activeTextField($form, 'host', array('class' => 'text', 'name' => 'host')); ?>
 				</div>
 			</div>
-
-			<div class="buttons">
-				<a class="icon button primary" href="javascript:void(0);" onclick="$('form').submit()">
-					<?php echo Html::icon('login', 16, false, 'core.login'); ?>
-					<span><?php echo Yii::t('core', 'login'); ?></span>
-				</a>
-				<?php echo CHtml::submitButton(Yii::t('core', 'login'), array("style" => "width: 0px; height: 0px; opacity: 0")); ?>
+			<div class="item row2">
+				<div class="left">
+					<span class="icon">
+						<?php echo CHtml::activeLabel($form,'port'); ?>
+					</span>
+				</div>
+				<div class="right">
+					<?php echo CHtml::activeTextField($form, 'port', array('class' => 'text', 'name' => 'port')); ?>
+				</div>
 			</div>
-
-			<?php echo CHtml::closeTag('form'); ?>
-		</div>
-	<?php } else { ?>
-		<div id="login-form">
-			<?php echo Yii::t('core', 'incompatibleBrowserWarning'); ?>
-			<div style="margin-top: 10px">
-				<a href="http://www.firefox.com">
-					<img src="<?php echo BASEURL; ?>/images/browsers/firefox.jpg" alt="Mozilla Firefox" title="Mozilla Firefox" />
-				</a>
-				<a href="http://www.google.com/chrome">
-					<img src="<?php echo BASEURL; ?>/images/browsers/chrome.jpg" alt="Google Chrome" title="Google Chrome" />
-				</a>
-				<a href="http://www.opera.com">
-					<img src="<?php echo BASEURL; ?>/images/browsers/opera.jpg" alt="Opera" title="Opera" />
-				</a>
-				<a href="http://www.microsoft.com/windows/Internet-explorer/default.aspx">
-					<img src="<?php echo BASEURL; ?>/images/browsers/internetexplorer.jpg" alt="Microsoft Internet Explorer" title="Microsoft Internet Explorer" />
-				</a>
+			<div class="item row1">
+				<div class="left" style="float: none;">
+					<span class="icon">
+						<?php echo CHtml::activeLabel($form,'username'); ?>
+					</span>
+				</div>
+				<div class="right">
+					<?php echo CHtml::activeTextField($form,'username', array('class' => 'text', 'name' => 'username')) ?>
+				</div>
+			</div>
+			<div class="item row2">
+				<div class="left">
+					<span class="icon">
+						<?php echo CHtml::activeLabel($form, 'password'); ?>
+					</span>
+				</div>
+				<div class="right">
+					<?php echo CHtml::activePasswordField($form, 'password', array('class' => 'text', 'value' => '', 'name' => 'password', 'autocomplete' => "off")); ?>
+				</div>
 			</div>
 		</div>
-	<?php } ?>
 
+		<div class="buttons">
+			<?php echo CHtml::submitButton(Yii::t('core', 'login')); ?>
+		</div>
+
+		<?php echo CHtml::closeTag('form'); ?>
+	</div>
 </div>
 
 <script type="text/javascript">
