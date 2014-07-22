@@ -140,18 +140,28 @@ class SiteController extends Controller
 			);
 		}
 
-		// Hosts
-		$hosts = array(
-			'web'=>'web',
-			'localhost'=>'localhost',
-			'127.0.0.1'=>'127.0.0.1',
-		);
+		$existingHosts = array();
+		$userConfigPath = UserSettingsManager::getConfigPath();
+		$hostFiles = glob($userConfigPath . "*.*.xml");
+		$counter = 0;
+		foreach ($hostFiles as $hostFile) {
+			$settings = new SimpleXMLElement(file_get_contents($hostFile));
+			$host = (string) $settings["host"];
+			if (!isset($existingHosts[$host])) {
+				$existingHosts[$host] = array();
+			}
+			$existingHosts[$host][$counter++] = array(
+				"host"		=> (string) $settings["host"],
+				"port"		=> (string) $settings["port"],
+				"username"	=> (string) $settings["user"],
+			);
+		}
 
 		$this->render('login', array(
-			'form'		=> $form,
-			'languages'	=> $languages,
-			'hosts'		=> $hosts,
-			'themes'	=> $themes,
+			'form'			=> $form,
+			'languages'		=> $languages,
+			'existingHosts'	=> $existingHosts,
+			'themes'		=> $themes,
 		));
 	}
 

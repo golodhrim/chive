@@ -63,7 +63,21 @@
 
 	<?php echo CHtml::errorSummary($form, '', ''); ?>
 
+	<?php $hosts = array("" => ""); ?>
+	<?php foreach ($existingHosts as $host => $users): ?>
+		<?php $tempArray = array(); ?>
+		<?php foreach ($users as $key => $user): ?>
+			<?php $tempArray[$key] = $user["username"]; ?>
+		<?php endforeach; ?>
+		<?php $hosts[$host . ":" . $users[0]["port"]] = $tempArray; ?>
+	<?php endforeach; ?>
+
 	<div id="login-form">
+		<?php if (count($hosts) > 0): ?>
+		<?php echo CHtml::dropDownList("existinghosts", null, $hosts); ?>
+		<br/><br/>
+		<?php endif; ?>
+
 		<?php echo CHtml::form(); ?>
 		<?php echo CHtml::activeHiddenField($form, "redirectUrl", array("name" => "redirectUrl", "id" => "redirectUrl")); ?>
 		<div class="formItems non-floated" style="text-align: left;">
@@ -88,7 +102,7 @@
 				</div>
 			</div>
 			<div class="item row1">
-				<div class="left" style="float: none;">
+				<div class="left">
 					<span class="icon">
 						<?php echo CHtml::activeLabel($form, 'username'); ?>
 					</span>
@@ -116,4 +130,16 @@
 		<?php echo CHtml::closeTag('form'); ?>
 	</div>
 </div>
+
+<script type="text/javascript">
+<?php $flatHosts = array(); ?>
+<?php foreach ($existingHosts as $host => $users): ?>
+	<?php foreach ($users as $key => $user): ?>
+		<?php $flatHosts[$key] = $user; ?>
+	<?php endforeach; ?>
+<?php endforeach; ?>
+var existingHosts = <?php echo json_encode($flatHosts); ?>;
+var defaultHost = '<?php echo $form->host; ?>';
+var defaultPort = '<?php echo $form->port; ?>';
+</script>
 

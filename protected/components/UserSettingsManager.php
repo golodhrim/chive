@@ -34,10 +34,18 @@ class UserSettingsManager
 		$this->port = $port;
 
 		// Get config path
-		$this->configPath = Yii::app()->getRuntimePath() . DIRECTORY_SEPARATOR . 'user-config' . DIRECTORY_SEPARATOR;
+		$this->configPath = self::getConfigPath();
 
 		// Load settings
 		$this->loadSettings();
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getConfigPath()
+	{
+		return Yii::app()->getRuntimePath() . DIRECTORY_SEPARATOR . 'user-config' . DIRECTORY_SEPARATOR;
 	}
 
 	/**

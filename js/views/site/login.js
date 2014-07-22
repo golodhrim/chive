@@ -44,3 +44,20 @@ if ($("#redirectUrl").val() == "") {
 	$("#redirectUrl").val(window.location.href);
 }
 
+$("#existinghosts").change(function(eventObject) {
+	var selected = parseInt($(eventObject.target).val());
+	if (isNaN(selected)) {
+		fillLoginForm(defaultHost, defaultPort, "");
+		return;
+	}
+
+	var selectedHost = existingHosts[selected];
+	fillLoginForm(selectedHost.host, selectedHost.port, selectedHost.username);
+});
+
+function fillLoginForm(host, port, username) {
+	$("#host").val(host);
+	$("#port").val(port);
+	$("#username").val(username);
+}
+
