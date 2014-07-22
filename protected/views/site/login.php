@@ -117,12 +117,3 @@
 	</div>
 </div>
 
-<script type="text/javascript">
-$(function() {
-	$('#LoginForm_username').focus();
-
-	if ($('#redirectUrl').val() == "") {
-		$('#redirectUrl').val(location.href);
-	}
-});
-</script>
