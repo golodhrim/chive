@@ -22,10 +22,10 @@
 
 class UserSettingsManager
 {
-	private $configPath;
-	private $host, $user, $port;
-	private $defaultSettings = array();
-	private $userSettings = array();
+	protected $configPath;
+	protected $host, $user, $port;
+	protected $defaultSettings = array();
+	protected $userSettings = array();
 
 	public function __construct($host, $user, $port)
 	{
@@ -111,16 +111,21 @@ class UserSettingsManager
 		}
 	}
 
-	private function loadSettings()
+	protected function loadSettings()
 	{
 		// Load settings
 		$this->defaultSettings = $this->loadSettingsFile($this->configPath . 'default.xml');
-		if (is_file($this->configPath . $this->host . '.' . $this->user . '.xml')) {
-			$this->userSettings = $this->loadSettingsFile($this->configPath . $this->host . '.' . $this->user . '.xml');
+		$userSettingsFilename = $this->configPath . $this->host . "." . $this->user . ".xml";
+		if (is_readable($userSettingsFilename)) {
+			$this->userSettings = $this->loadSettingsFile($userSettingsFilename);
 		}
 	}
 
-	private function loadSettingsFile($filename)
+	/**
+	 * @param string $filename
+	 * @return array
+	 */
+	public function loadSettingsFile($filename)
 	{
 		$defaultXml = new SimpleXMLElement(file_get_contents($filename));
 		$settings = array();
@@ -129,10 +134,10 @@ class UserSettingsManager
 			if (isset($setting['serialized'])) {
 				$value = unserialize((string) $setting);
 			} else {
-				$value = (string)$setting;
+				$value = (string) $setting;
 			}
-			$scope = (isset($setting['scope']) ? (string)$setting['scope'] : null);
-			$object = (isset($setting['object']) ? (string)$setting['object'] : null);
+			$scope = (isset($setting['scope']) ? (string) $setting['scope'] : null);
+			$object = (isset($setting['object']) ? (string) $setting['object'] : null);
 
 			$id = $this->getSettingId($name, $scope);
 
@@ -172,12 +177,21 @@ class UserSettingsManager
 		$xml->asXML($this->configPath . $this->host . '.' . $this->user . '.xml');
 	}
 
-	private function getSettingId($name, $scope)
+	/**
+	 * @param string $name
+	 * @param string $scope
+	 * @return string
+	 */
+	protected function getSettingId($name, $scope)
 	{
 		return $name . ($scope ? '__' . str_replace(".", "_", $scope) : '');
 	}
 
-	private function getSettingNameScope($id)
+	/**
+	 * @param string
+	 * @return array
+	 */
+	protected function getSettingNameScope($id)
 	{
 		$return = explode('__', $id);
 		if (is_array($return)) {
@@ -192,7 +206,7 @@ class UserSettingsManager
 		}
 	}
 
-	private function findByAttributeValue($array, $attribute, $value)
+	protected function findByAttributeValue($array, $attribute, $value)
 	{
 		$array = CPropertyValue::ensureArray($array);
 

@@ -47,8 +47,7 @@ class AjaxSettingsController extends Controller
 
 		$oldValue = Yii::app()->user->settings->get($name, $scope, $object);
 
-		if($oldValue && !is_array($oldValue))
-		{
+		if ($oldValue && !is_array($oldValue)) {
 			$oldValue = (array)$oldValue;
 		}
 
@@ -71,6 +70,5 @@ class AjaxSettingsController extends Controller
 
 		Yii::app()->user->settings->set($name, !$oldValue, $scope, $object);
 		Yii::app()->user->settings->saveSettings();
-		
 	}
 }
