@@ -148,31 +148,27 @@ class UserSettingsManager
 
 	public function saveSettings()
 	{
-		if (count($this->userSettings) > 0) {
-			$xml = new SimpleXmlElement('<settings host="' . $this->host . '" user="' . $this->user . '" port="' . $this->port . '" />');
-			foreach ($this->userSettings as $key => $values) {
-				list($name, $scope) = $this->getSettingNameScope($key);
-				foreach ($values as $object => $value) {
-					if (is_array($value)) {
-						$value = serialize($value);
-						$setSerialized = true;
-					} else {
-						$setSerialized = false;
-					}
-					$settingXml = $xml->addChild($name, $value);
-					if ($setSerialized) {
-						$settingXml['serialized'] = true;
-					}
-					if ($scope) {
-						$settingXml['scope'] = $scope;
-					}
-					if ($object) {
-						$settingXml['object'] = $object;
-					}
+		$xml = new SimpleXmlElement('<settings host="' . $this->host . '" user="' . $this->user . '" port="' . $this->port . '" />');
+		foreach ($this->userSettings as $key => $values) {
+			list($name, $scope) = $this->getSettingNameScope($key);
+			foreach ($values as $object => $value) {
+				if (is_array($value)) {
+					$value = serialize($value);
+					$setSerialized = true;
+				} else {
+					$setSerialized = false;
+				}
+				$settingXml = $xml->addChild($name, $value);
+				if ($setSerialized) {
+					$settingXml['serialized'] = true;
+				}
+				if ($scope) {
+					$settingXml['scope'] = $scope;
+				}
+				if ($object) {
+					$settingXml['object'] = $object;
 				}
 			}
-		} elseif (is_file($this->configPath . $this->host . '.' . $this->user . '.xml')) {
-			unlink($this->configPath . $this->host . '.' . $this->user . '.xml');
 		}
 		$xml->asXML($this->configPath . $this->host . '.' . $this->user . '.xml');
 	}
