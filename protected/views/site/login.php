@@ -24,7 +24,6 @@
 		<?php endif; ?>
 		</tr>
 	</table>
-	<a href="https://translations.launchpad.net/chive" style="float:right; margin-top: 20px;">Help translating this project...</a>
 </div>
 
 <div id="themeDialog" title="<?php echo Yii::t('core', 'chooseTheme'); ?>">
