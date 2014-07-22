@@ -116,10 +116,10 @@ class SiteController extends Controller
         while ($file = readdir($files)) {
             if (preg_match("/^\w\w(_\w\w)?$/", $file)) {
                 $languages[] = array(
-                    'label' => Yii::t('language', $file),
-                    'icon' => 'images/language/' . $file . '.png',
-                    'url' => Yii::app()->createUrl('/site/changeLanguage/' . $file),
-                    'htmlOptions' => array('class' => 'icon'),
+                    'label'			=> Yii::t('language', $file),
+                    'icon'			=> 'images/language/' . $file . '.png',
+                    'url'			=> Yii::app()->createUrl('/site/changeLanguage/' . $file),
+                    'htmlOptions'	=> array('class' => 'icon'),
                 );
             }
         }
