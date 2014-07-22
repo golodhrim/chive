@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -19,7 +19,6 @@
  * You should have received a copy of the GNU General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 class BookmarkController extends Controller
 {
@@ -52,23 +51,21 @@ class BookmarkController extends Controller
 
 		$exists = (bool)Yii::app()->user->settings->get('bookmarks', 'database', $schema, 'name', $name);
 
-		if($exists)
-		{
+		if ($exists) {
 			$response->addNotification('error', Yii::t('core', 'errorBookmarkWithThisNameAlreadyExists', array("{name}" => $name)));
 			$this->sendJSON($response);
 		}
 
-		if($oldValue && !is_array($oldValue))
-		{
+		if ($oldValue && !is_array($oldValue)) {
 			$oldValue = array();
 		}
 
-		$id = substr(md5(microtime(true)),0, 10);
+		$id = substr(md5(microtime(true)), 0, 10);
 
 		$oldValue[] = array(
-			'id' => $id,
-			'name' => $name,
-			'query' => $query,
+			'id'	=> $id,
+			'name'	=> $name,
+			'query'	=> $query,
 		);
 
 		Yii::app()->user->settings->set('bookmarks', $oldValue, 'database', $schema);
@@ -98,9 +95,8 @@ class BookmarkController extends Controller
 
 		$bookmarks = Yii::app()->user->settings->get('bookmarks', 'database', $schema);
 
-		foreach($bookmarks AS $key=>$bookmark)
-		{
-			if($bookmark['id'] == $id) {
+		foreach ($bookmarks as $key => $bookmark) {
+			if ($bookmark['id'] == $id) {
 				$name = $bookmark['name'];
 				unset($bookmarks[$key]);
 			}
@@ -111,7 +107,6 @@ class BookmarkController extends Controller
 
 		$response->addNotification('success', Yii::t('core', 'successDeleteBookmark', array('{name}'=>$name)));
 		$this->sendJSON($response);
-
 	}
 
 	/**
@@ -126,18 +121,14 @@ class BookmarkController extends Controller
 
 		$bookmark = Yii::app()->user->settings->get('bookmarks', 'database', $this->schema, 'id', $id);
 
-		try
-		{
+		try {
 			$cmd = new CDbCommand($this->db, $bookmark['query']);
 			$cmd->execute();
-			$response->addNotification('success', Yii::t('core', 'successExecuteBookmark', array('{name}'=>$bookmark['name'])), null, $bookmark['query']);
-		}
-		catch (Exception $ex)
-		{
-			$response->addNotification('error', $ex->getMessage(), $bookmark['query'], array('isSticky'=>true));
+			$response->addNotification('success', Yii::t('core', 'successExecuteBookmark', array('{name}' => $bookmark['name'])), null, $bookmark['query']);
+		} catch (Exception $ex) {
+			$response->addNotification('error', $ex->getMessage(), $bookmark['query'], array('isSticky' => true));
 		}
 
 		$this->sendJSON($response);
 	}
-
 }
