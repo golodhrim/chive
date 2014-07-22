@@ -132,38 +132,22 @@ class SiteController extends Controller
 		$form = new LoginForm();
 		// collect user input data
 		$request = Yii::app()->getRequest();
-		if($request->isPostRequest || ($request->getQuery("host") !== null && $request->getQuery("username") !== null))
-		{
-			if($request->isPostRequest)
-			{
-				$form->attributes = array(
-					"host" => $request->getPost("host"),
-					"port" => $request->getPost("port"),
-					"username" => $request->getPost("username"),
-					"password" => $request->getPost("password")
-				);
+		if ($request->isPostRequest) {
+			$form->attributes = array(
+				"host" => $request->getPost("host"),
+				"port" => $request->getPost("port"),
+				"username" => $request->getPost("username"),
+				"password" => $request->getPost("password")
+			);
 
-				$form->redirectUrl = $request->getPost("redirectUrl");
-			}
-			else
-			{
-				$form->attributes = array(
-					"host" => $request->getQuery("host"),
-					"port" => $request->getPost("port"),
-					"username" => $request->getQuery("username"),
-					"password" => ($request->getQuery("password") !== null ? $request->getQuery("password") : "")
-				);
-			}
+			$form->redirectUrl = $request->getPost("redirectUrl");
 			// validate user input and redirect to previous page if valid
-			if($form->validate())
-			{
+			if ($form->validate()) {
 				$redirectUrl = $request->getPost("redirectUrl");
-				if($redirectUrl !== null && !StringUtil::endsWith($redirectUrl, "site/login"))
-				{
+				// $this->redirect() exits immediately
+				if ($redirectUrl !== null && !StringUtil::endsWith($redirectUrl, "site/login")) {
 					$this->redirect($redirectUrl);
-				}
-				else
-				{
+				} else {
 					$this->redirect(Yii::app()->homeUrl);
 				}
 			}
