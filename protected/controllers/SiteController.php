@@ -22,7 +22,7 @@
 
 class SiteController extends Controller
 {
-	public function __construct($id, $module=null)
+	public function __construct($id, $module = null)
 	{
 		$request = Yii::app()->getRequest();
 
@@ -65,18 +65,14 @@ class SiteController extends Controller
 	 */
 	public function actionIndex()
 	{
-        if(Yii::app()->getUrlManager()->showScriptName)
-        {
+        if (Yii::app()->getUrlManager()->showScriptName) {
             $scriptUrl = basename($_SERVER['SCRIPT_NAME']);
-            if(strpos($_SERVER['REQUEST_URI'], $scriptUrl) === false)
-            {
-                header("location: index.php");
+            if (strpos($_SERVER['REQUEST_URI'], $scriptUrl) === false) {
+                header("Location: index.php");
             }
         }
 
-		$this->render('index', array(
-			'formatter' => Yii::app()->getDateFormatter()
-		));
+		$this->render('index', array());
 	}
 
 	/**
@@ -190,24 +186,21 @@ class SiteController extends Controller
 
 	public function actionSearch()
 	{
-
 		$cmdBuilder = new CDbCommandBuilder(Yii::app()->db->getSchema());
 
 		$criteria = new CDbCriteria;
 		$criteria->condition = "TABLE_NAME LIKE :table OR TABLE_SCHEMA LIKE :schema";
 		$criteria->params = array(
-			":table"=>"%" . Yii::app()->getRequest()->getParam('q') . "%",
-			":schema"=>"%" . Yii::app()->getRequest()->getParam('q') . "%"
+			":table" => "%" . Yii::app()->getRequest()->getParam('q') . "%",
+			":schema" => "%" . Yii::app()->getRequest()->getParam('q') . "%"
 		);
 		$criteria->order = 'TABLE_SCHEMA, TABLE_NAME';
 
 		$items = array();
 
 		$lastSchemaName = '';
-		foreach(Table::model()->findAll($criteria) AS $table)
-		{
-			if($table->TABLE_SCHEMA != $lastSchemaName)
-			{
+		foreach (Table::model()->findAll($criteria) as $table) {
+			if ($table->TABLE_SCHEMA != $lastSchemaName) {
 				$items[] = CJSON::encode(array(
 					'text' => '<span class="icon schema">' . Html::icon('database') . '<span>' . StringUtil::cutText($table->TABLE_SCHEMA, 30) . '</span></span>',
 					'target' => Yii::app()->createUrl('schema/' . $table->TABLE_SCHEMA),

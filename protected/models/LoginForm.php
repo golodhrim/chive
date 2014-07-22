@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,10 +20,8 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class LoginForm extends CFormModel
 {
-
 	public $username;
 	public $password;
 	public $rememberMe;
@@ -32,7 +30,7 @@ class LoginForm extends CFormModel
 	public $redirectUrl;
 
 	/**
-	 * @see		CFormModel::rules();
+	 * @see CFormModel::rules()
 	 */
 	public function rules()
 	{
@@ -57,15 +55,15 @@ class LoginForm extends CFormModel
 	}
 
 	/**
-	 * @see		CFormModel::attributeLabels()
+	 * @see CFormModel::attributeLabels()
 	 */
 	public function attributeLabels()
 	{
 		return array(
-			'host'=>Yii::t('core','host'),
-			'port'=>Yii::t('core','port'),
-			'username'=>Yii::t('core','username'),
-			'password'=>Yii::t('core','password'),
+			'host' => Yii::t('core', 'host'),
+			'port' => Yii::t('core', 'port'),
+			'username' => Yii::t('core', 'username'),
+			'password' => Yii::t('core', 'password'),
 		);
 	}
 
@@ -73,21 +71,16 @@ class LoginForm extends CFormModel
 	 * Authenticates the password.
 	 * This is the 'authenticate' validator as declared in rules().
 	 */
-	public function authenticate($attribute,$params)
+	public function authenticate($attribute, $params)
 	{
-		if(!$this->hasErrors())
-		{
-			$identity = new UserIdentity($this->username,$this->password, $this->host, $this->port);
+		if (!$this->hasErrors()) {
+			$identity = new UserIdentity($this->username, $this->password, $this->host, $this->port);
 
-			if($identity->authenticate())
-			{
+			if ($identity->authenticate()) {
 				Yii::app()->user->login($identity);
-			}
-			else
-			{
+			} else {
 				$this->addError(null, $identity->errorMessage);
 			}
 		}
 	}
-
 }
