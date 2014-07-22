@@ -1,4 +1,4 @@
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -19,30 +19,25 @@
  */
 
 var viewGeneral = {
-	
 	// Drop view
-	drop: function()
-	{
-		var  ulObj =  $('#dropViewDialog ul');
+	drop: function() {
+		var ulObj = $('#dropViewDialog ul');
 		
 		ulObj.append('<li>' + view + '</li>');
 		
 		$('#dropViewDialog').dialog('open');
 	},
-	
+
 	// Setup dialogs
-	setupDialogs: function()
-	{
-		/*
+	setupDialogs: function() {
+		/**
 		 * Drop view
 		 */
 		var buttons = {};
-		buttons[lang.get('core', 'no')] = function() 
-		{
+		buttons[lang.get('core', 'no')] = function() {
 			$(this).dialog('close');
 		};
-		buttons[lang.get('core', 'yes')] = function() 
-		{
+		buttons[lang.get('core', 'yes')] = function() {
 			// Do drop request
 			$.post(baseUrl + '/schema/' + schema + '/viewAction/drop', {
 				views: view,
@@ -52,12 +47,11 @@ var viewGeneral = {
 				AjaxResponse.handle(responseText);
 				location.href = '#views';
 			});
-			
+
 			$(this).dialog('close');
 		};
 		$('#dropViewDialog').dialog({
 			buttons: buttons	
 		});
 	}
-	
 };

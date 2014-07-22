@@ -1,4 +1,4 @@
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -18,11 +18,8 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 var login = {
-	
-	setup: function() 
-	{
-	
-		/*
+	setup: function() {
+		/**
 		 * Setup language dialog
 		 */
 		$('#languageDialog').dialog({
@@ -31,8 +28,8 @@ var login = {
 			autoOpen: false,
 			minWidth: 400
 		});
-		
-		/*
+
+		/**
 		 * Setup theme dialog
 		 */
 		$('#themeDialog').dialog({
@@ -41,7 +38,5 @@ var login = {
 			autoOpen: false,
 			minWidth: 400
 		});		
-		
 	}
-	
 };
