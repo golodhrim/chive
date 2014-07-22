@@ -8,6 +8,7 @@
 <link rel="stylesheet" type="text/css" href="<?php echo BASEURL; ?>/css/main.css" />
 <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->theme->getBaseUrl(); ?>/css/style.css" />
 
+<link rel="icon" href="<?php echo BASEURL; ?>/images/favicon.ico" type="image/x-icon" />
 <link rel="shortcut icon" href="<?php echo BASEURL; ?>/images/favicon.ico" type="image/x-icon" />
 
 <script type="text/javascript">
