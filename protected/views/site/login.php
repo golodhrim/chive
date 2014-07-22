@@ -70,7 +70,7 @@
 			<div class="item row1">
 				<div class="left">
 					<span class="icon">
-						<?php echo CHtml::activeLabel($form,'host'); ?>
+						<?php echo CHtml::activeLabel($form, 'host'); ?>
 					</span>
 				</div>
 				<div class="right">
@@ -80,7 +80,7 @@
 			<div class="item row2">
 				<div class="left">
 					<span class="icon">
-						<?php echo CHtml::activeLabel($form,'port'); ?>
+						<?php echo CHtml::activeLabel($form, 'port'); ?>
 					</span>
 				</div>
 				<div class="right">
@@ -90,11 +90,11 @@
 			<div class="item row1">
 				<div class="left" style="float: none;">
 					<span class="icon">
-						<?php echo CHtml::activeLabel($form,'username'); ?>
+						<?php echo CHtml::activeLabel($form, 'username'); ?>
 					</span>
 				</div>
 				<div class="right">
-					<?php echo CHtml::activeTextField($form,'username', array('class' => 'text', 'name' => 'username')) ?>
+					<?php echo CHtml::activeTextField($form, 'username', array('class' => 'text', 'name' => 'username')) ?>
 				</div>
 			</div>
 			<div class="item row2">
