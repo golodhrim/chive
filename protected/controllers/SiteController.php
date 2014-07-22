@@ -86,6 +86,30 @@ class SiteController extends Controller
 	{
 		$this->layout = "login";
 
+		$form = new LoginForm();
+		// collect user input data
+		$request = Yii::app()->getRequest();
+		if ($request->isPostRequest) {
+			$form->attributes = array(
+				"host" => $request->getPost("host"),
+				"port" => $request->getPost("port"),
+				"username" => $request->getPost("username"),
+				"password" => $request->getPost("password")
+			);
+
+			$form->redirectUrl = $request->getPost("redirectUrl");
+			// validate user input and redirect to previous page if valid
+			if ($form->validate()) {
+				$redirectUrl = $request->getPost("redirectUrl");
+				// $this->redirect() exits immediately
+				if ($redirectUrl !== null && !StringUtil::endsWith($redirectUrl, "site/login")) {
+					$this->redirect($redirectUrl);
+				} else {
+					$this->redirect(Yii::app()->homeUrl);
+				}
+			}
+		}
+
 		// Languages
         $languages = array();
         $files = opendir(Yii::app()->basePath . DIRECTORY_SEPARATOR . 'messages');
@@ -123,30 +147,6 @@ class SiteController extends Controller
 			'localhost'=>'localhost',
 			'127.0.0.1'=>'127.0.0.1',
 		);
-
-		$form = new LoginForm();
-		// collect user input data
-		$request = Yii::app()->getRequest();
-		if ($request->isPostRequest) {
-			$form->attributes = array(
-				"host" => $request->getPost("host"),
-				"port" => $request->getPost("port"),
-				"username" => $request->getPost("username"),
-				"password" => $request->getPost("password")
-			);
-
-			$form->redirectUrl = $request->getPost("redirectUrl");
-			// validate user input and redirect to previous page if valid
-			if ($form->validate()) {
-				$redirectUrl = $request->getPost("redirectUrl");
-				// $this->redirect() exits immediately
-				if ($redirectUrl !== null && !StringUtil::endsWith($redirectUrl, "site/login")) {
-					$this->redirect($redirectUrl);
-				} else {
-					$this->redirect(Yii::app()->homeUrl);
-				}
-			}
-		}
 
 		$this->render('login', array(
 			'form'		=> $form,
