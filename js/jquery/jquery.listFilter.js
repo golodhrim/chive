@@ -117,8 +117,9 @@
 						items[i][1].show();
 					}
 				} else {
+					var re = new RegExp(searchString);
 					for (var i = 0; i < items.length; i++) {
-						if (items[i][0].indexOf(searchString) > -1) {
+						if (re.test(items[i][0]) == true) {
 							items[i][1].show();
 						} else {
 							items[i][1].hide();
