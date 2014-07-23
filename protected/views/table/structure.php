@@ -32,9 +32,9 @@
 			<col class="action" />
 			<col class="action" />
 			<col class="action" />
-			<?php if(is_array($foreignKeys)) { ?>
+			<?php if (is_array($foreignKeys)): ?>
 				<col class="action" />
-			<?php } ?>
+			<?php endif; ?>
 		</colgroup>
 		<thead>
 			<tr>
@@ -256,7 +256,7 @@
 
 <div style="overflow: hidden; clear: both">
 
-	<div style="width: 45%; float: left">
+	<div style="width: 55%; float: left">
 		<div style="padding-right: 10px">
 
 			<div class="list">
@@ -410,7 +410,7 @@
 		</div>
 	</div>
 
-	<div style="width: 25%; float: left">
+	<div style="width: 15%; float: left">
 		<div style="padding: 0px 10px">
 
 			<table class="list">
@@ -442,7 +442,7 @@
 		</div>
 	</div>
 
-	<div style="width: 30%; float: right">
+	<div style="width: 30%; float: left">
 		<div style="padding-left: 10px">
 
 			<table class="list">
