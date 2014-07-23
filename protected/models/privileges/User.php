@@ -26,21 +26,18 @@ class User extends ActiveRecord
 
 	public static function splitId($id)
 	{
-		if(preg_match('/(.*)@(.*)$/', base64_decode($id), $res))
-		{
+		if (preg_match('/(.*)@(.*)$/', base64_decode($id), $res)) {
 			return array(
 				'User' => $res[1],
 				'Host' => $res[2],
 			);
-		}
-		else
-		{
+		} else {
 			return null;
 		}
 	}
 
 	/**
-	 * @see		ActiveRecord::model()
+	 * @see ActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -48,7 +45,7 @@ class User extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::tableName()
+	 * @see ActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -56,9 +53,10 @@ class User extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::primaryKey()
+	 * @see ActiveRecord::primaryKey()
 	 */
-	public function primaryKey() {
+	public function primaryKey()
+	{
 		return array(
 			'Host',
 			'User',
@@ -66,7 +64,7 @@ class User extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::rules()
+	 * @see ActiveRecord::rules()
 	 */
 	public function rules()
 	{
@@ -79,7 +77,7 @@ class User extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::attributeLabels()
+	 * @see ActiveRecord::attributeLabels()
 	 */
 	public function attributeLabels()
 	{
@@ -90,9 +88,9 @@ class User extends ActiveRecord
 		);
 	}
 
-	private function getPrivilegeColumn($priv)
+	protected function getPrivilegeColumn($priv)
 	{
-		switch($priv)
+		switch ($priv)
 		{
 			case 'SHOW DATABASES':
 				return 'Show_db_priv';
@@ -112,11 +110,17 @@ class User extends ActiveRecord
 		return $this->attributes[$this->getPrivilegeColumn($priv)] == 'Y';
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getId()
 	{
 		return base64_encode($this->User . '@' . $this->Host);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getDomId()
 	{
 		return md5($this->getId());
@@ -125,8 +129,8 @@ class User extends ActiveRecord
 	/**
 	 * Returns an array containing all global privileges of the user.
 	 *
-	 * @return	array					global privileges
-	 * @return	array					do not summarize to ALL PRIVILEGES
+	 * @return array global privileges
+	 * @return array do not summarize to ALL PRIVILEGES
 	 */
 	public function getGlobalPrivileges($group = null, $notAllPrivileges = false)
 	{
@@ -136,55 +140,43 @@ class User extends ActiveRecord
 		$privs = array_keys(self::getAllGlobalPrivileges($group));
 
 		// Check all privileges for this user
-		foreach($privs AS $priv)
-		{
-			if($this->checkGlobalPrivilege($priv))
-			{
+		foreach ($privs as $priv) {
+			if ($this->checkGlobalPrivilege($priv)) {
 				$res[] = $priv;
 			}
 		}
 
 		// Return USAGE if user has no privileges
-		if(count($res) == 0)
-		{
+		if (count($res) == 0) {
 			return array(
 				'USAGE',
 			);
-		}
-		elseif(count($res) == 1 && $res[0] == 'GRANT')
-		{
+		} elseif(count($res) == 1 && $res[0] == 'GRANT') {
 			return array(
 				'USAGE',
 				'GRANT',
 			);
 		}
 
-		if($group || $notAllPrivileges)
-		{
+		if ($group || $notAllPrivileges) {
 			// Return result if we are only looking for a group
 			return $res;
-		}
-		else
-		{
+		} else {
 			// Remove GRANT privilege from privs array
 			$resWithoutGrant = array_diff($res, array('GRANT'));
 
 			// Compare privilege count
-			if(count($resWithoutGrant) == count($privs) - 1)
-			{
+			if (count($resWithoutGrant) == count($privs) - 1) {
 				// User has ALL PRIVILEGES
 				$userPrivs = array(
 					'ALL PRIVILEGES',
 				);
 				// Also check GRANT privilege
-				if(array_search('GRANT', $res) !== false)
-				{
+				if (array_search('GRANT', $res) !== false) {
 					$userPrivs[] = 'GRANT';
 				}
 				return $userPrivs;
-			}
-			else
-			{
+			} else {
 				// User doesn't have ALL PRIVILEGES
 				return $res;
 			}
@@ -194,14 +186,12 @@ class User extends ActiveRecord
 	public function setGlobalPrivileges($data)
 	{
 		// Set all privileges to No
-		foreach(array_keys(self::getAllGlobalPrivileges()) AS $priv)
-		{
+		foreach (array_keys(self::getAllGlobalPrivileges()) as $priv) {
 			$this->{$this->getPrivilegeColumn($priv)} = 'N';
 		}
 
 		// Set given privileges to Yes
-		foreach(array_keys($data) AS $priv)
-		{
+		foreach (array_keys($data) as $priv) {
 			$this->{$this->getPrivilegeColumn($priv)} = 'Y';
 		}
 	}
@@ -243,18 +233,15 @@ class User extends ActiveRecord
 			),
 		);
 
-		if($group)
-		{
+		if ($group) {
 			return $privs[$group];
-		}
-		else
-		{
+		} else {
 			return array_merge($privs['data'], $privs['structure'], $privs['administration']);
 		}
 	}
 
 	/**
-	 * @see		ActiveRecord::getInsertSql()
+	 * @see ActiveRecord::getInsertSql()
 	 */
 	protected function getInsertSql()
 	{
@@ -273,20 +260,17 @@ class User extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::getUpdateSql()
+	 * @see ActiveRecord::getUpdateSql()
 	 */
 	protected function getUpdateSql()
 	{
 		// Rename user or not
-		if($this->originalAttributes['User'] != $this->User || $this->originalAttributes['Host'] != $this->Host)
-		{
+		if ($this->originalAttributes['User'] != $this->User || $this->originalAttributes['Host'] != $this->Host) {
 			$sql = array(
 				'RENAME USER ' . self::$db->quoteValue($this->originalAttributes['User']) . '@' . self::$db->quoteValue($this->originalAttributes['Host'])
 					. ' TO ' . self::$db->quoteValue($this->User) . '@' . self::$db->quoteValue($this->Host) . ';',
 			);
-		}
-		else
-		{
+		} else {
 			$sql = array();
 		}
 
@@ -306,7 +290,7 @@ class User extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::getDeleteSql()
+	 * @see ActiveRecord::getDeleteSql()
 	 */
 	protected function getDeleteSql()
 	{
@@ -319,5 +303,4 @@ class User extends ActiveRecord
 	{
 		return self::$db;
 	}
-
 }

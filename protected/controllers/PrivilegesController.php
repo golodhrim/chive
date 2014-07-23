@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,31 +20,29 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class PrivilegesController extends Controller
 {
-
 	/**
-	 * @var Default layout for this controller
+	 * Default layout for this controller.
+	 *
+	 * @var string
 	 */
 	public $layout = 'schema';
 
-	private $user, $host, $schema;
+	protected $user, $host, $schema;
 
 	public function __construct($id, $module = null)
 	{
 		$request = Yii::app()->getRequest();
 
-		if($request->isAjaxRequest)
-		{
+		if ($request->isAjaxRequest) {
 			$this->layout = false;
 		}
 
 		// Get parameters from request
 		$request = Yii::app()->getRequest();
 		$user = $request->getParam('user');
-		if($user)
-		{
+		if ($user) {
 			$data = User::splitId($user);
 			$this->user = $data['User'];
 			$this->host = $data['Host'];
@@ -71,8 +69,7 @@ class PrivilegesController extends Controller
 		$this->db->active = true;
 
 		// Assign to all models which need it
-		ActiveRecord::$db =
-		SchemaPrivilege::$db = $this->db;
+		ActiveRecord::$db = SchemaPrivilege::$db = $this->db;
 
 		// Return connection
 		return $this->db;
@@ -92,9 +89,9 @@ class PrivilegesController extends Controller
 		// Sort
 		$sort = new CSort('User');
 		$sort->attributes = array(
-			'User' => 'username',
-			'Host' => 'host',
-			'Password = \'\'' => 'password',
+			"User" => "username",
+			"Host" => "host",
+			"Password = ''" => "password",
 		);
 		$sort->defaultOrder = 'User ASC';
 		$sort->route = '#privileges/users';
@@ -130,9 +127,9 @@ class PrivilegesController extends Controller
 		// Sort
 		$sort = new CSort('User');
 		$sort->attributes = array(
-			'User' => 'username',
-			'Host' => 'host',
-			'Password = \'\'' => 'password',
+			"User" => "username",
+			"Host" => "host",
+			"Password = ''" => "password",
 		);
 		$sort->defaultOrder = 'User ASC';
 		$sort->route = '#privileges/users/' . base64_encode($this->user . '@' . $this->host) . '/schemata';
@@ -158,19 +155,15 @@ class PrivilegesController extends Controller
 		$users = (array)$_POST['users'];
 		$droppedUsers = $droppedSqls = array();
 
-		foreach($users AS $user)
-		{
+		foreach ($users as $user) {
 			$pk = User::splitId($user);
 			$userObj = User::model()->findByPk($pk);
 			$userObj->throwExceptions = true;
-			try
-			{
+			try {
 				$sql = $userObj->delete();
-				$droppedUsers[] = '\'' . $userObj->User . '\'@\'' . $userObj->Host . '\'';
+				$droppedUsers[] = "'" . $userObj->User . "'@'" . $userObj->Host . "'";
 				$droppedSqls[] = $sql;
-			}
-			catch(DbException $ex)
-			{
+			} catch(DbException $ex) {
 				$response->addNotification('error',
 					Yii::t('core', 'errorDropUser', array('{user}' => '\'' . $userObj->User . '\'@\'' . $userObj->Host . '\'')),
 					$ex->getText(),
@@ -179,8 +172,7 @@ class PrivilegesController extends Controller
 		}
 
 		$count = count($droppedUsers);
-		if($count > 0)
-		{
+		if ($count > 0) {
 			$response->addNotification('success',
 				Yii::t('core', 'successDropUser', array($count, '{user}' => $droppedUsers[0], '{userCount}' => $count)),
 				($count > 1 ? implode(', ', $droppedUsers) : null),
@@ -196,16 +188,15 @@ class PrivilegesController extends Controller
 	public function actionCreateUser()
 	{
 		$user = new User();
-		if(isset($_POST['User']))
-		{
+		if (isset($_POST['User'])) {
 			$user->attributes = $_POST['User'];
-			if($sql = $user->save())
-			{
+			if ($sql = $user->save()) {
 				$response = new AjaxResponse();
 				$response->addNotification('success',
 					Yii::t('core', 'successAddUser', array('{user}' => $user->User, '{host}' => $user->Host)),
 					null,
-					$sql);
+					$sql
+				);
 				$response->refresh = true;
 				$this->sendJSON($response);
 			}
@@ -225,16 +216,15 @@ class PrivilegesController extends Controller
 			'User' => $this->user,
 			'Host' => $this->host,
 		));
-		if(isset($_POST['User']))
-		{
+		if (isset($_POST['User'])) {
 			$user->attributes = $_POST['User'];
-			if($sql = $user->save())
-			{
+			if ($sql = $user->save()) {
 				$response = new AjaxResponse();
 				$response->addNotification('success',
 					Yii::t('core', 'successUpdateUser', array('{user}' => $user->User, '{host}' => $user->Host)),
 					null,
-					$sql);
+					$sql
+				);
 
 				$this->logoutIfPasswordChanged($user);
 
@@ -250,9 +240,7 @@ class PrivilegesController extends Controller
 
 	public function logoutIfPasswordChanged($user)
 	{
-		if(Yii::app()->user->name == $user->User
-			   && isset($_POST['User']["plainPassword"]))
-		{
+		if (Yii::app()->user->name == $user->User && isset($_POST['User']["plainPassword"])) {
 			Yii::app()->user->logout();
 		}
 	}
@@ -262,16 +250,16 @@ class PrivilegesController extends Controller
 		$schema = new SchemaPrivilege();
 		$schema->User = $this->user;
 		$schema->Host = $this->host;
-		if(isset($_POST['SchemaPrivilege']))
-		{
+		if (isset($_POST['SchemaPrivilege'])) {
 			$schema->attributes = $_POST['SchemaPrivilege'];
-			if($sql = $schema->save())
-			{
+			if ($sql = $schema->save()) {
 				$response = new AjaxResponse();
-				$response->addNotification('success',
+				$response->addNotification(
+					'success',
 					Yii::t('core', 'successAddSchemaSpecificPrivileges', array('{user}' => $schema->User, '{host}' => $schema->Host, '{schema}' => $schema->Db)),
 					null/*,
-					$sql*/);
+					$sql*/
+				);
 				$response->refresh = true;
 				$this->sendJSON($response);
 			}
@@ -284,14 +272,11 @@ class PrivilegesController extends Controller
 			'User' => $this->user,
 			'Host' => $this->host,
 		));
-		foreach($allExisting AS $existing1)
-		{
+		foreach ($allExisting as $existing1) {
 			$existing[] = $existing1->Db;
 		}
-		foreach($allSchemata AS $schema1)
-		{
-			if(array_search($schema1->SCHEMA_NAME, $existing) === false)
-			{
+		foreach ($allSchemata as $schema1) {
+			if (array_search($schema1->SCHEMA_NAME, $existing) === false) {
 				$schemata[$schema1->SCHEMA_NAME] = $schema1->SCHEMA_NAME;
 			}
 		}
@@ -309,16 +294,15 @@ class PrivilegesController extends Controller
 			'User' => $this->user,
 			'Db' => $this->schema,
 		));
-		if(isset($_POST['SchemaPrivilege']))
-		{
+		if (isset($_POST['SchemaPrivilege'])) {
 			$schema->attributes = $_POST['SchemaPrivilege'];
-			if($sql = $schema->save())
-			{
+			if ($sql = $schema->save()) {
 				$response = new AjaxResponse();
 				$response->addNotification('success',
 					Yii::t('core', 'successUpdateSchemaSpecificPrivileges', array('{user}' => $schema->User, '{host}' => $schema->Host, '{schema}' => $schema->Db)),
 					null/*,
-					$sql*/);
+					$sql*/
+				);
 				$response->refresh = true;
 				$this->sendJSON($response);
 			}
@@ -333,34 +317,30 @@ class PrivilegesController extends Controller
 	{
 		$response = new AjaxResponse();
 		$response->refresh = true;
-		$schemata = (array)$_POST['schemata'];
+		$schemata = (array) $_POST['schemata'];
 		$droppedSchemata = $droppedSqls = array();
 
-		foreach($schemata AS $schema)
-		{
+		foreach ($schemata as $schema) {
 			$schemaObj = SchemaPrivilege::model()->findByPk(array(
 				'Host' => $this->host,
 				'User' => $this->user,
 				'Db' => $schema,
 			));
-			try
-			{
+			try {
 				$sql = $schemaObj->delete();
 				$droppedSchemata[] = $schema;
 				$droppedSqls[] = $sql;
-			}
-			catch(DbException $ex)
-			{
+			} catch(DbException $ex) {
 				$response->addNotification('error',
 					Yii::t('core', 'errorDropSchemaSpecificPrivileges', array('{user}' => $user)),
 					$ex->getText()/*,
-					$ex->getSql()*/);
+					$ex->getSql()*/
+				);
 			}
 		}
 
 		$count = count($droppedSchemata);
-		if($count > 0)
-		{
+		if ($count > 0) {
 			$tArgs = array(
 				$count,
 				'{user}' => $this->user,
@@ -371,10 +351,10 @@ class PrivilegesController extends Controller
 			$response->addNotification('success',
 				Yii::t('core', 'successDropSchemaSpecificPrivileges', $tArgs),
 				($count > 1 ? implode(', ', $droppedSchemata) : null)/*,
-				implode("\n", $droppedSqls)*/);
+				implode("\n", $droppedSqls)*/
+			);
 		}
 
 		$this->sendJSON($response);
 	}
-
 }
