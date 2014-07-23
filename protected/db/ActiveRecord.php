@@ -71,7 +71,7 @@ abstract class ActiveRecord extends CActiveRecord
 	{
 		try {
 			$sql = (array) $sql;
-			foreach ($sql as $sql1)
+			foreach ($sql as $sql1) {
 				$cmd = new CDbCommand(self::$db, $sql1);
 				$cmd->prepare();
 				$cmd->execute();
@@ -79,7 +79,7 @@ abstract class ActiveRecord extends CActiveRecord
 				$this->refresh();
 			}
 			return implode("\n", $sql);
-		} catch(CDbException $ex) {
+		} catch (CDbException $ex) {
 			$this->afterSave();
 			if ($this->throwExceptions) {
 				throw new DbException($cmd);
