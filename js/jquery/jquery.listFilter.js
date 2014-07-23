@@ -1,4 +1,4 @@
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -19,29 +19,19 @@
  */
 
 (function($) {
-	
 	$.fn.reloadListFilter = function(inputObj) {
-		
-		return this.each(function()
-		{
+		return this.each(function() {
 			var func = $(this).data('listFilterSetup');
-			if($.isFunction(func))
-			{
+			if ($.isFunction(func)) {
 				func();
-			}
-			else
-			{
+			} else {
 				$(this).setupListFilter(inputObj);
 			}
 		});
-		
 	}
-	
+
 	$.fn.setupListFilter = function(inputObj) {
-		
-		return this.each(function() 
-		{
-			
+		return this.each(function() {
 			var keyBindingDone = false;
 			var list = $(this);
 			var input = inputObj;
@@ -49,144 +39,106 @@
 			var items = new Array();
 			var selectedItem = null;
 			
-			function selectResult(element) 
-			{
-				if(selectedItem)
-				{
+			function selectResult(element) {
+				if (selectedItem) {
 					selectedItem.removeClass('listFilterSelected');
 				}
-				if(element)
-				{
+				if (element) {
 					element.addClass('listFilterSelected');
 				}
 				selectedItem = element;
 			}
-			
-			function keyDown(e)
-			{
-				if(e.keyCode == 40) // Down arrow
-				{
+
+			function keyDown(e) {
+				if (e.keyCode == 40) {
+					// Down arrow
 					moveDown();
-				}
-				else if(e.keyCode == 38) // Up arrow
-				{
+				} else if(e.keyCode == 38) {
+					// Up arrow
 					moveUp();
 				}
 			}
-			
-			function keyUp(e) 
-			{
-				if(e.keyCode == 13) // Enter
-				{
+
+			function keyUp(e) {
+				if (e.keyCode == 13) {
+					// Enter
 					performAction();
-				}
-				else if(e.keyCode != 40 && e.keyCode != 38)
-				{
+				} else if(e.keyCode != 40 && e.keyCode != 38) {
 					doFilter();
 				}
 			}
-			
-			function moveUp()
-			{
+
+			function moveUp() {
 				var visibleLi = list.children('li:visible');
 				var selectedNow;
-				if(selectedItem)
-				{
+				if (selectedItem) {
 					var previousLi = selectedItem.prevAll('li:visible');
-					if(previousLi.length > 0)
-					{
+					if (previousLi.length > 0) {
 						selectedNow = $(previousLi[0]);
-					}
-					else
-					{
+					} else {
 						selectedNow = $(visibleLi[visibleLi.length - 1]);
 					}
-				}
-				else
-				{
+				} else {
 					selectedNow = $(visibleLi[visibleLi.length - 1]);
 				}
 				selectResult(selectedNow);
 			}
-			
-			function moveDown()
-			{
+
+			function moveDown() {
 				var visibleLi = list.children('li:visible');
 				var selectedNow;
-				if(selectedItem)
-				{
+				if (selectedItem) {
 					var nextLi = selectedItem.nextAll('li:visible');
-					if(nextLi.length > 0)
-					{
+					if (nextLi.length > 0) {
 						selectedNow = $(nextLi[0]);
-					}
-					else
-					{
+					} else {
 						selectedNow = $(visibleLi[0]);
 					}
-				}
-				else
-				{
+				} else {
 					selectedNow = $(visibleLi[0]);
 				}
 				selectResult(selectedNow);
 			}
-			
-			function performAction()
-			{
-				if(selectedItem)
-				{
+
+			function performAction() {
+				if (selectedItem) {
 					selectedItem.children("a:first").each(function() {
 						window.location.href = this.href;
 					});
 				}
 			}
 			
-			function doFilter() 
-			{
+			function doFilter() {
 				var searchString = inputElement.value.toLowerCase();
-				
+
 				// Do filtering
-				if(searchString == '')
-				{
-					for(var i = 0; i < items.length; i++)
-					{
+				if (searchString == '') {
+					for (var i = 0; i < items.length; i++) {
 						items[i][1].show();
 					}
-				}
-				else
-				{
-					for(var i = 0; i < items.length; i++) 
-					{
-						if(items[i][0].indexOf(searchString) > -1)
-						{
+				} else {
+					for (var i = 0; i < items.length; i++) {
+						if (items[i][0].indexOf(searchString) > -1) {
 							items[i][1].show();
-						}
-						else
-						{
+						} else {
 							items[i][1].hide();
 						}
 					}
 				}
-				
+
 				// Find new selected element
 				var selectedNow = null;
-				if(selectedItem)
-				{
-					if(selectedItem.is('li:visible'))
-					{
+				if (selectedItem) {
+					if (selectedItem.is('li:visible')) {
 						selectedNow = selectedItem;
-					}
-					else if(selectedItem.nextAll('li:visible').length > 0)
-					{
+					} else if(selectedItem.nextAll('li:visible').length > 0) {
 						selectedNow = selectedItem.next('li:visible');
 					}
 				}
 				selectResult(selectedNow);
 			}
-			
-			function setup()
-			{
+
+			function setup() {
 				items = [];
 				list.children("li").not(".template").each(function() {
 					var item = $(this);
@@ -195,32 +147,26 @@
 						item
 					]);
 				});
-				
-				/*
-				 * Bind event handlers
-				 */
-				if(!keyBindingDone)
-				{
+
+				// Bind event handlers
+				if (!keyBindingDone) {
 					input.keyup(keyUp);
 					input.keydown(keyDown);
 					input.blur(function() {
 						selectResult(null); 
 					});
-					
+
 					keyBindingDone = true;
 				}
-				
-				if(input.val() != '')
-				{
+
+				if (input.val() != '') {
 					doFilter();
 				}
 			}
-			
+
 			setup();
 			list.data('listFilterSetup', setup);
-			
 		});
-		
 	}
 
 })(jQuery);
