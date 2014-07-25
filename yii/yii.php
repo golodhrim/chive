@@ -25,9 +25,6 @@ require(dirname(__FILE__).'/YiiBase.php');
  * @since 1.0
  */
 
-/**
- * @method CWebApplication app
- */
 class Yii extends YiiBase
 {
 	/**
