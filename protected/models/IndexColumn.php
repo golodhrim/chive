@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,12 +19,10 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class IndexColumn extends CActiveRecord
 {
-
 	/**
-	 * @see		CActiveRecord::model()
+	 * @see CActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -33,7 +30,7 @@ class IndexColumn extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::tableName()
+	 * @see CActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -41,7 +38,7 @@ class IndexColumn extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::primaryKey()
+	 * @see CActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
@@ -54,7 +51,7 @@ class IndexColumn extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::relations()
+	 * @see CActiveRecord::relations()
 	 */
 	public function relations()
 	{
@@ -62,5 +59,4 @@ class IndexColumn extends CActiveRecord
 			'index' => array(self::BELONGS_TO, 'Index', 'TABLE_SCHEMA, TABLE_NAME, INDEX_NAME'),
 		);
 	}
-
 }

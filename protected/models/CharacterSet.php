@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,11 +19,10 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class CharacterSet extends CActiveRecord
 {
 	/**
-	 * @see		CActiveRecord::model()
+	 * @see CActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -32,7 +30,7 @@ class CharacterSet extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::tableName()
+	 * @see CActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -40,7 +38,7 @@ class CharacterSet extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::primaryKey()
+	 * @see CActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
@@ -48,7 +46,7 @@ class CharacterSet extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::relations()
+	 * @see CActiveRecord::relations()
 	 */
 	public function relations()
 	{
@@ -56,5 +54,4 @@ class CharacterSet extends CActiveRecord
 			'collations' => array(self::HAS_MANY, 'Collation', 'CHARACTER_SET_NAME'),
 		);
 	}
-	
 }

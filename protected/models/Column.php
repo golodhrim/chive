@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,10 +19,8 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class Column extends ActiveRecord
 {
-
 	public $COLLATION_NAME = Collation::DEFAULT_COLLATION;
 	public $scale, $size;
 	public $_values = array();
@@ -32,7 +29,7 @@ class Column extends ActiveRecord
 	public $DATA_TYPE = 'varchar';
 
 	/**
-	 * @see		ActiveRecord::model()
+	 * @see ActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -40,56 +37,38 @@ class Column extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::instantiate()
+	 * @see ActiveRecord::instantiate()
 	 */
 	public function instantiate($attributes)
 	{
 		$res = parent::instantiate($attributes);
 
-		/*
-		 * We have to set some properties by hand
-		 */
-		if(isset($attributes['COLUMN_TYPE']))
-		{
+		// We have to set some properties by hand
+		if (isset($attributes['COLUMN_TYPE'])) {
 			// Size / scale
-			if(DataType::check($attributes['COLUMN_TYPE'], DataType::SUPPORTS_SIZE))
-			{
-				if(preg_match('/^\w+\((\d+)(,\d+)?\)/', $attributes['COLUMN_TYPE'], $result))
-				{
+			if (DataType::check($attributes['COLUMN_TYPE'], DataType::SUPPORTS_SIZE)) {
+				if (preg_match('/^\w+\((\d+)(,\d+)?\)/', $attributes['COLUMN_TYPE'], $result)) {
 					$res->size = (int)$result[1];
-					if(isset($result[2]) && DataType::check($attributes['COLUMN_TYPE'], DataType::SUPPORTS_SCALE))
-					{
+					if (isset($result[2]) && DataType::check($attributes['COLUMN_TYPE'], DataType::SUPPORTS_SCALE)) {
 						$res->scale = (int)substr($result[2], 1);
 					}
 				}
-			}
-
-			// Values
-			elseif(DataType::check($attributes['COLUMN_TYPE'], DataType::SUPPORTS_VALUES))
-			{
-				if(preg_match('/^\w+\(\'([^\)]+)\'\)/', $attributes['COLUMN_TYPE'], $result))
-				{
+			} elseif (DataType::check($attributes['COLUMN_TYPE'], DataType::SUPPORTS_VALUES)) {
+				// Values
+				if (preg_match('/^\w+\(\'([^\)]+)\'\)/', $attributes['COLUMN_TYPE'], $result)) {
 					$res->setValues(implode("\n", (array)explode("','", $result[1])));
 				}
 			}
 
 			// Unsigned
-			if(preg_match('/ unsigned$/', $attributes['COLUMN_TYPE']))
-			{
+			if (preg_match('/ unsigned$/', $attributes['COLUMN_TYPE'])) {
 				$res->attribute = 'unsigned';
-			}
-
-			// Unsigned zerofill
-			elseif(preg_match('/ unsigned zerofill$/', $attributes['COLUMN_TYPE']))
-			{
+			} elseif (preg_match('/ unsigned zerofill$/', $attributes['COLUMN_TYPE'])) {
+				// Unsigned zerofill
 				$res->attribute = 'unsigned zerofill';
-			}
-
-			// On update current_timestamp
-			elseif($attributes['COLUMN_TYPE'] == 'timestamp')
-			{
-				if(strtolower($attributes['EXTRA']) == 'on update current_timestamp')
-				{
+			} elseif ($attributes['COLUMN_TYPE'] == 'timestamp') {
+				// On update current_timestamp
+				if (strtolower($attributes['EXTRA']) == 'on update current_timestamp') {
 					$res->attribute = 'on update current_timestamp';
 				}
 			}
@@ -99,7 +78,7 @@ class Column extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::tableName()
+	 * @see ActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -107,7 +86,7 @@ class Column extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::rules()
+	 * @see ActiveRecord::rules()
 	 */
 	public function rules()
 	{
@@ -209,17 +188,13 @@ class Column extends ActiveRecord
 	public function getColumnType()
 	{
 		$return = $this->DATA_TYPE;
-		if(DataType::check($this->DATA_TYPE, DataType::SUPPORTS_SIZE))
-		{
+		if (DataType::check($this->DATA_TYPE, DataType::SUPPORTS_SIZE)) {
 			$return .= '(' . (int)$this->size;
-			if(DataType::check($this->DATA_TYPE, DataType::SUPPORTS_SCALE))
-			{
+			if (DataType::check($this->DATA_TYPE, DataType::SUPPORTS_SCALE)) {
 				$return .= ', ' . (int)$this->scale;
 			}
 			$return .= ')';
-		}
-		elseif(DataType::check($this->DATA_TYPE, DataType::SUPPORTS_VALUES) && count((array)$this->_values) > 0)
-		{
+		} elseif (DataType::check($this->DATA_TYPE, DataType::SUPPORTS_VALUES) && count((array)$this->_values) > 0) {
 			$return .= '(\'' . implode('\',\'', $this->_values) . '\')';
 		}
 		return $return;
@@ -232,12 +207,9 @@ class Column extends ActiveRecord
 
 	public function setValues($values)
 	{
-		if(is_array($values))
-		{
+		if (is_array($values)) {
 			$this->_values = $values;
-		}
-		else
-		{
+		} else {
 			$this->_values = (array)explode("\n", $values);
 		}
 	}
@@ -245,14 +217,11 @@ class Column extends ActiveRecord
 	public function getIsPartOfPrimaryKey($indices = null)
 	{
 		$res = false;
-		if(is_null($indices))
-		{
+		if (is_null($indices)) {
 			$indices = $this->indices;
 		}
-		foreach($indices AS $index)
-		{
-			if($index->INDEX_NAME == 'PRIMARY' && $index->COLUMN_NAME == $this->COLUMN_NAME)
-			{
+		foreach ($indices as $index) {
+			if ($index->INDEX_NAME == 'PRIMARY' && $index->COLUMN_NAME == $this->COLUMN_NAME) {
 				$res = true;
 				break;
 			}
@@ -262,62 +231,40 @@ class Column extends ActiveRecord
 
 	public function getColumnDefinition()
 	{
-		if(DataType::check($this->DATA_TYPE, DataType::SUPPORTS_COLLATION))
-		{
+		if (DataType::check($this->DATA_TYPE, DataType::SUPPORTS_COLLATION)) {
 			$collate = ' CHARACTER SET ' . Collation::getCharacterSet($this->COLLATION_NAME) . ' COLLATE ' . $this->COLLATION_NAME;
-		}
-		else
-		{
+		} else {
 			$collate = '';
 		}
 
-		if($this->attribute)
-		{
-			if(($this->attribute == 'unsigned' && DataType::check($this->DATA_TYPE, DataType::SUPPORTS_UNSIGNED))
+		if ($this->attribute) {
+			if (($this->attribute == 'unsigned' && DataType::check($this->DATA_TYPE, DataType::SUPPORTS_UNSIGNED))
 				|| $this->attribute == 'unsigned zerofill' && DataType::check($this->DATA_TYPE, DataType::SUPPORTS_UNSIGNED_ZEROFILL)
-				|| $this->attribute == 'on update current_timestamp' && DataType::check($this->DATA_TYPE, DataType::SUPPORTS_ON_UPDATE_CURRENT_TIMESTAMP))
-			{
+				|| $this->attribute == 'on update current_timestamp' && DataType::check($this->DATA_TYPE, DataType::SUPPORTS_ON_UPDATE_CURRENT_TIMESTAMP)) {
 				$attribute = ' ' . $this->attribute;
-			}
-			else
-			{
+			} else {
 				$attribute = '';
 			}
-		}
-		else
-		{
+		} else {
 			$attribute = '';
 		}
 
-		if(strlen($this->COLUMN_DEFAULT) > 0 && $this->EXTRA != 'auto_increment')
-		{
-			if($this->DATA_TYPE == 'timestamp' && strtolower($this->COLUMN_DEFAULT) == 'current_timestamp')
-			{
+		if (strlen($this->COLUMN_DEFAULT) > 0 && $this->EXTRA != 'auto_increment') {
+			if ($this->DATA_TYPE == 'timestamp' && strtolower($this->COLUMN_DEFAULT) == 'current_timestamp') {
 				$defaultValue = 'CURRENT_TIMESTAMP';
-			}
-			elseif($this->DATA_TYPE == 'bit')
-			{
-				if(preg_match('/b\'[01]+\'/', $this->COLUMN_DEFAULT))
-				{
+			} elseif ($this->DATA_TYPE == 'bit') {
+				if (preg_match('/b\'[01]+\'/', $this->COLUMN_DEFAULT)) {
 					$defaultValue = $this->COLUMN_DEFAULT;
-				}
-				else
-				{
+				} else {
 					$defaultValue = 'b' . self::$db->quoteValue($this->COLUMN_DEFAULT);
 				}
-			}
-			else
-			{
+			} else {
 				$defaultValue = self::$db->quoteValue($this->COLUMN_DEFAULT);
 			}
 			$default = ' DEFAULT ' . $defaultValue;
-		}
-		else if($this->getIsNullable() && $this->EXTRA != 'auto_increment')
-		{
+		} elseif ($this->getIsNullable() && $this->EXTRA != 'auto_increment') {
 			$default = ' DEFAULT NULL';
-		}
-		else
-		{
+		} else {
 			$default = '';
 		}
 
@@ -339,20 +286,17 @@ class Column extends ActiveRecord
 			. "\t" . 'MODIFY ' . $this->getColumnDefinition()
 			. ' ' . (substr($command, 0, 6) == 'AFTER ' ? 'AFTER ' . self::$db->quoteColumnName(substr($command, 6)) : 'FIRST') . ';';
 		$cmd = new CDbCommand(self::$db, $sql);
-		try
-		{
+		try {
 			$cmd->prepare();
 			$cmd->execute();
 			return $sql;
-		}
-		catch(CDbException $ex)
-		{
+		} catch(CDbException $ex) {
 			throw new DbException($cmd);
 		}
 	}
 
 	/**
-	 * @see		ActiveRecord::getUpdateSql()
+	 * @see ActiveRecord::getUpdateSql()
 	 */
 	protected function getUpdateSql()
 	{
@@ -362,7 +306,7 @@ class Column extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::getInsertSql()
+	 * @see ActiveRecord::getInsertSql()
 	 */
 	protected function getInsertSql()
 	{
@@ -371,7 +315,7 @@ class Column extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::getDeleteSql()
+	 * @see ActiveRecord::getDeleteSql()
 	 */
 	protected function getDeleteSql()
 	{
@@ -426,5 +370,4 @@ class Column extends ActiveRecord
 
 		return $types;
 	}
-
 }

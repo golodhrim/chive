@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,14 +19,12 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class Index extends ActiveRecord
 {
-
 	public $NON_UNIQUE = 1;
 
 	/**
-	 * @see		ActiveRecord::model()
+	 * @see ActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -35,7 +32,7 @@ class Index extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::tableName()
+	 * @see ActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -43,7 +40,7 @@ class Index extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::primaryKey()
+	 * @see ActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
@@ -56,7 +53,7 @@ class Index extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::relations()
+	 * @see ActiveRecord::relations()
 	 */
 	public function relations()
 	{
@@ -67,7 +64,7 @@ class Index extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::rules()
+	 * @see ActiveRecord::rules()
 	 */
 	public function rules()
 	{
@@ -80,23 +77,17 @@ class Index extends ActiveRecord
 	/**
 	 * Returns the index type.
 	 *
-	 * @return	string				Index type (PRIMARY/FULLTEXT/UNIQUE/INDEX)
+	 * @return string Index type (PRIMARY/FULLTEXT/UNIQUE/INDEX)
 	 */
 	public function getType()
 	{
-		if($this->INDEX_NAME == 'PRIMARY')
-		{
+		if ($this->INDEX_NAME == 'PRIMARY') {
 			return 'PRIMARY';
-		}
-		elseif($this->INDEX_TYPE == 'FULLTEXT')
-		{
+		} elseif ($this->INDEX_TYPE == 'FULLTEXT') {
 			return 'FULLTEXT';
-		}
-		elseif($this->NON_UNIQUE == 0)
-		{
+		} elseif ($this->NON_UNIQUE == 0) {
 			return 'UNIQUE';
-		}
-		else {
+		} else {
 			return 'INDEX';
 		}
 	}
@@ -104,13 +95,13 @@ class Index extends ActiveRecord
 	/**
 	 * Sets the index type.
 	 *
-	 * @param	string				Index type (PRIMARY/FULLTEXT/UNIQUE/INDEX)
+	 * @param string $type Index type (PRIMARY/FULLTEXT/UNIQUE/INDEX)
 	 */
 	public function setType($type)
 	{
 		$this->INDEX_TYPE = 'BTREE';
 		$this->NON_UNIQUE = 1;
-		switch(strtoupper($type))
+		switch (strtoupper($type))
 		{
 			case 'PRIMARY':
 				$this->INDEX_NAME = 'PRIMARY';
@@ -127,7 +118,7 @@ class Index extends ActiveRecord
 	/**
 	 * Returns all available index types as array.
 	 *
-	 * @return	array				Index types
+	 * @return array Index types
 	 */
 	public static function getIndexTypes()
 	{
@@ -140,7 +131,7 @@ class Index extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::getUpdateSql()
+	 * @see ActiveRecord::getUpdateSql()
 	 */
 	protected function getUpdateSql()
 	{
@@ -150,39 +141,32 @@ class Index extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::getInsertSql()
+	 * @see ActiveRecord::getInsertSql()
 	 */
 	protected function getInsertSql($skipAlter = false)
 	{
 		// Prepare columns
 		$columns = array();
-		foreach($this->columns AS $column)
-		{
+		foreach ($this->columns as $column) {
 			$columns[] = self::$db->quoteColumnName($column->COLUMN_NAME)
 				. (!is_null($column->SUB_PART) ? '(' . (int)$column->SUB_PART . ')' : '');
 		}
 		$columns = implode(', ', $columns);
 
 		// Create command
-		if($skipAlter)
-		{
+		if ($skipAlter) {
 			$sql = '';
-		}
-		else
-		{
+		} else {
 			$sql = 'ALTER TABLE ' . self::$db->quoteTableName($this->TABLE_NAME) . "\n"; 
 		}
+
 		$type = $this->getType();
-		if($type == 'PRIMARY')
-		{
+		if ($type == 'PRIMARY') {
 			$sql .= "\t" . 'ADD PRIMARY KEY (' . $columns . ')';
-		}
-		else
-		{
+		} else {
 			$sql .= "\t" . 'ADD ' . $type . ' ' . self::$db->quoteColumnName($this->INDEX_NAME) . ' (' . $columns . ')';
 		}
-		if(!$skipAlter)
-		{
+		if (!$skipAlter) {
 			$sql .= ';';
 		}
 
@@ -190,24 +174,19 @@ class Index extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::getDeleteSql()
+	 * @see ActiveRecord::getDeleteSql()
 	 */
 	protected function getDeleteSql($skipAlter = false)
 	{
-		if($skipAlter)
-		{
+		if ($skipAlter) {
 			$sql = '';
-		}
-		else
-		{
+		} else {
 			$sql = 'ALTER TABLE ' . self::$db->quoteTableName($this->TABLE_NAME) . "\n";
 		}
 		$sql .= "\t" . 'DROP INDEX ' . self::$db->quoteColumnName($this->originalAttributes['INDEX_NAME']);
-		if(!$skipAlter)
-		{
+		if (!$skipAlter) {
 			$sql .= ';';
 		}
 		return $sql;
 	}
-
 }

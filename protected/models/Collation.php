@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,17 +19,15 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class Collation extends CActiveRecord
-{
-	
+{	
 	const DEFAULT_CHARACTER_SET = 'utf8';
 	const DEFAULT_COLLATION = 'utf8_general_ci';
 
 	public $collationGroup;
 
 	/**
-	 * @see		CActiveRecord::model()
+	 * @see CActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -38,7 +35,7 @@ class Collation extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::tableName()
+	 * @see CActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -46,7 +43,7 @@ class Collation extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::primaryKey()
+	 * @see CActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
@@ -54,7 +51,7 @@ class Collation extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::relations()
+	 * @see CActiveRecord::relations()
 	 */
 	public function relations()
 	{
@@ -69,23 +66,21 @@ class Collation extends CActiveRecord
 	 * The definition contains charset, collation and language like this:
 	 * cp1252 West European, Swedish (Case-Insensitive)
 	 *
-	 * @param	string				Collation name (e.g. utf8_general_ci)
-	 * @return	string				Definition including charset, collation and language
+	 * @param string $collation Collation name (e.g. utf8_general_ci)
+	 * @param bool $showCharset Definition including charset, collation and language
+	 * @return string
 	 */
 	public static function getDefinition($collation, $showCharset = true)
 	{
 		$data = explode('_', $collation);
 		$text = '';
-		if($showCharset)
-		{
+		if ($showCharset) {
 			$text .= Yii::t('collation', $data[0]) . ', ';
 		}
-		if(count($data) > 1)
-		{
+		if (count($data) > 1) {
 			$text .= Yii::t('collation', $data[1]);
 		}
-		if(count($data) == 3)
-		{
+		if (count($data) == 3) {
 			$text .= ' (' . Yii::t('collation', $data[2]) . ')';
 		}
 		return $text;
@@ -96,13 +91,12 @@ class Collation extends CActiveRecord
 	 *
 	 * This is the content before the first underscore.
 	 *
-	 * @param	string				Collation name (e.g. utf8_general_ci)
-	 * @return	string				Charset (e.g. utf8)
+	 * @param string $collation Collation name (e.g. utf8_general_ci)
+	 * @return string Charset (e.g. utf8)
 	 */
 	public static function getCharacterSet($collation)
 	{
 		$data = explode('_', $collation);
 		return $data[0];
 	}
-
 }

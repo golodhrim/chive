@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,14 +19,12 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class ForeignKey extends ActiveRecord
 {
-
 	public $onDelete, $onUpdate, $table;
 
 	/**
-	 * @see		ActiveRecord::model()
+	 * @see ActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -35,7 +32,7 @@ class ForeignKey extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::instantiate()
+	 * @see ActiveRecord::instantiate()
 	 */
 	public function instantiate($attributes)
 	{
@@ -48,14 +45,11 @@ class ForeignKey extends ActiveRecord
 
 		$match = '/^\s+constraint `' . $attributes['CONSTRAINT_NAME'] . '` .+?$/im';
 
-		if(preg_match($match, $res->table->getShowCreateTable(), $result))
-		{
-			if(preg_match('/on delete (CASCADE|NO ACTION|SET NULL|RESTRICT)/i', $result[0], $result2))
-			{
+		if (preg_match($match, $res->table->getShowCreateTable(), $result)) {
+			if (preg_match('/on delete (CASCADE|NO ACTION|SET NULL|RESTRICT)/i', $result[0], $result2)) {
 				$res->onDelete = $result2[1];
 			}
-			if(preg_match('/on update (CASCADE|NO ACTION|SET NULL|RESTRICT)/i', $result[0], $result2))
-			{
+			if (preg_match('/on update (CASCADE|NO ACTION|SET NULL|RESTRICT)/i', $result[0], $result2)) {
 				$res->onUpdate = $result2[1];
 			}
 		}
@@ -64,7 +58,7 @@ class ForeignKey extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::tableName()
+	 * @see ActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -72,7 +66,7 @@ class ForeignKey extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::primaryKey()
+	 * @see ActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
@@ -84,7 +78,7 @@ class ForeignKey extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::rules()
+	 * @see ActiveRecord::rules()
 	 */
 	public function rules()
 	{
@@ -101,16 +95,13 @@ class ForeignKey extends ActiveRecord
 	/**
 	 * Gets the references string.
 	 *
-	 * @return	string
+	 * @return string
 	 */
 	public function getReferences()
 	{
-		if($this->REFERENCED_COLUMN_NAME)
-		{
+		if ($this->REFERENCED_COLUMN_NAME) {
 			return $this->REFERENCED_TABLE_SCHEMA . '.' . $this->REFERENCED_TABLE_NAME . '.' . $this->REFERENCED_COLUMN_NAME;
-		}
-		else
-		{
+		} else {
 			return null;
 		}
 	}
@@ -118,22 +109,19 @@ class ForeignKey extends ActiveRecord
 	/**
 	 * Sets the references attributes from a string.
 	 *
-	 * @param	string				References string (e.g. schema.table.column)
+	 * @param string References string (e.g. schema.table.column)
 	 */
 	public function setReferences($value)
 	{
-		if($value)
-		{
+		if ($value) {
 			list($this->REFERENCED_TABLE_SCHEMA, $this->REFERENCED_TABLE_NAME, $this->REFERENCED_COLUMN_NAME) = explode('.', $value);
-		}
-		else
-		{
+		} else {
 			$this->REFERENCED_TABLE_SCHEMA = $this->REFERENCED_TABLE_NAME = $this->REFERENCED_COLUMN_NAME = null;
 		}
 	}
 
 	/**
-	 * @see		ActiveRecord::getUpdateSql()
+	 * @see ActiveRecord::getUpdateSql()
 	 */
 	protected function getUpdateSql()
 	{
@@ -144,7 +132,7 @@ class ForeignKey extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::getInsertSql()
+	 * @see ActiveRecord::getInsertSql()
 	 */
 	protected function getInsertSql()
 	{
@@ -158,12 +146,11 @@ class ForeignKey extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::getDeleteSql()
+	 * @see ActiveRecord::getDeleteSql()
 	 */
 	protected function getDeleteSql()
 	{
 		return 'ALTER TABLE ' . self::$db->quoteTableName($this->TABLE_NAME) . "\n"
 			. "\t" . 'DROP FOREIGN KEY ' . self::$db->quoteColumnName($this->CONSTRAINT_NAME) . ';';
 	}
-
 }

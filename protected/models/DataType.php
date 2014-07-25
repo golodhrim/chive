@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,10 +19,8 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class DataType
 {
-
 	const GROUP = 0;
 	const SUPPORTS_COLLATION = 1;
 	const SUPPORTS_INDEX = 2;
@@ -39,9 +36,7 @@ class DataType
 	const INPUT_TYPE = 12;
 
 	public static $types = array(
-
 		//	Type					group		coll.	index	unique	fulltxt	size	scale	values	unsgnd	unsgndz	updtts	autoinc	input
-
 		'bit'			=> array(	'numeric',	false,	true,	true,	false,	true,	false,	false,	true,	true,	false,	false,	'number'),
 		'tinyint'		=> array(	'numeric',	false,	true,	true,	false,	true,	false,	false,	true,	true,	false,	true,	'number'),
 		'bool'			=> array(	'numeric',	false,	true,	true,	false,	false,	false,	false,	true,	true,	false,	false,	'checkbox'),
@@ -73,7 +68,6 @@ class DataType
 		'timestamp'		=> array(	'date',		false,	true,	true,	false,	false,	false,	false,	false,	false,	true,	false,	'single'),
 		'time'			=> array(	'date',		false,	true,	true,	false,	false,	false,	false,	false,	false,	false,	false,	'single'),
 		'year'			=> array(	'date',		false,	true,	true,	true,	false,	false,	false,	false,	false,	false,	false,	'number'),
-
 	);
 
 	public static function check($dataType, $property)
@@ -91,5 +85,4 @@ class DataType
 	{
 		return self::$types[self::getBaseType($dataType)][self::INPUT_TYPE];
 	}
-
 }

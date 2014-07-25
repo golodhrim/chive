@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -19,27 +18,61 @@
  * You should have received a copy of the GNU General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
+
 class ExportPage extends CModel
 {
+	/**
+	 * @var array
+	 */
+	protected $exporters;
 
-	private $exporters;
-	private $mode;
-	private $objects;
-	private $rows;
-	private $selectedObjects = null;
-	private $selectedRows = null;
-	private $result;
-	private $schema;
-	private $table;
-	private $view = 'form';
-	private $compressionChunkSize = 8192;
-	private $compression = null;
+	/**
+	 * @var string
+	 */
+	protected $mode;
+
+	/**
+	 * @var array
+	 */
+	protected $objects;
+
+	/**
+	 * @var array
+	 */
+	protected $rows;
+
+	protected $selectedObjects = null;
+	protected $selectedRows = null;
+
+	/**
+	 * @var string
+	 */
+	protected $result;
+
+	/**
+	 * @var string
+	 */
+	protected $schema;
+
+	/**
+	 * @var string
+	 */
+	protected $table;
+
+	/**
+	 * @var string
+	 */
+	protected $view = 'form';
+
+	protected $compressionChunkSize = 8192;
+	protected $compression = null;
 
 	/**
 	 * Constructor
 	 *
-	 * @param	string					mode (objects/schemata)
-	 * @param	string					selected schema (when mode == objects)
+	 * @param string $mode mode (objects/schemata)
+	 * @param string $schema selected schema (when mode == objects)
+	 * @param string $table
 	 */
 	public function __construct($mode, $schema = null, $table = null)
 	{
@@ -49,7 +82,7 @@ class ExportPage extends CModel
 	}
 
 	/**
-	 * @see		CModel::attributeNames()
+	 * @see CModel::attributeNames()
 	 */
 	public function attributeNames()
 	{
@@ -61,20 +94,16 @@ class ExportPage extends CModel
 	 */
 	public function run()
 	{
-		if(isset($_POST['Export']))
-		{
+		if (isset($_POST['Export'])) {
 			$this->view = 'result';
 
 			// Check for compression
-			if(isset($_POST['Export']['compression']) && $_POST['Export']['compression'])
-			{
+			if (isset($_POST['Export']['compression']) && $_POST['Export']['compression']) {
 				$this->compression = $_POST['Export']['compression'];
 			}
 
 			$this->runSubmit();
-		}
-		else
-		{
+		} else {
 			$this->view = 'form';
 			$this->runForm();
 		}
@@ -88,23 +117,19 @@ class ExportPage extends CModel
 		// Initialize exporter
 		$exporterName = $_POST['Export']['exporter'];
 		$exporter = new $exporterName($this->mode);
-		
+
 		$extension = strtolower($exporter->getTitle());
 
-		if(isset($_POST['Export']['objects']))
-		{
+		if (isset($_POST['Export']['objects'])) {
 			// Load items and assign to exporter
 			$items = (array)$_POST['Export']['objects'];
 			$exporter->setItems($items, $this->schema);
-		}
-		elseif(isset($_POST['Export']['rows']))
-		{
+		} elseif(isset($_POST['Export']['rows'])) {
 			// Load rows and assign to exporter
 			$rowAttributes = (array)CJSON::decode($_POST['Export']['rows'], true);
 			$rows = array();
 
-			foreach($rowAttributes AS $row)
-			{
+			foreach ($rowAttributes as $row) {
 				$rows[] = Row::model()->findByAttributes($row);
 			}
 
@@ -115,24 +140,18 @@ class ExportPage extends CModel
 		$exporter->calculateStepCount();
 
 		// If it was not an ajax request, we have to serve the file for download
-		if(!Yii::app()->getRequest()->isAjaxRequest)
-		{
-			if($this->compression == 'gzip' && function_exists('gzencode'))
-			{
+		if (!Yii::app()->getRequest()->isAjaxRequest) {
+			if ($this->compression == 'gzip' && function_exists('gzencode')) {
 				$mimeType = 'application/x-gzip';
 				$filenameSuffix = '.gz';
-			}
-			elseif($this->compression == 'bzip2' && function_exists('bzcompress'))
-			{
+			} elseif($this->compression == 'bzip2' && function_exists('bzcompress')) {
 				$mimeType = 'application/x-bzip2';
 				$filenameSuffix = '.bz2';
-			}
-			else
-			{
+			} else {
 				$mimeType = 'text/plain';
 				$filenameSuffix = '';
 			}
-			
+
 			$filename = $this->schema . "_" . date("Y_m_d");
 
 			// Send headers
@@ -140,25 +159,19 @@ class ExportPage extends CModel
 			header('Content-disposition: attachment; filename="' . $filename . "." . $extension . $filenameSuffix . '"');
 
 			// Set handlers
-			if($this->compression == 'gzip' && function_exists('gzencode'))
-			{
+			if ($this->compression == 'gzip' && function_exists('gzencode')) {
 				ob_start(array('ExportPage', 'gzEncode'), $this->compressionChunkSize);
-			}
-			elseif($this->compression == 'bzip2' && function_exists('bzcompress'))
-			{
+			} elseif($this->compression == 'bzip2' && function_exists('bzcompress')) {
 				ob_start(array('ExportPage', 'bz2Encode'), $this->compressionChunkSize);
 			}
 
 			$collect = false;
-		}
-		else
-		{
+		} else {
 			$collect = true;
 		}
 
 		// Disable XDebug
-		if(function_exists('xdebug_disable'))
-		{
+		if (function_exists('xdebug_disable')) {
 			@xdebug_disable();
 		}
 		// Time limit 0
@@ -168,8 +181,7 @@ class ExportPage extends CModel
 		$exporter->runStep(0, $collect);
 
 		// Die after file output when downloading ...
-		if(!$collect)
-		{
+		if (!$collect) {
 			ob_end_flush();
 			die();
 		}
@@ -188,29 +200,24 @@ class ExportPage extends CModel
 
 		// Instantiate supported exporters
 		$this->exporters = array();
-		foreach($exporterNames AS $exporter)
-		{
+		foreach ($exporterNames as $exporter) {
 			$supported = call_user_func(array($exporter, 'getSupportedModes'));
-			if(in_array($this->mode, $supported))
-			{
+			if (in_array($this->mode, $supported)) {
 				$this->exporters[] = new $exporter($this->mode);
 			}
 		}
 
 		// Create the object list
 		$this->objects = array();
-		if($this->mode == 'objects')
-		{
+		if ($this->mode == 'objects') {
 			// Load schema
 			$schema = Schema::model()->findByPk($this->schema);
 
 			// Tables
 			$tables = $schema->tables;
-			if(count($tables) > 0)
-			{
+			if (count($tables) > 0) {
 				$data = array();
-				foreach($tables AS $table)
-				{
+				foreach ($tables as $table) {
 					$data['t:' . $table->TABLE_NAME] = $table->TABLE_NAME;
 				}
 				$this->objects[Yii::t('core', 'tables')] = $data;
@@ -218,11 +225,9 @@ class ExportPage extends CModel
 
 			// Views
 			$views = $schema->views;
-			if(count($views) > 0)
-			{
+			if (count($views) > 0) {
 				$data = array();
-				foreach($views AS $view)
-				{
+				foreach ($views as $view) {
 					$data['v:' . $view->TABLE_NAME] = $view->TABLE_NAME;
 				}
 				$this->objects[Yii::t('core', 'views')] = $data;
@@ -230,23 +235,20 @@ class ExportPage extends CModel
 
 			// Routines
 			$routines = $schema->routines;
-			if(count($routines) > 0)
-			{
+			if (count($routines) > 0) {
 				$data = array();
-				foreach($routines AS $routine)
-				{
+				foreach ($routines as $routine) {
 					$data['r:' . $routine->ROUTINE_NAME] = $routine->ROUTINE_NAME;
 				}
 				$this->objects[Yii::t('core', 'routines')] = $data;
 			}
 		}
-
 	}
 
 	/**
 	 * Returns all selectable objects.
 	 *
-	 * @return	array
+	 * @return array
 	 */
 	public function getObjects()
 	{
@@ -256,22 +258,17 @@ class ExportPage extends CModel
 	/**
 	 * Returns all keys of selectable objects.
 	 *
-	 * @return	array
+	 * @return array
 	 */
 	public function getObjectKeys()
 	{
 		$keys = array();
-		foreach($this->objects AS $key => $value)
-		{
-			if(is_array($value))
-			{
-				foreach($value AS $key2 => $value2)
-				{
+		foreach ($this->objects as $key => $value) {
+			if (is_array($value)) {
+				foreach ($value as $key2 => $value2) {
 					$keys[] = $key2;
 				}
-			}
-			else
-			{
+			} else {
 				$keys[] = $key;
 			}
 		}
@@ -281,16 +278,13 @@ class ExportPage extends CModel
 	/**
 	 * Returns keys of all selected objects.
 	 *
-	 * @return	array
+	 * @return array
 	 */
 	public function getSelectedObjects()
 	{
-		if($this->selectedObjects)
-		{
+		if ($this->selectedObjects) {
 			return $this->selectedObjects;
-		}
-		else
-		{
+		} else {
 			return $this->getObjectKeys();
 		}
 	}
@@ -298,16 +292,13 @@ class ExportPage extends CModel
 	/**
 	 * Sets the selected object keys.
 	 *
-	 * @param	mixed					selected objects
+	 * @param mixed $objects selected objects
 	 */
 	public function setSelectedObjects($objects)
 	{
-		if($objects)
-		{
-			$this->selectedObjects = (array)$objects;
-		}
-		else
-		{
+		if ($objects) {
+			$this->selectedObjects = (array) $objects;
+		} else {
 			$this->selectedObjects = null;
 		}
 	}
@@ -315,16 +306,17 @@ class ExportPage extends CModel
 	/**
 	 * Sets the chosen row attributes.
 	 *
-	 * @param	mixed					row attributes
+	 * @param mixed $rows row attributes
 	 */
 	public function setRows($rows)
 	{
-		$this->rows = (array)$rows;
+		$this->rows = (array) $rows;
 	}
 
 	/**
 	 * Gets the chosen row attributes.
 	 *
+	 * @return array
 	 */
 	public function getRows()
 	{
@@ -334,13 +326,12 @@ class ExportPage extends CModel
 	/**
 	 * Returns all exporter names.
 	 *
-	 * @return	array
+	 * @return array
 	 */
 	public function getExporters()
 	{
 		$data = array();
-		foreach($this->exporters AS $exporter)
-		{
+		foreach ($this->exporters as $exporter) {
 			$data[get_class($exporter)] = call_user_func(array(get_class($exporter), 'getTitle'));
 		}
 		return $data;
@@ -349,7 +340,7 @@ class ExportPage extends CModel
 	/**
 	 * Returns all exporter instances.
 	 *
-	 * @return	array
+	 * @return array
 	 */
 	public function getExporterInstances()
 	{
@@ -359,7 +350,7 @@ class ExportPage extends CModel
 	/**
 	 * Returns the current view type.
 	 *
-	 * @return	string
+	 * @return string
 	 */
 	public function getView()
 	{
@@ -369,7 +360,7 @@ class ExportPage extends CModel
 	/**
 	 * Returns the export result.
 	 *
-	 * @return	string
+	 * @return string
 	 */
 	public function getResult()
 	{
@@ -379,8 +370,8 @@ class ExportPage extends CModel
 	/**
 	 * Callback for output handler to "gzencode".
 	 *
-	 * @param	string					content to encode
-	 * @return	string					encoded content
+	 * @param string $content content to encode
+	 * @return string encoded content
 	 */
 	public static function gzEncode($content)
 	{
@@ -390,12 +381,11 @@ class ExportPage extends CModel
 	/**
 	 * Callback for output handler to "bzcompress".
 	 *
-	 * @param	string					content to encode
-	 * @return	string					encoded content
+	 * @param string $content content to encode
+	 * @return string encoded content
 	 */
 	public static function bz2Encode($content)
 	{
 		return bzcompress($content);
 	}
-
 }
