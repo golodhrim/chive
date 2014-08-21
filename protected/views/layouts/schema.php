@@ -132,11 +132,9 @@ $(document).ready(function() {
 				<span><?php echo Yii::t('core', 'tables'); ?></span>
 			</a>
 			<img class="loading" src="<?php echo BASEURL; ?>/images/loading.gif" alt="<?php echo Yii::t('core', 'loading'); ?>..." />
+			<input type="text" id="tableSearch" class="search text" />
 		</div>
 		<div class="sidebarContent tableList">
-
-			<input type="text" id="tableSearch" class="search text" />
-
 			<ul class="list icon nowrap" id="tableList">
 				<li class="nowrap template">
 					<div class="listIconContainer">
