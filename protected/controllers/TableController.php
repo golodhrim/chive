@@ -21,12 +21,12 @@
 
 class TableController extends Controller
 {
-    const PAGE_SIZE=10;
+    const PAGE_SIZE = 10;
 
     /**
      * @var string specifies the default action to be 'list'.
      */
-    public $defaultAction='list';
+    public $defaultAction = 'list';
 
     /**
      * @var CActiveRecord the currently loaded data model instance.
@@ -259,7 +259,7 @@ class TableController extends Controller
 
     public function actionSearch()
     {
-        $operatorConfig = array( // needs value
+        $operatorConfig = array(
             'LIKE'              => array('needsValue' => true),
             'NOT LIKE'          => array('needsValue' => true),
             '='                 => array('needsValue' => true),
@@ -293,12 +293,10 @@ class TableController extends Controller
                 $operator = $operators[$_POST['operator'][$column]];
 
                 if (strlen($value) > 0) {
-                    $criteria->condition .= ($i>0 ? ' AND ' : ' ') . $this->db->quoteColumnName($column) . ' ' . $operator . ' ' . $this->db->quoteValue($value);
-
+                    $criteria->condition .= ($i > 0 ? ' AND ' : ' ') . $this->db->quoteColumnName($column) . " $operator " . $this->db->quoteValue($value);
                     $i++;
                 } elseif (isset($_POST['operator'][$column]) && $config[$_POST['operator'][$column]]['needsValue'] === false) {
-                    $criteria->condition .= ($i>0 ? ' AND ' : ' ') . $this->db->quoteColumnName($column) . ' ' . $operator;
-
+                    $criteria->condition .= ($i > 0 ? ' AND ' : ' ') . $this->db->quoteColumnName($column) . " $operator";
                     $i++;
                 }
             }
