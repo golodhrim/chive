@@ -1,5 +1,4 @@
 <?php /** @var $operators array */ ?>
-<?php /** @var $configs array */ ?>
 <?php /** @var $row Row */ ?>
 
 <h2><?php Yii::t('core', 'search'); ?></h2>
@@ -28,7 +27,7 @@
         <tr>
             <td><?php echo CHtml::encode($column->name); ?></td>
             <td><?php echo strlen($column->dbType) > 50 ? substr($column->dbType, 0, 50) . "..." : $column->dbType ?></td>
-            <td><?php echo CHtml::dropDownList('operator[' . $column->name . ']', '', $operators); ?></td>
+            <td><?php echo CHtml::dropDownList('operator[' . $column->name . ']', '', array_combine($operators, $operators)); ?></td>
             <td>
                 <?php #echo CHtml::activeTextField($row, $column->name, array('class' => 'text', 'tabIndex' => $tabIndex)); ?>
                 <?php echo CHtml::textField('Row[' . $column->name . ']', '', array('class' => 'text', 'tabIndex' => $tabIndex)); ?>
@@ -54,7 +53,6 @@ $('#searchForm').ajaxForm({
         init();
     }
 });
-
 $('#searchForm').keydown(function(e) {
     if (e.which == 13) {
         $(this).submit();

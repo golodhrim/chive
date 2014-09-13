@@ -274,9 +274,6 @@ class TableController extends Controller
             'IS NOT NULL'       => array('needsValue' => false),
         );
 
-        $operators = array_keys($operatorConfig);
-        $config = array_values($operatorConfig);
-
         Row::$db = $this->db;
         Row::$schema = $this->schema;
         Row::$table = $this->table;
@@ -290,13 +287,17 @@ class TableController extends Controller
 
             $i = 0;
             foreach ($_POST['Row'] as $column => $value) {
-                $operator = $operators[$_POST['operator'][$column]];
+                if (!isset($_POST['operator'][$column])) {
+                    continue;
+                }
+                $operator = $_POST['operator'][$column];
+                $config = $operatorConfig[$operator];
 
-                if (strlen($value) > 0) {
-                    $criteria->condition .= ($i > 0 ? ' AND ' : ' ') . $this->db->quoteColumnName($column) . " $operator " . $this->db->quoteValue($value);
-                    $i++;
-                } elseif (isset($_POST['operator'][$column]) && $config[$_POST['operator'][$column]]['needsValue'] === false) {
+                if ($config['needsValue'] === false) {
                     $criteria->condition .= ($i > 0 ? ' AND ' : ' ') . $this->db->quoteColumnName($column) . " $operator";
+                    $i++;
+                } elseif (strlen($value) > 0) {
+                    $criteria->condition .= ($i > 0 ? ' AND ' : ' ') . $this->db->quoteColumnName($column) . " $operator " . $this->db->quoteValue($value);
                     $i++;
                 }
             }
@@ -325,7 +326,7 @@ class TableController extends Controller
         } else {
             $this->render('../table/search', array(
                 'row' => $row,
-                'operators'=> $operators,
+                'operators' => array_keys($operatorConfig),
             ));
         }
     }
