@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,10 +19,8 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class Table extends ActiveRecord
 {
-	
 	public $optionChecksum = '0', $originalOptionChecksum = '0';
 	public $optionDelayKeyWrite = '0', $originalOptionDelayKeyWrite = '0';
 	public $optionPackKeys = 'DEFAULT', $originalOptionPackKeys = 'DEFAULT';
@@ -33,7 +30,7 @@ class Table extends ActiveRecord
 	private $showCreateTable;
 
 	/**
-	 * @see		ActiveRecord::model()
+	 * @see ActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -41,59 +38,42 @@ class Table extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::instantiate()
+	 * @see ActiveRecord::instantiate()
 	 */
 	public function instantiate($attributes)
 	{
 		$res = parent::instantiate($attributes);
 
 		// Check options
-		if(isset($attributes['CREATE_OPTIONS']))
-		{
+		if (isset($attributes['CREATE_OPTIONS'])) {
 			$options = strtolower($attributes['CREATE_OPTIONS']);
-		}
-		else
-		{
+		} else {
 			$options = null;
 		}
-		if(strpos($options, 'checksum=1') !== false)
-		{
+		if (strpos($options, 'checksum=1') !== false) {
 			$res->optionChecksum = $res->originalOptionChecksum = '1';
 		}
-		if(strpos($options, 'delay_key_write=1') !== false)
-		{
+		if (strpos($options, 'delay_key_write=1') !== false) {
 			$res->optionDelayKeyWrite = $res->originalOptionDelayKeyWrite = '1';
 		}
-		if(strpos($options, 'pack_keys=1') !== false)
-		{
+		if (strpos($options, 'pack_keys=1') !== false) {
 			$res->optionPackKeys = $res->originalOptionPackKeys = '1';
-		}
-		elseif(strpos($options, 'pack_keys=0') !== false)
-		{
+		} elseif(strpos($options, 'pack_keys=0') !== false) {
 			$res->optionPackKeys = $res->originalOptionPackKeys = '0';
 		}
 
 		// Comment
-		if(isset($attributes['TABLE_COMMENT']))
-		{
-			if(isset($attributes['ENGINE']) && $attributes['ENGINE'] == 'InnoDB')
-			{
+		if (isset($attributes['TABLE_COMMENT'])) {
+			if (isset($attributes['ENGINE']) && $attributes['ENGINE'] == 'InnoDB') {
 				$search = 'InnoDB free: \d+ ..?$';
-				if(preg_match('/^' . $search . '/', $attributes['TABLE_COMMENT']))
-				{
+				if(preg_match('/^' . $search . '/', $attributes['TABLE_COMMENT'])) {
 					$res->comment = '';
-				}
-				elseif(preg_match('/; ' . $search . '/', $attributes['TABLE_COMMENT'], $result))
-				{
+				} elseif(preg_match('/; ' . $search . '/', $attributes['TABLE_COMMENT'], $result)) {
 					$res->comment = str_replace($result[0], '', $attributes['TABLE_COMMENT']);
-				}
-				else
-				{
+				} else {
 					$res->comment = $attributes['TABLE_COMMENT'];
 				}
-			}
-			else
-			{
+			} else {
 				$res->comment = $attributes['TABLE_COMMENT'];
 			}
 		}
@@ -103,7 +83,7 @@ class Table extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::tableName()
+	 * @see ActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -111,7 +91,7 @@ class Table extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::primaryKey()
+	 * @see ActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
@@ -122,7 +102,7 @@ class Table extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::rules()
+	 * @see ActiveRecord::rules()
 	 */
 	public function rules()
 	{
@@ -138,7 +118,7 @@ class Table extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::relations()
+	 * @seeActiveRecord::relations()
 	 */
 	public function relations()
 	{
@@ -152,7 +132,7 @@ class Table extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::attributeLabels()
+	 * @see ActiveRecord::attributeLabels()
 	 */
 	public function attributeLabels()
 	{
@@ -170,24 +150,23 @@ class Table extends ActiveRecord
 	/**
 	 * Returns the row count.
 	 *
-	 * @return	int					Number of rows in the table
+	 * @return int Number of rows in the table
 	 */
-	public function getRowCount() {
+	public function getRowCount()
+    {
 		return (int)$this->TABLE_ROWS;
 	}
 
 	/**
 	 * Returns the average row size.
 	 *
-	 * @return	mixed				Average row size, '-' if no rows found.
+	 * @return mixed Average row size, '-' if no rows found.
 	 */
-	public function getAverageRowSize() {
-		if($this->getRowCount() > 0)
-		{
+	public function getAverageRowSize()
+    {
+		if ($this->getRowCount() > 0) {
 			return $this->DATA_LENGTH / $this->getRowCount();
-		}
-		else
-		{
+		} else {
 			return '-';
 		}
 	}
@@ -195,47 +174,42 @@ class Table extends ActiveRecord
 	/**
 	 * Returns wether the table has a primary key.
 	 *
-	 * @return	bool				True, if table has a primary key. False, if not.
+	 * @return bool True, if table has a primary key. False, if not.
 	 */
 	public function getHasPrimaryKey()
 	{
-		foreach($this->indices AS $index)
-		{
-			if($index->INDEX_NAME == 'PRIMARY')
-			{
+		foreach ($this->indices as $index) {
+			if ($index->INDEX_NAME == 'PRIMARY') {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns wether this table has an auto increment column.
-	 * 
-	 * @return	bool				True, if table has an auto increment column. False if not.
+	 *
+	 * @return bool True, if table has an auto increment column. False if not.
 	 */
 	public function getHasAutoIncrementColumn()
 	{
-		foreach($this->columns as $column)
-		{
-			if($column->EXTRA == "auto_increment")
-			{
+		foreach ($this->columns as $column) {
+			if ($column->EXTRA == "auto_increment") {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
 	/**
 	 * Returns the result of SHOW CREATE TABLE.
 	 *
-	 * @return	string				Create table statement
+	 * @return string Create table statement
 	 */
 	public function getShowCreateTable()
 	{
-		if(!$this->showCreateTable)
-		{
+		if (!$this->showCreateTable) {
 			$cmd = self::$db->createCommand('SHOW CREATE TABLE ' . self::$db->quoteTableName($this->TABLE_SCHEMA) . '.' . self::$db->quoteTableName($this->TABLE_NAME));
 			$res = $cmd->queryAll();
 			$this->showCreateTable = $res[0]['Create Table'];
@@ -365,15 +339,15 @@ class Table extends ActiveRecord
 		}
 		return $types;
 	}
-	
+
 	/**
 	 * Returns true, because all tables are updatable.
-	 * 
+	 *
 	 * @return	bool
 	 */
 	public function getIsUpdatable()
 	{
 		return true;
 	}
-	
+
 }

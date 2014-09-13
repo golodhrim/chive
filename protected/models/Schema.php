@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,16 +19,14 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class Schema extends ActiveRecord
 {
-
 	public $tableCount;
 	public $DEFAULT_CHARACTER_SET_NAME = Collation::DEFAULT_CHARACTER_SET;
 	public $DEFAULT_COLLATION_NAME = Collation::DEFAULT_COLLATION;
 
 	/**
-	 * @see		ActiveRecord::model()
+	 * @see ActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -37,7 +34,7 @@ class Schema extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::tableName()
+	 * @see ActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -45,7 +42,7 @@ class Schema extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::primaryKey()
+	 * @see ActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
@@ -53,7 +50,7 @@ class Schema extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::rules()
+	 * @see ActiveRecord::rules()
 	 */
 	public function rules()
 	{
@@ -64,7 +61,7 @@ class Schema extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::relations()
+	 * @see ActiveRecord::relations()
 	 */
 	public function relations()
 	{
@@ -77,7 +74,7 @@ class Schema extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::attributeLabels()
+	 * @see ActiveRecord::attributeLabels()
 	 */
 	public function attributeLabels()
 	{
@@ -89,7 +86,7 @@ class Schema extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::getUpdateSql()
+	 * @see ActiveRecord::getUpdateSql()
 	 */
 	protected function getUpdateSql()
 	{
@@ -98,7 +95,7 @@ class Schema extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::getInsertSql()
+	 * @see ActiveRecord::getInsertSql()
 	 */
 	protected function getInsertSql()
 	{
@@ -107,11 +104,10 @@ class Schema extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::getDeleteSql()
+	 * @see ActiveRecord::getDeleteSql()
 	 */
 	protected function getDeleteSql()
 	{
 		return 'DROP DATABASE ' . self::$db->quoteTableName($this->SCHEMA_NAME) . ';';
 	}
-
 }

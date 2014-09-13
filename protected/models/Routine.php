@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,21 +19,20 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class Routine extends CActiveRecord
 {
 	public static $db;
 
 	/**
-	 * @see		CActiveRecord::model()
+	 * @see CActiveRecord::model()
 	 */
-	public static function model($className=__CLASS__)
+	public static function model($className = __CLASS__)
 	{
 		return parent::model($className);
 	}
 
 	/**
-	 * @see		CActiveRecord::tableName()
+	 * @see CActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -42,7 +40,7 @@ class Routine extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::primaryKey()
+	 * @see CActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
@@ -53,7 +51,7 @@ class Routine extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::delete()
+	 * @see CActiveRecord::delete()
 	 */
 	public function delete()
 	{
@@ -61,14 +59,11 @@ class Routine extends CActiveRecord
 		$cmd = self::$db->createCommand($sql);
 
 		// Execute
-		try
-		{
+		try {
 			$cmd->prepare();
 			$cmd->execute();
 			return $sql;
-		}
-		catch(CDbException $ex)
-		{
+		} catch(CDbException $ex) {
 			throw new DbException($cmd);
 		}
 	}
@@ -76,7 +71,7 @@ class Routine extends CActiveRecord
 	/**
 	 * Returns the CREATE FUNCTION|PROCEDURE statement for this routine.
 	 *
-	 * @return	string
+	 * @return string
 	 */
 	public function getCreateRoutine()
 	{
@@ -84,5 +79,4 @@ class Routine extends CActiveRecord
 		$res = $cmd->queryRow(false);
 		return $res[2];
 	}
-	
 }

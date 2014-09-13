@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,14 +19,12 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class View extends CActiveRecord
 {
-	
 	public static $db;
 
 	/**
-	 * @see		CActiveRecord::model()
+	 * @see CActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -35,7 +32,7 @@ class View extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::tableName()
+	 * @see CActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -43,7 +40,7 @@ class View extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::primaryKey()
+	 * @see CActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
@@ -52,9 +49,9 @@ class View extends CActiveRecord
 			'TABLE_NAME',
 		);
 	}
-	
+
 	/**
-	 * @see		CActiveRecord::relations()
+	 * @see CActiveRecord::relations()
 	 */
 	public function relations()
 	{
@@ -64,7 +61,7 @@ class View extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::attributeLabels()
+	 * @see CActiveRecord::attributeLabels()
 	 */
 	public function attributeLabels()
 	{
@@ -74,7 +71,7 @@ class View extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::delete()
+	 * @see CActiveRecord::delete()
 	 */
 	public function delete()
 	{
@@ -82,14 +79,11 @@ class View extends CActiveRecord
 		$cmd = self::$db->createCommand($sql);
 
 		// Execute
-		try
-		{
+		try {
 			$cmd->prepare();
 			$cmd->execute();
 			return $sql;
-		}
-		catch(CDbException $ex)
-		{
+		} catch(CDbException $ex) {
 			throw new DbException($cmd);
 		}
 	}
@@ -97,7 +91,7 @@ class View extends CActiveRecord
 	/**
 	 * Returns the CREATE VIEW statement for this view.
 	 *
-	 * @return	string
+	 * @return string
 	 */
 	public function getCreateView()
 	{
@@ -109,23 +103,22 @@ class View extends CActiveRecord
 	/**
 	 * Returns the ALTER VIEW statement for this view.
 	 *
-	 * @return	string
+	 * @return string
 	 */
 	public function getAlterView()
 	{
 		return 'ALTER' . substr($this->getCreateView(), 6);
 	}
-	
-	public function getIsUpdatable()
+
+    /**
+     * @return bool
+     */
+    public function getIsUpdatable()
 	{
-		if($this->getAttribute('IS_UPDATABLE') === "YES")
-		{
-			return true;	
-		}	
-		else
-		{
+		if ($this->getAttribute('IS_UPDATABLE') === "YES") {
+			return true;
+		} else {
 			return false;
 		}
 	}
-	
 }

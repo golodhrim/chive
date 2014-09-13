@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,14 +19,12 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class Trigger extends CActiveRecord
 {
-	
 	public static $db;
 
 	/**
-	 * @see		CActiveRecord::model()
+	 * @see CActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -35,7 +32,7 @@ class Trigger extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::tableName()
+	 * @see CActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -43,7 +40,7 @@ class Trigger extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::primaryKey()
+	 * @see CActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
@@ -54,7 +51,7 @@ class Trigger extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::delete()
+	 * @see CActiveRecord::delete()
 	 */
 	public function delete()
 	{
@@ -62,14 +59,11 @@ class Trigger extends CActiveRecord
 		$cmd = self::$db->createCommand($sql);
 
 		// Execute
-		try
-		{
+		try {
 			$cmd->prepare();
 			$cmd->execute();
 			return $sql;
-		}
-		catch(CDbException $ex)
-		{
+		} catch(CDbException $ex) {
 			throw new DbException($cmd);
 		}
 	}
@@ -77,7 +71,7 @@ class Trigger extends CActiveRecord
 	/**
 	 * Returns the CREATE TRIGGER statement for this trigger.
 	 *
-	 * @return	string
+	 * @return string
 	 */
 	public function getCreateTrigger()
 	{
@@ -86,5 +80,4 @@ class Trigger extends CActiveRecord
 			. 'ON ' . self::$db->quoteTableName($this->EVENT_OBJECT_TABLE) . ' FOR EACH ROW' . "\n"
 			. $this->ACTION_STATEMENT;
 	}
-
 }
