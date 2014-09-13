@@ -21,371 +21,371 @@
 
 class ExportPage extends CModel
 {
-	/**
-	 * @var array
-	 */
-	protected $exporters;
+    /**
+     * @var array
+     */
+    protected $exporters;
 
-	/**
-	 * @var string
-	 */
-	protected $mode;
+    /**
+     * @var string
+     */
+    protected $mode;
 
-	/**
-	 * @var array
-	 */
-	protected $objects;
+    /**
+     * @var array
+     */
+    protected $objects;
 
-	/**
-	 * @var array
-	 */
-	protected $rows;
+    /**
+     * @var array
+     */
+    protected $rows;
 
-	protected $selectedObjects = null;
-	protected $selectedRows = null;
+    protected $selectedObjects = null;
+    protected $selectedRows = null;
 
-	/**
-	 * @var string
-	 */
-	protected $result;
+    /**
+     * @var string
+     */
+    protected $result;
 
-	/**
-	 * @var string
-	 */
-	protected $schema;
+    /**
+     * @var string
+     */
+    protected $schema;
 
-	/**
-	 * @var string
-	 */
-	protected $table;
+    /**
+     * @var string
+     */
+    protected $table;
 
-	/**
-	 * @var string
-	 */
-	protected $view = 'form';
+    /**
+     * @var string
+     */
+    protected $view = 'form';
 
-	protected $compressionChunkSize = 8192;
-	protected $compression = null;
+    protected $compressionChunkSize = 8192;
+    protected $compression = null;
 
-	/**
-	 * Constructor
-	 *
-	 * @param string $mode mode (objects/schemata)
-	 * @param string $schema selected schema (when mode == objects)
-	 * @param string $table
-	 */
-	public function __construct($mode, $schema = null, $table = null)
-	{
-		$this->mode = $mode;
-		$this->schema = $schema;
-		$this->table = $table;
-	}
+    /**
+     * Constructor
+     *
+     * @param string $mode mode (objects/schemata)
+     * @param string $schema selected schema (when mode == objects)
+     * @param string $table
+     */
+    public function __construct($mode, $schema = null, $table = null)
+    {
+        $this->mode = $mode;
+        $this->schema = $schema;
+        $this->table = $table;
+    }
 
-	/**
-	 * @see CModel::attributeNames()
-	 */
-	public function attributeNames()
-	{
-		return array();
-	}
+    /**
+     * @see CModel::attributeNames()
+     */
+    public function attributeNames()
+    {
+        return array();
+    }
 
-	/**
-	 * Runs the ExportPage decides wether to show form or do export.
-	 */
-	public function run()
-	{
-		if (isset($_POST['Export'])) {
-			$this->view = 'result';
+    /**
+     * Runs the ExportPage decides wether to show form or do export.
+     */
+    public function run()
+    {
+        if (isset($_POST['Export'])) {
+            $this->view = 'result';
 
-			// Check for compression
-			if (isset($_POST['Export']['compression']) && $_POST['Export']['compression']) {
-				$this->compression = $_POST['Export']['compression'];
-			}
+            // Check for compression
+            if (isset($_POST['Export']['compression']) && $_POST['Export']['compression']) {
+                $this->compression = $_POST['Export']['compression'];
+            }
 
-			$this->runSubmit();
-		} else {
-			$this->view = 'form';
-			$this->runForm();
-		}
-	}
+            $this->runSubmit();
+        } else {
+            $this->view = 'form';
+            $this->runForm();
+        }
+    }
 
-	/**
-	 * Performs the actual export functions.
-	 */
-	public function runSubmit()
-	{
-		// Initialize exporter
-		$exporterName = $_POST['Export']['exporter'];
-		$exporter = new $exporterName($this->mode);
+    /**
+     * Performs the actual export functions.
+     */
+    public function runSubmit()
+    {
+        // Initialize exporter
+        $exporterName = $_POST['Export']['exporter'];
+        $exporter = new $exporterName($this->mode);
 
-		$extension = strtolower($exporter->getTitle());
+        $extension = strtolower($exporter->getTitle());
 
-		if (isset($_POST['Export']['objects'])) {
-			// Load items and assign to exporter
-			$items = (array)$_POST['Export']['objects'];
-			$exporter->setItems($items, $this->schema);
-		} elseif(isset($_POST['Export']['rows'])) {
-			// Load rows and assign to exporter
-			$rowAttributes = (array)CJSON::decode($_POST['Export']['rows'], true);
-			$rows = array();
+        if (isset($_POST['Export']['objects'])) {
+            // Load items and assign to exporter
+            $items = (array)$_POST['Export']['objects'];
+            $exporter->setItems($items, $this->schema);
+        } elseif(isset($_POST['Export']['rows'])) {
+            // Load rows and assign to exporter
+            $rowAttributes = (array)CJSON::decode($_POST['Export']['rows'], true);
+            $rows = array();
 
-			foreach ($rowAttributes as $row) {
-				$rows[] = Row::model()->findByAttributes($row);
-			}
+            foreach ($rowAttributes as $row) {
+                $rows[] = Row::model()->findByAttributes($row);
+            }
 
-			$exporter->setRows($rows, $this->table, $this->schema);
-		}
+            $exporter->setRows($rows, $this->table, $this->schema);
+        }
 
-		// Calculate step count
-		$exporter->calculateStepCount();
+        // Calculate step count
+        $exporter->calculateStepCount();
 
-		// If it was not an ajax request, we have to serve the file for download
-		if (!Yii::app()->getRequest()->isAjaxRequest) {
-			if ($this->compression == 'gzip' && function_exists('gzencode')) {
-				$mimeType = 'application/x-gzip';
-				$filenameSuffix = '.gz';
-			} elseif($this->compression == 'bzip2' && function_exists('bzcompress')) {
-				$mimeType = 'application/x-bzip2';
-				$filenameSuffix = '.bz2';
-			} else {
-				$mimeType = 'text/plain';
-				$filenameSuffix = '';
-			}
+        // If it was not an ajax request, we have to serve the file for download
+        if (!Yii::app()->getRequest()->isAjaxRequest) {
+            if ($this->compression == 'gzip' && function_exists('gzencode')) {
+                $mimeType = 'application/x-gzip';
+                $filenameSuffix = '.gz';
+            } elseif($this->compression == 'bzip2' && function_exists('bzcompress')) {
+                $mimeType = 'application/x-bzip2';
+                $filenameSuffix = '.bz2';
+            } else {
+                $mimeType = 'text/plain';
+                $filenameSuffix = '';
+            }
 
-			$filename = $this->schema . "_" . date("Y_m_d");
+            $filename = $this->schema . "_" . date("Y_m_d");
 
-			// Send headers
-			header('Content-type: ' . $mimeType);
-			header('Content-disposition: attachment; filename="' . $filename . "." . $extension . $filenameSuffix . '"');
+            // Send headers
+            header('Content-type: ' . $mimeType);
+            header('Content-disposition: attachment; filename="' . $filename . "." . $extension . $filenameSuffix . '"');
 
-			// Set handlers
-			if ($this->compression == 'gzip' && function_exists('gzencode')) {
-				ob_start(array('ExportPage', 'gzEncode'), $this->compressionChunkSize);
-			} elseif($this->compression == 'bzip2' && function_exists('bzcompress')) {
-				ob_start(array('ExportPage', 'bz2Encode'), $this->compressionChunkSize);
-			}
+            // Set handlers
+            if ($this->compression == 'gzip' && function_exists('gzencode')) {
+                ob_start(array('ExportPage', 'gzEncode'), $this->compressionChunkSize);
+            } elseif($this->compression == 'bzip2' && function_exists('bzcompress')) {
+                ob_start(array('ExportPage', 'bz2Encode'), $this->compressionChunkSize);
+            }
 
-			$collect = false;
-		} else {
-			$collect = true;
-		}
+            $collect = false;
+        } else {
+            $collect = true;
+        }
 
-		// Disable XDebug
-		if (function_exists('xdebug_disable')) {
-			@xdebug_disable();
-		}
-		// Time limit 0
-		@set_time_limit(0);
+        // Disable XDebug
+        if (function_exists('xdebug_disable')) {
+            @xdebug_disable();
+        }
+        // Time limit 0
+        @set_time_limit(0);
 
-		// Run step 0, we only support 1-step-expots by now
-		$exporter->runStep(0, $collect);
+        // Run step 0, we only support 1-step-expots by now
+        $exporter->runStep(0, $collect);
 
-		// Die after file output when downloading ...
-		if (!$collect) {
-			ob_end_flush();
-			die();
-		}
+        // Die after file output when downloading ...
+        if (!$collect) {
+            ob_end_flush();
+            die();
+        }
 
-		// Save result
-		$this->result = $exporter->getResult();
-	}
+        // Save result
+        $this->result = $exporter->getResult();
+    }
 
-	/**
-	 * Runs the form.
-	 */
-	private function runForm()
-	{
-		// @todo: Load all exporters
-		$exporterNames = array('SqlExporter', 'CsvExporter');
+    /**
+     * Runs the form.
+     */
+    private function runForm()
+    {
+        // @todo: Load all exporters
+        $exporterNames = array('SqlExporter', 'CsvExporter');
 
-		// Instantiate supported exporters
-		$this->exporters = array();
-		foreach ($exporterNames as $exporter) {
-			$supported = call_user_func(array($exporter, 'getSupportedModes'));
-			if (in_array($this->mode, $supported)) {
-				$this->exporters[] = new $exporter($this->mode);
-			}
-		}
+        // Instantiate supported exporters
+        $this->exporters = array();
+        foreach ($exporterNames as $exporter) {
+            $supported = call_user_func(array($exporter, 'getSupportedModes'));
+            if (in_array($this->mode, $supported)) {
+                $this->exporters[] = new $exporter($this->mode);
+            }
+        }
 
-		// Create the object list
-		$this->objects = array();
-		if ($this->mode == 'objects') {
-			// Load schema
-			$schema = Schema::model()->findByPk($this->schema);
+        // Create the object list
+        $this->objects = array();
+        if ($this->mode == 'objects') {
+            // Load schema
+            $schema = Schema::model()->findByPk($this->schema);
 
-			// Tables
-			$tables = $schema->tables;
-			if (count($tables) > 0) {
-				$data = array();
-				foreach ($tables as $table) {
-					$data['t:' . $table->TABLE_NAME] = $table->TABLE_NAME;
-				}
-				$this->objects[Yii::t('core', 'tables')] = $data;
-			}
+            // Tables
+            $tables = $schema->tables;
+            if (count($tables) > 0) {
+                $data = array();
+                foreach ($tables as $table) {
+                    $data['t:' . $table->TABLE_NAME] = $table->TABLE_NAME;
+                }
+                $this->objects[Yii::t('core', 'tables')] = $data;
+            }
 
-			// Views
-			$views = $schema->views;
-			if (count($views) > 0) {
-				$data = array();
-				foreach ($views as $view) {
-					$data['v:' . $view->TABLE_NAME] = $view->TABLE_NAME;
-				}
-				$this->objects[Yii::t('core', 'views')] = $data;
-			}
+            // Views
+            $views = $schema->views;
+            if (count($views) > 0) {
+                $data = array();
+                foreach ($views as $view) {
+                    $data['v:' . $view->TABLE_NAME] = $view->TABLE_NAME;
+                }
+                $this->objects[Yii::t('core', 'views')] = $data;
+            }
 
-			// Routines
-			$routines = $schema->routines;
-			if (count($routines) > 0) {
-				$data = array();
-				foreach ($routines as $routine) {
-					$data['r:' . $routine->ROUTINE_NAME] = $routine->ROUTINE_NAME;
-				}
-				$this->objects[Yii::t('core', 'routines')] = $data;
-			}
-		}
-	}
+            // Routines
+            $routines = $schema->routines;
+            if (count($routines) > 0) {
+                $data = array();
+                foreach ($routines as $routine) {
+                    $data['r:' . $routine->ROUTINE_NAME] = $routine->ROUTINE_NAME;
+                }
+                $this->objects[Yii::t('core', 'routines')] = $data;
+            }
+        }
+    }
 
-	/**
-	 * Returns all selectable objects.
-	 *
-	 * @return array
-	 */
-	public function getObjects()
-	{
-		return $this->objects;
-	}
+    /**
+     * Returns all selectable objects.
+     *
+     * @return array
+     */
+    public function getObjects()
+    {
+        return $this->objects;
+    }
 
-	/**
-	 * Returns all keys of selectable objects.
-	 *
-	 * @return array
-	 */
-	public function getObjectKeys()
-	{
-		$keys = array();
-		foreach ($this->objects as $key => $value) {
-			if (is_array($value)) {
-				foreach ($value as $key2 => $value2) {
-					$keys[] = $key2;
-				}
-			} else {
-				$keys[] = $key;
-			}
-		}
-		return $keys;
-	}
+    /**
+     * Returns all keys of selectable objects.
+     *
+     * @return array
+     */
+    public function getObjectKeys()
+    {
+        $keys = array();
+        foreach ($this->objects as $key => $value) {
+            if (is_array($value)) {
+                foreach ($value as $key2 => $value2) {
+                    $keys[] = $key2;
+                }
+            } else {
+                $keys[] = $key;
+            }
+        }
+        return $keys;
+    }
 
-	/**
-	 * Returns keys of all selected objects.
-	 *
-	 * @return array
-	 */
-	public function getSelectedObjects()
-	{
-		if ($this->selectedObjects) {
-			return $this->selectedObjects;
-		} else {
-			return $this->getObjectKeys();
-		}
-	}
+    /**
+     * Returns keys of all selected objects.
+     *
+     * @return array
+     */
+    public function getSelectedObjects()
+    {
+        if ($this->selectedObjects) {
+            return $this->selectedObjects;
+        } else {
+            return $this->getObjectKeys();
+        }
+    }
 
-	/**
-	 * Sets the selected object keys.
-	 *
-	 * @param mixed $objects selected objects
-	 */
-	public function setSelectedObjects($objects)
-	{
-		if ($objects) {
-			$this->selectedObjects = (array) $objects;
-		} else {
-			$this->selectedObjects = null;
-		}
-	}
+    /**
+     * Sets the selected object keys.
+     *
+     * @param mixed $objects selected objects
+     */
+    public function setSelectedObjects($objects)
+    {
+        if ($objects) {
+            $this->selectedObjects = (array) $objects;
+        } else {
+            $this->selectedObjects = null;
+        }
+    }
 
-	/**
-	 * Sets the chosen row attributes.
-	 *
-	 * @param mixed $rows row attributes
-	 */
-	public function setRows($rows)
-	{
-		$this->rows = (array) $rows;
-	}
+    /**
+     * Sets the chosen row attributes.
+     *
+     * @param mixed $rows row attributes
+     */
+    public function setRows($rows)
+    {
+        $this->rows = (array) $rows;
+    }
 
-	/**
-	 * Gets the chosen row attributes.
-	 *
-	 * @return array
-	 */
-	public function getRows()
-	{
-		return $this->rows;
-	}
+    /**
+     * Gets the chosen row attributes.
+     *
+     * @return array
+     */
+    public function getRows()
+    {
+        return $this->rows;
+    }
 
-	/**
-	 * Returns all exporter names.
-	 *
-	 * @return array
-	 */
-	public function getExporters()
-	{
-		$data = array();
-		foreach ($this->exporters as $exporter) {
-			$data[get_class($exporter)] = call_user_func(array(get_class($exporter), 'getTitle'));
-		}
-		return $data;
-	}
+    /**
+     * Returns all exporter names.
+     *
+     * @return array
+     */
+    public function getExporters()
+    {
+        $data = array();
+        foreach ($this->exporters as $exporter) {
+            $data[get_class($exporter)] = call_user_func(array(get_class($exporter), 'getTitle'));
+        }
+        return $data;
+    }
 
-	/**
-	 * Returns all exporter instances.
-	 *
-	 * @return array
-	 */
-	public function getExporterInstances()
-	{
-		return $this->exporters;
-	}
+    /**
+     * Returns all exporter instances.
+     *
+     * @return array
+     */
+    public function getExporterInstances()
+    {
+        return $this->exporters;
+    }
 
-	/**
-	 * Returns the current view type.
-	 *
-	 * @return string
-	 */
-	public function getView()
-	{
-		return $this->view;
-	}
+    /**
+     * Returns the current view type.
+     *
+     * @return string
+     */
+    public function getView()
+    {
+        return $this->view;
+    }
 
-	/**
-	 * Returns the export result.
-	 *
-	 * @return string
-	 */
-	public function getResult()
-	{
-		return $this->result;
-	}
+    /**
+     * Returns the export result.
+     *
+     * @return string
+     */
+    public function getResult()
+    {
+        return $this->result;
+    }
 
-	/**
-	 * Callback for output handler to "gzencode".
-	 *
-	 * @param string $content content to encode
-	 * @return string encoded content
-	 */
-	public static function gzEncode($content)
-	{
-		return gzencode($content, 1);
-	}
+    /**
+     * Callback for output handler to "gzencode".
+     *
+     * @param string $content content to encode
+     * @return string encoded content
+     */
+    public static function gzEncode($content)
+    {
+        return gzencode($content, 1);
+    }
 
-	/**
-	 * Callback for output handler to "bzcompress".
-	 *
-	 * @param string $content content to encode
-	 * @return string encoded content
-	 */
-	public static function bz2Encode($content)
-	{
-		return bzcompress($content);
-	}
+    /**
+     * Callback for output handler to "bzcompress".
+     *
+     * @param string $content content to encode
+     * @return string encoded content
+     */
+    public static function bz2Encode($content)
+    {
+        return bzcompress($content);
+    }
 }

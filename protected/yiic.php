@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -19,7 +18,6 @@
  * You should have received a copy of the GNU General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 // change the following paths if necessary
 $yiic = dirname(__FILE__) . '/../yii/yiic.php';

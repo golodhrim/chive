@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
@@ -46,7 +45,7 @@ $config = array(
 
 	// application components
 	'components' => array(
-	
+
 		'session' => array(
 			'class' => 'ChiveHttpSession',
 			'sessionName' => 'chiveSession',
@@ -102,7 +101,7 @@ $config = array(
 		    'class' => 'application.components.messages.CXmlMessageSource',
 			'cachingDuration' => 24 * 60 * 60, // 24h
 		),
-		
+
 		'cache' => array(
 			'class' => 'CFileCache',
 		),

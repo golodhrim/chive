@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,7 +19,6 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 require_once(dirname(__FILE__) . '/models/DataType.php');
 require_once(dirname(__FILE__) . '/models/StorageEngine.php');
 
@@ -35,5 +33,3 @@ $engines = CJSON::encode(StorageEngine::$engines);
 $file = file_get_contents(dirname(__FILE__) . '/../js/storageEngine.js');
 $file = preg_replace('/engines: .+?$/m', 'engines: ' . $engines . ',', $file);
 file_put_contents(dirname(__FILE__) . '/../js/storageEngine.js', $file);
-
-?>

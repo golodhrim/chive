@@ -21,65 +21,65 @@
 
 class LoginForm extends CFormModel
 {
-	public $username;
-	public $password;
-	public $rememberMe;
-	public $host = 'localhost';
-	public $port = '3306';
-	public $redirectUrl;
+    public $username;
+    public $password;
+    public $rememberMe;
+    public $host = 'localhost';
+    public $port = '3306';
+    public $redirectUrl;
 
-	/**
-	 * @see CFormModel::rules()
-	 */
-	public function rules()
-	{
-		return array(
-			// username and password are required
-			array('username, host', 'required'),
-			// port number must be empty or a 16 bit unsigned integer
-			array('port', 'numerical',
-				'allowEmpty' => true,
-				'integerOnly' => true,
-				'min' => 1,
-				'max' => 65535
-			),
-			// set default MySQL port if nothing specified
-			array('port', 'default',
-				'setOnEmpty' => true,
-				'value' => 3306
-			),
-			// password needs to be authenticated
-			array('password', 'authenticate'),
-		);
-	}
+    /**
+     * @see CFormModel::rules()
+     */
+    public function rules()
+    {
+        return array(
+            // username and password are required
+            array('username, host', 'required'),
+            // port number must be empty or a 16 bit unsigned integer
+            array('port', 'numerical',
+                'allowEmpty' => true,
+                'integerOnly' => true,
+                'min' => 1,
+                'max' => 65535
+            ),
+            // set default MySQL port if nothing specified
+            array('port', 'default',
+                'setOnEmpty' => true,
+                'value' => 3306
+            ),
+            // password needs to be authenticated
+            array('password', 'authenticate'),
+        );
+    }
 
-	/**
-	 * @see CFormModel::attributeLabels()
-	 */
-	public function attributeLabels()
-	{
-		return array(
-			'host' => Yii::t('core', 'host'),
-			'port' => Yii::t('core', 'port'),
-			'username' => Yii::t('core', 'username'),
-			'password' => Yii::t('core', 'password'),
-		);
-	}
+    /**
+     * @see CFormModel::attributeLabels()
+     */
+    public function attributeLabels()
+    {
+        return array(
+            'host' => Yii::t('core', 'host'),
+            'port' => Yii::t('core', 'port'),
+            'username' => Yii::t('core', 'username'),
+            'password' => Yii::t('core', 'password'),
+        );
+    }
 
-	/**
-	 * Authenticates the password.
-	 * This is the 'authenticate' validator as declared in rules().
-	 */
-	public function authenticate($attribute, $params)
-	{
-		if (!$this->hasErrors()) {
-			$identity = new UserIdentity($this->username, $this->password, $this->host, $this->port);
+    /**
+     * Authenticates the password.
+     * This is the 'authenticate' validator as declared in rules().
+     */
+    public function authenticate($attribute, $params)
+    {
+        if (!$this->hasErrors()) {
+            $identity = new UserIdentity($this->username, $this->password, $this->host, $this->port);
 
-			if ($identity->authenticate()) {
-				Yii::app()->user->login($identity);
-			} else {
-				$this->addError(null, $identity->errorMessage);
-			}
-		}
-	}
+            if ($identity->authenticate()) {
+                Yii::app()->user->login($identity);
+            } else {
+                $this->addError(null, $identity->errorMessage);
+            }
+        }
+    }
 }
