@@ -22,7 +22,7 @@
 define('URL_MATCH', '([^\/]*)');
 
 $config = array(
-    'basePath' => __DIR__ . DIRECTORY_SEPARATOR . '..',
+    'basePath' => dirname(__DIR__),
     'name' => 'Chive',
     'theme' => 'standard',
 
