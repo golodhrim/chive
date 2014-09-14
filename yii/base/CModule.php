@@ -374,6 +374,13 @@ abstract class CModule extends CComponent
     {
         if ($id === null) {
             return $this->_componentConfig;
+        }
+        if (strpos($id, "/", 1)) {
+            $parts = explode("/", $id);
+            if (!isset($this->_componentConfig[$parts[0]]) || !isset($this->_componentConfig[$parts[0]][$parts[1]])) {
+                return null;
+            }
+            return $this->_componentConfig[$parts[0]][$parts[1]];
         } elseif (isset($this->_componentConfig[$id])) {
             return $this->_componentConfig[$id];
         } else {
