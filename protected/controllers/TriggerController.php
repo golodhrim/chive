@@ -48,13 +48,11 @@ class TriggerController extends Controller
     {
         $trigger = new Trigger();
 
-        if(isset($_POST['query']))
-        {
+        if (isset($_POST['query'])) {
             $query = $_POST['query'];
             $cmd = $this->db->createCommand($query);
 
-            try
-            {
+            try {
                 $cmd->prepare();
                 $cmd->execute();
 
@@ -65,15 +63,11 @@ class TriggerController extends Controller
                     $query);
                 $response->refresh = true;
                 $this->sendJSON($response);
-            }
-            catch(CDbException $ex)
-            {
+            } catch(CDbException $ex) {
                 $errorInfo = $cmd->getPdoStatement()->errorInfo();
                 $trigger->addError(null, Yii::t('core', 'sqlErrorOccured', array('{errno}' => $errorInfo[1], '{errmsg}' => $errorInfo[2])));
             }
-        }
-        else
-        {
+        } else {
             $query = 'CREATE TRIGGER ' . $this->db->quoteTableName('name_of_trigger') . "\n"
                 . '[AFTER|BEFORE] [INSERT|UPDATE|DELETE] ' . "\n"
                 . 'ON ' . $this->db->quoteTableName($this->table) . ' FOR EACH ROW' . "\n"

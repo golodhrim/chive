@@ -30,7 +30,7 @@ abstract class Controller extends CController
     /**
      * Connects to the specified schema and assigns it to all models which need it.
      *
-     * @param $schema schema
+     * @param string $schema
      * @return CDbConnection
      */
     protected function connectDb($schema)
@@ -106,6 +106,9 @@ abstract class Controller extends CController
         }
     }
 
+    /**
+     * @param AjaxResponse|string|array $data
+     */
     protected function sendJSON($data)
     {
         if ($data instanceof AjaxResponse) {
