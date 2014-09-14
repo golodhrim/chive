@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
@@ -22,21 +21,21 @@
 
 class Select extends CWidget
 {
-	public $htmlOptions;
+    public $htmlOptions;
 
-	public $items = array();
+    public $items = array();
 
-	public function run()
-	{
-		$items = array();
+    public function run()
+    {
+        $items = array();
 
-		foreach ($this->items as $item) {
-			$items[] = $item;
-		}
+        foreach ($this->items as $item) {
+            $items[] = $item;
+        }
 
-		$this->render('select', array(
-			'items' => $items,
-			'htmlOptions' => $this->htmlOptions,
-		));
-	}
+        $this->render('select', array(
+            'items' => $items,
+            'htmlOptions' => $this->htmlOptions,
+        ));
+    }
 }
