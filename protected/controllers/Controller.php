@@ -22,7 +22,7 @@
 abstract class Controller extends CController
 {
     /**
-     * @var CDbConnection
+     * @var DbConnection
      */
     protected $db;
     protected $request;
@@ -31,7 +31,7 @@ abstract class Controller extends CController
      * Connects to the specified schema and assigns it to all models which need it.
      *
      * @param string $schema
-     * @return CDbConnection
+     * @return DbConnection
      */
     protected function connectDb($schema)
     {
@@ -45,8 +45,9 @@ abstract class Controller extends CController
         }
 
         // Connect to database
+        $dbClass = Yii::app()->getComponentConfig("db/class");
         $connectionString = 'mysql:host=' . Yii::app()->user->host . ';port=' . Yii::app()->user->port . ';dbname=' . $schema . '; charset=utf8';
-        $this->db = new CDbConnection($connectionString,
+        $this->db = new $dbClass($connectionString,
             utf8_decode(Yii::app()->user->name),
             utf8_decode(Yii::app()->user->password));
         $this->db->setAttribute(PDO::MYSQL_ATTR_INIT_COMMAND, 'SET NAMES \'utf8\'');

@@ -52,7 +52,8 @@ class UserIdentity extends CUserIdentity
      */
     public function authenticate()
     {
-        $db = new CDbConnection();
+        $dbClass = Yii::app()->getComponentConfig("db/class");
+        $db = new $dbClass();
 
         // Set username and password
         $db->username = $this->username;

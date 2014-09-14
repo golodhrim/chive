@@ -110,7 +110,7 @@ abstract class SqlModel extends CModel
 				self::$db->setActive(true);
 				return self::$db;
 			} else {
-				throw new CDbException(Yii::t('core','Active Record requires a "db" CDbConnection application component.'));
+				throw new CDbException(Yii::t('core', 'Active Record requires a "db" CDbConnection application component.'));
 			}
 		}
 	}

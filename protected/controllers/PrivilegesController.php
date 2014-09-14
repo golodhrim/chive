@@ -56,13 +56,14 @@ class PrivilegesController extends Controller
      * Connects to the specified schema and assigns it to all models which need it.
      *
      * @param $schema
-     * @return CDbConnection
+     * @return DbConnection
      */
     protected function connectDb($schema)
     {
         // Connect to database
+        $dbClass = Yii::app()->getComponentConfig("db/class");
         $connectionString = 'mysql:host=' . Yii::app()->user->host . ';port=' . Yii::app()->user->port . ';dbname=mysql';
-        $this->db = new CDbConnection($connectionString, Yii::app()->user->name, Yii::app()->user->password);
+        $this->db = new $dbClass($connectionString, Yii::app()->user->name, Yii::app()->user->password);
 
         $this->db->charset = 'utf8';
         $this->db->emulatePrepare = true;

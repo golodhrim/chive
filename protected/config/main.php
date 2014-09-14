@@ -88,7 +88,7 @@ $config = array(
 
         // Database settings
         'db' => array(
-            'class' => 'CDbConnection',
+            'class' => 'DbConnection',
             'connectionString' => 'mysql:host=localhost;dbname=information_schema',
             'charset' => 'utf8',
             'autoConnect' => false,
