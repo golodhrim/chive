@@ -274,7 +274,7 @@
         position: fixed;
         top: 42px;
         z-index: 1000;
-        height: 50px;
+        height: 40px;
         background: transparent url('../../../images/tabs-bg.png') top right no-repeat
     }
 
