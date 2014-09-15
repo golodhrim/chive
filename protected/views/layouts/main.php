@@ -127,6 +127,12 @@ $(document).ready(function() {
 </div>
 <div class="sidebarContent">
 	<ul id="statusList" class="list icon">
+		<li class="nowrap" style="margin-bottom: 10px">
+			<?php echo Html::ajaxLink('information/processes', array('class' => 'icon')); ?>
+				<?php echo Html::icon('process'); ?>
+				<span><?php echo Yii::t('core', 'processes'); ?></span>
+			</a>
+		</li>
 		<li class="nowrap">
 			<?php echo Html::ajaxLink('privileges/users', array('class' => 'icon')); ?>
 				<?php echo Html::icon('privileges'); ?>
@@ -155,12 +161,6 @@ $(document).ready(function() {
 			<?php echo Html::ajaxLink('information/storageEngines', array('class' => 'icon')); ?>
 				<?php echo Html::icon('engine'); ?>
 				<span><?php echo Yii::t('core', 'storageEngines'); ?></span>
-			</a>
-		</li>
-		<li class="nowrap" style="margin-bottom: 10px">
-			<?php echo Html::ajaxLink('information/processes', array('class' => 'icon')); ?>
-				<?php echo Html::icon('process'); ?>
-				<span><?php echo Yii::t('core', 'processes'); ?></span>
 			</a>
 		</li>
 		<li class="nowrap">
