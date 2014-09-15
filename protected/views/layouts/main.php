@@ -127,7 +127,7 @@ $(document).ready(function() {
 </div>
 <div class="sidebarContent">
 	<ul id="statusList" class="list icon">
-		<li class="nowrap" style="margin-bottom: 10px">
+		<li class="nowrap">
 			<?php echo Html::ajaxLink('information/processes', array('class' => 'icon')); ?>
 				<?php echo Html::icon('process'); ?>
 				<span><?php echo Yii::t('core', 'processes'); ?></span>
