@@ -36,7 +36,7 @@ class InformationController extends Controller
     public function actionProcesses()
     {
         Yii::app()->getDb()->setActive(true);
-        $cmd = Yii::app()->getDb()->createCommand('SHOW PROCESSLIST');
+        $cmd = Yii::app()->getDb()->createCommand('SHOW FULL PROCESSLIST');
         $processes = $cmd->queryAll();
 
         $this->render('processes', array(
