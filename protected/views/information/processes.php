@@ -7,13 +7,13 @@
 		<colgroup>
 			<col class="checkbox" />
 			<col class="action" />
-			<col />
-			<col />
-			<col />
-			<col />
-			<col />
-			<col />
-			<col />
+			<col width="45px" />
+			<col width="55px" />
+			<col width="135px" />
+			<col width="125px" />
+			<col width="70px" />
+			<col width="40px" />
+			<col width="60px" />
 			<col />
 			<col />
 		</colgroup>
