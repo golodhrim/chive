@@ -1,6 +1,6 @@
 <h2><?php echo Yii::t('core', 'Welcome'); ?>, <?php echo Yii::app()->user->name; ?>!</h2>
 
-<table class="list">
+<table class="list" style="width: 550px;">
 	<colgroup>
 		<col style="width: 200px;"></col>
 		<col></col>
@@ -38,3 +38,14 @@
 	</tbody>
 </table>
 
+<br/><br/>
+
+<h3><?php echo Yii::t('core', 'Useful Links'); ?></h3>
+<ul>
+    <li>
+        <?php echo Html::ajaxLink('information/processes', array('class' => 'icon')); ?>
+            <?php echo Html::icon('process'); ?>
+            <span><?php echo Yii::t('core', 'processes'); ?></span>
+        </a>
+    </li>
+</ul>
