@@ -1,4 +1,4 @@
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -27,33 +27,25 @@ function init()
 		var tBody = this.tBodies[0];
 		var rowCount = tBody.rows.length;
 		var currentClass = 'odd';
-		for(var i = 0; i < rowCount; i++)
-		{
-			if(!tBody.rows[i].className.match('noSwitch') || i == 0)
-			{
-				if(currentClass == 'even')
-				{
+		for (var i = 0; i < rowCount; i++) {
+			if (!tBody.rows[i].className.match('noSwitch') || i == 0) {
+				if (currentClass == 'even') {
 					currentClass = 'odd';
-				}
-				else
-				{
+				} else {
 					currentClass = 'even';
 				}
 			}
 			tBody.rows[i].className += ' ' + currentClass;
 		}
 	});
-	
+
 	// Add checkboxes to respective tables
-	try 
-	{
+	try {
 		$('table.addCheckboxes').addCheckboxes().removeClass('addCheckboxes');
 		$('table.editable').editableTable().removeClass('editable');
+	} catch (ex) {
 	}
-	catch(ex)
-	{
-	}
-	
+
 	// Reset favicon
 	/*
 	$('link[rel="shortcut icon"]').attr('href', baseUrl + '/images/favicon2.ico');
@@ -67,17 +59,15 @@ function navigateTo(_url, _post)
 {
 	globalPost = _post;
 	window.location.href = _url;
-	
+
 	return false;
 }
 
-$(document).ready(function()
-{
+$(document).ready(function() {
 	// Load sideBar
 	var sideBar = $("#sideBar");
 	
 	$('body').layout({
-		
 		// General
 		applyDefaultStyles: true,
 
@@ -92,8 +82,7 @@ $(document).ready(function()
 		west__initClosed: userSettings.sidebarState == 'closed',
 		west__onresize_end: function () {
 			sideBar.accordion('resize');
-			if($('.ui-layout-west').width() != userSettings.sidebarWidth)
-			{
+			if ($('.ui-layout-west').width() != userSettings.sidebarWidth) {
 				// Save
 				userSettings.sidebarWidth = $('.ui-layout-west').width(); 
 				$.post(baseUrl + '/ajaxSettings/set', {
@@ -125,7 +114,6 @@ $(document).ready(function()
 			return;
 		}
 	});
-	
 
 	// ACCORDION - inside the West pane
 	sideBar.accordion({
@@ -136,26 +124,21 @@ $(document).ready(function()
 		fillSpace: true,
 		selectedClass: "active"
 	});
-	
+
 	// Trigger resize event for sidebar accordion - doesn't work in webkit-based browsers
 	sideBar.accordion('resize');
-	
 
 	// Setup list filters
-
 	$('#schemaList').setupListFilter($('#schemaSearch'));
 	$('#tableList').setupListFilter($('#tableSearch'));
 	$('#viewList').setupListFilter($('#viewSearch'));
 	$('#bookmarkList').setupListFilter($('#bookmarkSearch'));
-	
 
-	
-	/*
+	/**
 	 * Ajax functions
 	 */ 
-	
 
-	/*
+	/**
 	 * Change jQuery UI dialog defaults
 	 */
 	$.ui.dialog.prototype.options.width = 400;
@@ -163,23 +146,19 @@ $(document).ready(function()
 	$.ui.dialog.prototype.options.modal = true;
 	$.ui.dialog.prototype.options.resizable = false;
 
-	
-	/*
+	/**
 	 * Misc
 	 */
 	chive.init();
-	
 })
-.keydown(function(e) 
-{
-	if(e.keyCode >= 48 
+.keydown(function(e) {
+	if (e.keyCode >= 48
 		&& e.keyCode <= 90
 		&& !e.altKey && !e.ctrlKey && !e.shiftKey 
 		&& (e.target == null || (e.target.tagName != 'INPUT' && e.target.tagName != 'TEXTAREA' && e.target.tagName != 'SELECT')))
 	{
 		var element = $('#tableSearch:visible, #schemaSearch:visible');
-		if(element.length == 1)
-		{
+		if (element.length == 1) {
 			element = element.get(0);
 			element.value = '';
 			element.focus();
@@ -191,32 +170,24 @@ String.prototype.trim = function() {
     return this.replace(/^\s*/, "").replace(/\s*$/, "");
 }
 
-String.prototype.startsWith = function(str)
-{
-	return (this.match("^"+str)==str);
+String.prototype.startsWith = function(str) {
+	return (this.match("^" + str) == str);
 }
 
-
-/*
+/**
  * Language
  */
 var lang = {
-	
-	get: function(category, variable, parameters) 
-	{
+	get: function(category, variable, parameters) {
 		var package = lang[category];
-		if(package && package[variable])
-		{
+		if (package && package[variable]) {
 			variable = package[variable];
-			if(parameters)
-			{
-				for(var key in parameters)
-				{
+			if (parameters) {
+				for (var key in parameters) {
 					variable = variable.replace(key, parameters[key]);
 				}
 			}
 		}
 		return variable;
 	}
-	
 };

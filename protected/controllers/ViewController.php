@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,218 +19,217 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class ViewController extends TableController
 {
-	const PAGE_SIZE = 10;
-	private static $delimiter = '//';
+    const PAGE_SIZE = 10;
+    private static $delimiter = '//';
 
-	/**
-	 * @var string specifies the default action to be 'list'.
-	 */
-	public $defaultAction='list';
+    /**
+     * @var string specifies the default action to be 'list'.
+     */
+    public $defaultAction='list';
 
-	/**
-	 * @var CActiveRecord the currently loaded data model instance.
-	 */
-	private $_view;
+    /**
+     * @var CActiveRecord the currently loaded data model instance.
+     */
+    private $_view;
 
-	public $view;
-	public $table;
-	public $schema;
+    public $view;
+    public $table;
+    public $schema;
 
-	public $isSent = false;
+    public $isSent = false;
 
-	/**
-	 * @var Default layout for this controller
-	 */
-	public $layout = '_view';
+    /**
+     * Default layout for this controller
+     *
+     * @var string
+     */
+    public $layout = '_view';
 
-	public function __construct($id, $module=null) {
+    public function __construct($id, $module=null) {
 
-		$request = Yii::app()->getRequest();
+        $request = Yii::app()->getRequest();
 
-		$this->view = $request->getParam('view');
-		$this->schema = $request->getParam('schema');
-		
-		parent::__construct($id, $module);
-		
-		$this->table = $this->view;
-		$this->connectDb($this->schema);
-	}
+        $this->view = $request->getParam('view');
+        $this->schema = $request->getParam('schema');
 
-	/**
-	 * Shows the table structure
-	 */
-	public function actionStructure()
-	{
-		$view = $this->loadView();
+        parent::__construct($id, $module);
 
-		$this->render('structure',array(
-			'view' => $view,
-		));
-	}
+        $this->table = $this->view;
+        $this->connectDb($this->schema);
+    }
 
-	/**
-	 * Creates a view.
-	 */
-	public function actionCreate()
-	{
-		$this->layout = false;
+    /**
+     * Shows the table structure
+     */
+    public function actionStructure()
+    {
+        $view = $this->loadView();
 
-		$view = new View();
+        $this->render('structure',array(
+            'view' => $view,
+        ));
+    }
 
-		if(isset($_POST['query']))
-		{
-			$query = $_POST['query'];
+    /**
+     * Creates a view.
+     */
+    public function actionCreate()
+    {
+        $this->layout = false;
 
-			try
-			{
-				$cmd = $this->db->createCommand($query);
-				$cmd->prepare();
-				$cmd->execute();
+        $view = new View();
 
-				$response = new AjaxResponse();
-				$response->addNotification('success',
-					Yii::t('core', 'successAddView'),
-					null,
-					$query);
-				$response->refresh = true;
-				$response->executeJavaScript('sideBar.loadViews(schema);');
-				$this->sendJSON($response);
-			}
-			catch(CDbException $ex)
-			{
-				$errorInfo = $cmd->getPdoStatement()->errorInfo();
-				$view->addError(null, Yii::t('core', 'sqlErrorOccured', array('{errno}' => $errorInfo[1], '{errmsg}' => $errorInfo[2])));
-			}
-		}
-		else
-		{
-			$query = 'CREATE VIEW ' . $this->db->quoteTableName('name_of_view') . ' AS' . "\n"
-				. '-- Definition start' . "\n\n"
-				. '-- Definition end';
-		}
+        if(isset($_POST['query']))
+        {
+            $query = $_POST['query'];
 
-		CHtml::generateRandomIdPrefix();
-		$this->render('form', array(
-			'view' => $view,
-			'query' => $query,
-		));
-	}
+            try
+            {
+                $cmd = $this->db->createCommand($query);
+                $cmd->prepare();
+                $cmd->execute();
 
-	/**
-	 * Drops views.
-	 */
-	public function actionDrop()
-	{
-		$response = new AjaxResponse();
-		$response->refresh = true;
-		$response->executeJavaScript('sideBar.loadViews(schema);');
-		$views = (array)$_POST['views'];
-		$droppedViews = $droppedSqls = array();
+                $response = new AjaxResponse();
+                $response->addNotification('success',
+                    Yii::t('core', 'successAddView'),
+                    null,
+                    $query);
+                $response->refresh = true;
+                $response->executeJavaScript('sideBar.loadViews(schema);');
+                $this->sendJSON($response);
+            }
+            catch(CDbException $ex)
+            {
+                $errorInfo = $cmd->getPdoStatement()->errorInfo();
+                $view->addError(null, Yii::t('core', 'sqlErrorOccured', array('{errno}' => $errorInfo[1], '{errmsg}' => $errorInfo[2])));
+            }
+        }
+        else
+        {
+            $query = 'CREATE VIEW ' . $this->db->quoteTableName('name_of_view') . ' AS' . "\n"
+                . '-- Definition start' . "\n\n"
+                . '-- Definition end';
+        }
 
-		foreach($views AS $view)
-		{
-			$viewObj = View::model()->findByPk(array(
-				'TABLE_SCHEMA' => $this->schema,
-				'TABLE_NAME' => $view,
-			));
-			try
-			{
-				$sql = $viewObj->delete();
-				$droppedViews[] = $view;
-				$droppedSqls[] = $sql;
-			}
-			catch(DbException $ex)
-			{
-				$response->addNotification('error',
-					Yii::t('core', 'errorDropView', array('{view}' => $view)),
-					$ex->getText(),
-					$ex->getSql());
-			}
-		}
+        CHtml::generateRandomIdPrefix();
+        $this->render('form', array(
+            'view' => $view,
+            'query' => $query,
+        ));
+    }
 
-		$count = count($droppedViews);
-		if($count > 0)
-		{
-			$response->addNotification('success',
-				Yii::t('core', 'successDropView', array($count, '{view}' => $droppedViews[0], '{viewCount}' => $count)),
-				($count > 1 ? implode(', ', $droppedViews) : null),
-				implode("\n", $droppedSqls));
-		}
+    /**
+     * Drops views.
+     */
+    public function actionDrop()
+    {
+        $response = new AjaxResponse();
+        $response->refresh = true;
+        $response->executeJavaScript('sideBar.loadViews(schema);');
+        $views = (array)$_POST['views'];
+        $droppedViews = $droppedSqls = array();
 
-		$this->sendJSON($response);
-	}
+        foreach ($views AS $view)
+        {
+            $viewObj = View::model()->findByPk(array(
+                'TABLE_SCHEMA' => $this->schema,
+                'TABLE_NAME' => $view,
+            ));
+            try
+            {
+                $sql = $viewObj->delete();
+                $droppedViews[] = $view;
+                $droppedSqls[] = $sql;
+            }
+            catch(DbException $ex)
+            {
+                $response->addNotification('error',
+                    Yii::t('core', 'errorDropView', array('{view}' => $view)),
+                    $ex->getText(),
+                    $ex->getSql());
+            }
+        }
 
-	/**
-	 * Updates a view.
-	 */
-	public function actionUpdate()
-	{
-		$this->layout = false;
+        $count = count($droppedViews);
+        if($count > 0)
+        {
+            $response->addNotification('success',
+                Yii::t('core', 'successDropView', array($count, '{view}' => $droppedViews[0], '{viewCount}' => $count)),
+                ($count > 1 ? implode(', ', $droppedViews) : null),
+                implode("\n", $droppedSqls));
+        }
 
-		$view = View::model()->findByPk(array(
-			'TABLE_SCHEMA' => $this->schema,
-			'TABLE_NAME' => $this->view,
-		));
+        $this->sendJSON($response);
+    }
 
-		if(isset($_POST['query']))
-		{
-			$query = $_POST['query'];
-			$cmd = $this->db->createCommand($query);
-			try
-			{
-				$cmd->prepare();
-				$cmd->execute();
-				$response = new AjaxResponse();
-				$response->addNotification('success',
-					Yii::t('core', 'successAlterView', array('{view}' => $view->TABLE_NAME)),
-					null,
-					$query);
-				$response->refresh = true;
-				$this->sendJSON($response);
-			}
-			catch(CDbException $ex)
-			{
-				$errorInfo = $cmd->getPdoStatement()->errorInfo();
-				$view->addError(null, Yii::t('core', 'sqlErrorOccured', array('{errno}' => $errorInfo[1], '{errmsg}' => $errorInfo[2])));
-			}
-		}
-		else
-		{
-			$query = $view->getAlterView();
-		}
+    /**
+     * Updates a view.
+     */
+    public function actionUpdate()
+    {
+        $this->layout = false;
 
-		CHtml::generateRandomIdPrefix();
-		$this->render('form', array(
-			'view' => $view,
-			'query' => $query,
-		));
-	}
+        $view = View::model()->findByPk(array(
+            'TABLE_SCHEMA' => $this->schema,
+            'TABLE_NAME' => $this->view,
+        ));
 
-	/**
-	 * Loads the current view.
-	 *
-	 * @return	View
-	 */
-	public function loadView()
-	{
-		if(is_null($this->_view))
-		{
-			$pk = array(
-				'TABLE_SCHEMA' => $this->schema,
-				'TABLE_NAME' => $this->view,
-			);
-			$this->_view = View::model()->findByPk($pk);
-			$this->_view->columns = Column::model()->findAllByAttributes($pk);
+        if(isset($_POST['query']))
+        {
+            $query = $_POST['query'];
+            $cmd = $this->db->createCommand($query);
+            try
+            {
+                $cmd->prepare();
+                $cmd->execute();
+                $response = new AjaxResponse();
+                $response->addNotification('success',
+                    Yii::t('core', 'successAlterView', array('{view}' => $view->TABLE_NAME)),
+                    null,
+                    $query);
+                $response->refresh = true;
+                $this->sendJSON($response);
+            }
+            catch(CDbException $ex)
+            {
+                $errorInfo = $cmd->getPdoStatement()->errorInfo();
+                $view->addError(null, Yii::t('core', 'sqlErrorOccured', array('{errno}' => $errorInfo[1], '{errmsg}' => $errorInfo[2])));
+            }
+        }
+        else
+        {
+            $query = $view->getAlterView();
+        }
 
-			if(is_null($this->_view))
-			{
-				throw new CHttpException(500, 'The requested view does not exist.');
-			}
-		}
-		return $this->_view;
-	}
+        CHtml::generateRandomIdPrefix();
+        $this->render('form', array(
+            'view' => $view,
+            'query' => $query,
+        ));
+    }
 
+    /**
+     * Loads the current view.
+     *
+     * @return View
+     * @throws CHttpException
+     */
+    public function loadView()
+    {
+        if (is_null($this->_view)) {
+            $pk = array(
+                'TABLE_SCHEMA' => $this->schema,
+                'TABLE_NAME' => $this->view,
+            );
+            $this->_view = View::model()->findByPk($pk);
+            $this->_view->columns = Column::model()->findAllByAttributes($pk);
+
+            if (is_null($this->_view)) {
+                throw new CHttpException(500, 'The requested view does not exist.');
+            }
+        }
+        return $this->_view;
+    }
 }

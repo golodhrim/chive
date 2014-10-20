@@ -1,4 +1,4 @@
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -19,61 +19,51 @@
  */
 
 var chive = {
-	
-	currentLocation: 	window.location.href,
-	
+	currentLocation: window.location.href,
+
 	// Turn loading indicator on by default
-	loadingIndicator: 	true,
-	
-	
+	loadingIndicator: true,
+
 	/*
 	 * Initialize chive
 	 */
-	init: function()
-	{
+	init: function() {
 		// Initialize location checker
 		setInterval(chive.checkLocation, 100);
 		
 		// Load first page if anchor is set
-		if(chive.currentLocation.indexOf('#') > -1)
-		{
+		if (chive.currentLocation.indexOf('#') > -1) {
 			chive.refresh();
 		}
-		
+
 		// Set keyboard shortcuts for Yii pager
-		$(document)
-		.bind('keydown', {combi: 'right', disableInInput: true }, function() {
+		$(document).bind('keydown', {combi: 'right', disableInInput: true }, function() {
 			var li = $('ul.yiiPager li.selected').next('li');
-			if(li.length > 0)
-			{
+			if (li.length > 0) {
 				location.href = li.children('a').attr('href');
 			}
 		})
 		.bind('keydown', {combi: 'left', disableInInput: true }, function() {
 			var li = $('ul.yiiPager li.selected').prev('li');
-			if(li.length > 0)
-			{
+			if (li.length > 0) {
 				location.href = li.children('a').attr('href');
 			}
 		});
-	
+
 		// Send keep-alive to server every 5 minutes
-		if(!location.href.indexOf('login'))
-		{
+		if (!location.href.indexOf('login')) {
 			setInterval(function() {
 				$.post(baseUrl + '/site/keepAlive', function(response) {
-					if(response != 'OK') 
-					{
+					if (response != 'OK') {
 						reload();
 					}
 				});
 			}, 300000);
 		}
-		
-		if($('#globalSearch').length)
-		{
+
+		if ($('#globalSearch').length) {
 			$('#globalSearch').autocomplete(baseUrl + '/site/search', {
-				width:		400,
+				width: 400,
 				formatItem: function(item, position, total, item2) {
 					item = JSON.parse(item2);
 					return item.text;
@@ -87,12 +77,10 @@ var chive = {
 					window.location = item.target;
 				});
 		}
-		
+
 		// Initialize loading indicator
-		$(document)
-			.ajaxStart(function() {
-				if(this.loadingIndicator)
-				{
+		$(document).ajaxStart(function() {
+				if (this.loadingIndicator) {
 					$('#loading').css({'background-image': 'url(' + basePath + '/images/loading4.gif)'}).fadeIn();
 				}
 			})
@@ -103,11 +91,9 @@ var chive = {
 				Notification.add('ajaxerror', lang.get('core', 'ajaxRequestFailed'), lang.get('core', 'ajaxRequestFailedText'), xhr.responseText);
 				$('#loading').css({'background-image': 'url(' + basePath + '/images/loading5.gif)'}).fadeOut();
 			});
-
 	},
 
-	initAce: function(config)
-	{
+	initAce: function(config) {
 		var editor = ace.edit(config.id + '_editor');
 		var session = editor.getSession();
 		var div = $('#' + config.id + '_editor');
@@ -132,28 +118,23 @@ var chive = {
 		// Set resizing to container width
 		var containerWidth = container.width();
 		window.setInterval(function() {
-			if(container.width() != containerWidth)
-			{
+			if (container.width() != containerWidth) {
 				containerWidth = container.width();
 				editor.resize();
 			}
 		}, 100);
 
 		// Set autogrow
-		if(config.autogrow)
-		{
+		if (config.autogrow) {
 			var minHeight = config.height;
 			var maxHeight = 300;
 			session.on('change', function() {
 				var lines = session.getValue().split("\n").length;
 
 				var calculatedHeight = lines * 18 + 20;
-				if(calculatedHeight > maxHeight)
-				{
+				if (calculatedHeight > maxHeight) {
 					calculatedHeight = maxHeight;
-				}
-				else if(calculatedHeight < minHeight)
-				{
+				} else if(calculatedHeight < minHeight) {
 					calculatedHeight = minHeight;
 				}
 
@@ -163,30 +144,27 @@ var chive = {
 		}
 	},
 
-	/*
+	/**
 	 * Loads the specified page.
 	 */
-	goto: function(location, postValues)
-	{
-		if(postValues) {
+	goto: function(location, postValues) {
+		if (postValues) {
 			globalPost = postValues;
-		}
-		else {
+		} else {
 			globalPost = {};
 		}
-		
+
 		window.location.hash = location;
 		chive.currentLocation = window.location.href;
 		chive.refresh();
 	},
-	
-	/*
+
+	/**
 	 * Refreshes the current page using the anchor name.
 	 */
-	refresh: function()
-	{	
+	refresh: function() {
 		// Build url
-		
+
 		var url = chive.currentLocation
 			.replace(/\?(.+)#/, '')
 			.replace('#', '/')					// Replace # with /
@@ -194,14 +172,12 @@ var chive = {
 
 		// Load page into content area
 		$.post(url, globalPost, function(response) {
-			if(!AjaxResponse.handle(response))
-			{
+			if (!AjaxResponse.handle(response)) {
 				var content = document.getElementById('content');
 				response = '<div style="display: none">Thank\'s to InternetExplorer 8 which requires this dirty hack ...</div>' + response;
 				content.innerHTML = response;
 				var scripts = content.getElementsByTagName('script');
-				for(var i = 0; i < scripts.length; i++)
-				{
+				for (var i = 0; i < scripts.length; i++) {
 					$.globalEval(scripts[i].innerHTML);
 				}
 				init();
@@ -209,25 +185,21 @@ var chive = {
 			var globalPost = {};
 		});
 	},
-	
-	/*
+
+	/**
 	 * Reloads the whole page.
 	 */
-	reload: function()
-	{
+	reload: function() {
 		window.location.reload();
 	},
-	
-	/*
+
+	/**
 	 * Checks if current location has changed.
 	 */
-	checkLocation: function()
-	{
-		if(window.location.href != chive.currentLocation) 
-		{
+	checkLocation: function() {
+		if (window.location.href != chive.currentLocation) {
 			chive.currentLocation = window.location.href;
 			chive.refresh();
 		}
 	}
-	
 };

@@ -1,5 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <title><?php echo Yii::app()->name; ?></title>
@@ -8,6 +7,7 @@
 <link rel="stylesheet" type="text/css" href="<?php echo BASEURL; ?>/css/main.css" />
 <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->theme->getBaseUrl(); ?>/css/style.css" />
 
+<link rel="icon" href="<?php echo BASEURL; ?>/images/favicon.ico" type="image/x-icon" />
 <link rel="shortcut icon" href="<?php echo BASEURL; ?>/images/favicon.ico" type="image/x-icon" />
 
 <script type="text/javascript">
@@ -107,7 +107,7 @@ $(document).ready(function() {
 			<a class="icon button" href="<?php echo Yii::app()->getBaseUrl(true); ?>">
 				<img src="<?php echo BASEURL; ?>/images/logo.png" alt="Chive" height="22" style="position: relative; top: 6px;" />
 			</a>
-			<a href="<?php echo Html::getBaseUrlWithScriptName() . '#schemata'; ?>" class="icon button">
+			<a href="<?php echo Yii::app()->getBaseUrl(true) . '#schemata'; ?>" class="icon button">
 				<?php echo Html::icon('server'); ?>
 				<span><?php echo Yii::app()->user->host; ?></span>
 			</a>
@@ -116,9 +116,6 @@ $(document).ready(function() {
 			<input type="text" id="globalSearch" value="<?php echo Yii::t('core', 'enterSchemaOrTable'); ?>" onclick="this.value = '';" class="search" />
 			<a class="icon button" href="javascript:chive.refresh();">
 				<?php echo Html::icon('refresh', 16, false, 'core.refresh'); ?>
-			</a>
-			<a class="icon button" href="https://bugs.launchpad.net/chive/+filebug" target="_blank">
-				<?php echo Html::icon('ticket', 16, false, 'core.reportABug'); ?>
 			</a>
 			<a class="icon button" href="<?php echo Yii::app()->urlManager->baseUrl; ?>/site/logout">
 				<?php echo Html::icon('logout', 16, false, 'core.logout'); ?>
@@ -135,11 +132,9 @@ $(document).ready(function() {
 				<span><?php echo Yii::t('core', 'tables'); ?></span>
 			</a>
 			<img class="loading" src="<?php echo BASEURL; ?>/images/loading.gif" alt="<?php echo Yii::t('core', 'loading'); ?>..." />
+			<input type="text" id="tableSearch" class="search text" />
 		</div>
 		<div class="sidebarContent tableList">
-
-			<input type="text" id="tableSearch" class="search text" />
-
 			<ul class="list icon nowrap" id="tableList">
 				<li class="nowrap template">
 					<div class="listIconContainer">

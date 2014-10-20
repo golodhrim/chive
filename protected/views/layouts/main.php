@@ -1,5 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <title><?php echo Yii::app()->name; ?></title>
@@ -8,6 +7,7 @@
 <link rel="stylesheet" type="text/css" href="<?php echo BASEURL; ?>/css/main.css" />
 <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->theme->getBaseUrl(); ?>/css/style.css" />
 
+<link rel="icon" href="<?php echo BASEURL; ?>/images/favicon.ico" type="image/x-icon" />
 <link rel="shortcut icon" href="<?php echo BASEURL; ?>/images/favicon.ico" type="image/x-icon" />
 
 <script type="text/javascript">
@@ -90,9 +90,6 @@ $(document).ready(function() {
 			<a class="icon button" href="javascript:chive.refresh();">
 				<?php echo Html::icon('refresh', 16, false, 'core.refresh'); ?>
 			</a>
-			<a class="icon button" href="https://bugs.launchpad.net/chive/+filebug" target="_blank">
-				<?php echo Html::icon('ticket', 16, false, 'core.reportABug'); ?>
-			</a>
 			<a class="icon button" href="<?php echo Yii::app()->urlManager->baseUrl; ?>/site/logout">
 				<?php echo Html::icon('logout', 16, false, 'core.logout'); ?>
 			</a>
@@ -131,6 +128,12 @@ $(document).ready(function() {
 <div class="sidebarContent">
 	<ul id="statusList" class="list icon">
 		<li class="nowrap">
+			<?php echo Html::ajaxLink('information/processes', array('class' => 'icon')); ?>
+				<?php echo Html::icon('process'); ?>
+				<span><?php echo Yii::t('core', 'processes'); ?></span>
+			</a>
+		</li>
+		<li class="nowrap">
 			<?php echo Html::ajaxLink('privileges/users', array('class' => 'icon')); ?>
 				<?php echo Html::icon('privileges'); ?>
 				<span><?php echo Yii::t('core', 'privileges'); ?></span>
@@ -158,12 +161,6 @@ $(document).ready(function() {
 			<?php echo Html::ajaxLink('information/storageEngines', array('class' => 'icon')); ?>
 				<?php echo Html::icon('engine'); ?>
 				<span><?php echo Yii::t('core', 'storageEngines'); ?></span>
-			</a>
-		</li>
-		<li class="nowrap" style="margin-bottom: 10px">
-			<?php echo Html::ajaxLink('information/processes', array('class' => 'icon')); ?>
-				<?php echo Html::icon('process'); ?>
-				<span><?php echo Yii::t('core', 'processes'); ?></span>
 			</a>
 		</li>
 		<li class="nowrap">

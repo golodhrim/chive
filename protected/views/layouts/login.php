@@ -1,5 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <title><?php echo Yii::app()->name; ?></title>
@@ -8,11 +7,11 @@
 <link rel="stylesheet" type="text/css" href="<?php echo BASEURL; ?>/css/main.css" />
 <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->theme->getBaseUrl(); ?>/css/style.css" />
 
+<link rel="icon" href="<?php echo BASEURL; ?>/images/favicon.ico" type="image/x-icon" />
 <link rel="shortcut icon" href="<?php echo BASEURL; ?>/images/favicon.ico" type="image/x-icon" />
-<?php Yii::app()->clientScript->registerCoreScript('jquery'); ?>
-<?php Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl.'/js/jquery/jquery.ui.js', CClientScript::POS_HEAD); ?>
-<?php Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl.'/js/views/site/login.js', CClientScript::POS_HEAD); ?>
 
+<?php Yii::app()->clientScript->registerCoreScript('jquery'); ?>
+<?php Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery/jquery.ui.js', CClientScript::POS_HEAD); ?>
 </head>
 <body>
 	<div id="header">
@@ -28,11 +27,8 @@
 		</div>
 	</div>
 
-  <?php echo $content; ?>
+	<?php echo $content; ?>
 
-  <script type="text/javascript">
-		login.setup();
-  </script>
-
+<?php Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/views/site/login.js', CClientScript::POS_END); ?>
 </body>
 </html>

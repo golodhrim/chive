@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -22,13 +22,13 @@
 
 class PharHttpRequest extends ChiveHttpRequest
 {
-    public function getScriptUrl()
-    {
-        return parent::getScriptUrl() . "/index.php";
-    }
+	public function getScriptUrl()
+	{
+		return parent::getScriptUrl() . "/index.php";
+	}
 
-    public function getScriptFile()
-    {
-        return "phar://" . parent::getScriptFile() . DIRECTORY_SEPARATOR . "index.php";
-    }
+	public function getScriptFile()
+	{
+		return "phar://" . parent::getScriptFile() . DIRECTORY_SEPARATOR . "index.php";
+	}
 }

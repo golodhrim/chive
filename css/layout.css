@@ -253,7 +253,7 @@
    */
   
   #login {
-	margin: 7em auto; 
+	margin: 5.5em auto;
 	width: 320px;
   }
   
@@ -583,6 +583,6 @@
   	color: #aaa;
   	margin-right: 5px;
   	text-indent: 18px;
+	width: 200px;
   }
-  
 }

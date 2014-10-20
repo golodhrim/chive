@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,82 +19,68 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class SchemaTreeView extends CTreeView
 {
-	public $items=array();
+    public $items = array();
 
-	public function init()
-	{
+    public function init()
+    {
+        // Add ordering
+        $criteria = new CDbCriteria;
+        $criteria->order = "SCHEMA_NAME ASC";
 
-		// Add ordering
-		$criteria = new CDbCriteria;
-		$criteria->order = "SCHEMA_NAME ASC";
+        $schemata = Schema::model()->findAll($criteria);
 
-		$schemata = Schema::model()->findAll($criteria);
+        $dbSeperator = "_";
+        $items = $root = $children = $items = array();
 
-		$dbSeperator = "_";
-		$items = $root = $children = $items = array();
+        foreach ($schemata as $schema) {
+            // Find prefix in name
+            if ($position = strpos($schema->SCHEMA_NAME, $dbSeperator)) {
+                $prefix = substr($schema->SCHEMA_NAME, 0, $position);
+                $root[$prefix] = $prefix;
+                $children[$prefix][] = substr($schema->SCHEMA_NAME, $position+1);
+            } else {
+                $root[] = $schema->SCHEMA_NAME;
+            }
+        }
 
-		foreach($schemata AS $schema) {
+        $i = 0;
+        foreach ($root as $key => $item) {
+            $childs = array();
+            $childrenCount = count($children[$item]);
 
-			// Find prefix in name
-			if($position = strpos($schema->SCHEMA_NAME, $dbSeperator)) {
-				$prefix = substr($schema->SCHEMA_NAME, 0, $position);
-				$root[$prefix] = $prefix;
-				$children[$prefix][] = substr($schema->SCHEMA_NAME, $position+1);
-			}
-			else
-				$root[] = $schema->SCHEMA_NAME;
+            if ($childrenCount > 1) {
+                foreach ($children[$item] as $child) {
+                    $childs[] = array(
+                        'text' => CHtml::link($child, SchemaController::createUrl("/schema/" . $item . $dbSeperator . $child)),
+                    );
+                }
+            } else {
+                if ($childrenCount == 1) {
+                    $name = $item . $dbSeperator . $children[$item][0];
+                } else {
+                    $name = $item;
+                }
 
-		}
+                $items[] = array(
+                    'text' => CHtml::link($name, SchemaController::createUrl("/schema/" . $name)),
+                );
 
-		$i = 0;
-		foreach($root AS $key=>$item) {
+                $i++;
+                continue;
+            }
 
-			$childs = array();
-			$childrenCount = count($children[$item]);
+            $items[] = array(
+                'text' => ($childrenCount == 0 ? CHtml::link($item, SchemaController::createUrl("/schema/" . $item)) : $item),
+                'expanded' => $i == 0 ? true : false,
+                'children' => $childs,
+            );
 
-			if($childrenCount > 1)
-			{
+            $i++;
+        }
 
-				foreach($children[$item] AS $child) {
-
-					$childs[] = array(
-						'text' => CHtml::link($child, SchemaController::createUrl("/schema/" . $item . $dbSeperator . $child)),
-					);
-
-				}
-			}
-			else
-			{
-
-				if($childrenCount == 1)
-					$name = $item . $dbSeperator . $children[$item][0];
-				else
-					$name = $item;
-
-				$items[] = array(
-					'text' => CHtml::link($name, SchemaController::createUrl("/schema/" . $name)),
-				);
-
-				$i++;
-				continue;
-
-			}
-
-			$items[] = array(
-				'text' => ($childrenCount == 0 ? CHtml::link($item, SchemaController::createUrl("/schema/" . $item)) : $item),
-				'expanded' => $i == 0 ? true : false,
-				'children' => $childs,
-			);
-
-			$i++;
-
-		}
-
-		$this->data = $items;
-		parent::init();
-
-	}
+        $this->data = $items;
+        parent::init();
+    }
 }

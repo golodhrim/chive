@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,25 +19,23 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class Select extends CWidget
 {
-	public $htmlOptions;
+    public $htmlOptions;
 
-	public $items=array();
+    public $items = array();
 
-	public function run() {
+    public function run()
+    {
+        $items = array();
 
-		$items = array();
+        foreach ($this->items as $item) {
+            $items[] = $item;
+        }
 
-		foreach($this->items AS $item) {
-			$items[] = $item;
-		}
-
-		$this->render('select', array(
-			'items'=>$items,
-			'htmlOptions'=>$this->htmlOptions,
-		));
-	}
-
+        $this->render('select', array(
+            'items' => $items,
+            'htmlOptions' => $this->htmlOptions,
+        ));
+    }
 }

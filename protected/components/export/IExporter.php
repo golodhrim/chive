@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,43 +20,41 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 interface IExporter
 {
-
 	/**
 	 * Constructs the new IExport object.
 	 *
-	 * @param	string				used mode (schemata/tables/rows)
-	 * @return	IExport
+	 * @param string used mode (schemata/tables/rows)
+	 * @return IExport
 	 */
 	public function __construct($mode);
 
 	/**
 	 * Returns the settings form for the current mode.
 	 *
-	 * @return	string
+	 * @return string
 	 */
 	public function getSettingsView();
 
 	/**
 	 * Calculates the number of needed steps to export.
 	 *
-	 * @return	int
+	 * @return int
 	 */
 	public function calculateStepCount();
 
 	/**
 	 * Returns the number of steps the export will need.
 	 *
-	 * @return	int
+	 * @return int
 	 */
 	public function getStepCount();
 
 	/**
 	 * Sets the items to export (e.g. tables, schemata).
 	 *
-	 * @param	array				items to export
+	 * @param array items to export
 	 */
 	public function setItems(array $items);
 	
@@ -72,31 +70,30 @@ interface IExporter
 	/**
 	 * Runs the specified exporting step.
 	 *
-	 * @param	int					step number
-	 * @param	boolean				collect output or flush directly
-	 * @return	boolean
+	 * @param int step number
+	 * @param bool collect output or flush directly
+	 * @return bool
 	 */
 	public function runStep($i, $collect = false);
 
 	/**
 	 * Returns the export result.
 	 *
-	 * @return	string
+	 * @return string
 	 */
 	public function getResult();
 
 	/**
 	 * Returns the supported export modes (schemata/tables/rows)
 	 *
-	 * @return	array
+	 * @return array
 	 */
 	public static function getSupportedModes();
 
 	/**
 	 * Returns the title for display purposes.
 	 *
-	 * @return	string
+	 * @return string
 	 */
 	public static function getTitle();
-
 }

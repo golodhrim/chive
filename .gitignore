@@ -8,3 +8,7 @@
 /protected/runtime/user-config/*
 /protected/extensions/sqlquery_old
 /archiveExport.sh
+
+/protected/config/user/*
+!/protected/config/user/.gitignore
+

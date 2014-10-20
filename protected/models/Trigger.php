@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,71 +19,65 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class Trigger extends CActiveRecord
 {
-	
-	public static $db;
+    public static $db;
 
-	/**
-	 * @see		CActiveRecord::model()
-	 */
-	public static function model($className = __CLASS__)
-	{
-		return parent::model($className);
-	}
+    /**
+     * @see CActiveRecord::model()
+     */
+    public static function model($className = __CLASS__)
+    {
+        return parent::model($className);
+    }
 
-	/**
-	 * @see		CActiveRecord::tableName()
-	 */
-	public function tableName()
-	{
-		return 'TRIGGERS';
-	}
+    /**
+     * @see CActiveRecord::tableName()
+     */
+    public function tableName()
+    {
+        return 'TRIGGERS';
+    }
 
-	/**
-	 * @see		CActiveRecord::primaryKey()
-	 */
-	public function primaryKey()
-	{
-		return array(
-			'TRIGGER_SCHEMA',
-			'TRIGGER_NAME',
-		);
-	}
+    /**
+     * @see CActiveRecord::primaryKey()
+     */
+    public function primaryKey()
+    {
+        return array(
+            'TRIGGER_SCHEMA',
+            'TRIGGER_NAME',
+        );
+    }
 
-	/**
-	 * @see		CActiveRecord::delete()
-	 */
-	public function delete()
-	{
-		$sql = 'DROP TRIGGER ' . self::$db->quoteTableName($this->TRIGGER_NAME) . ';';
-		$cmd = self::$db->createCommand($sql);
+    /**
+     * @see CActiveRecord::delete()
+     */
+    public function delete()
+    {
+        $sql = 'DROP TRIGGER ' . self::$db->quoteTableName($this->TRIGGER_NAME) . ';';
+        $cmd = self::$db->createCommand($sql);
 
-		// Execute
-		try
-		{
-			$cmd->prepare();
-			$cmd->execute();
-			return $sql;
-		}
-		catch(CDbException $ex)
-		{
-			throw new DbException($cmd);
-		}
-	}
+        // Execute
+        try {
+            $cmd->prepare();
+            $cmd->execute();
+            return $sql;
+        } catch(CDbException $ex) {
+            throw new DbException($cmd);
+        }
+    }
 
-	/**
-	 * Returns the CREATE TRIGGER statement for this trigger.
-	 *
-	 * @return	string
-	 */
-	public function getCreateTrigger()
-	{
-		return 'CREATE TRIGGER ' . self::$db->quoteTableName($this->TRIGGER_SCHEMA) . '.' . self::$db->quoteTableName($this->TRIGGER_NAME) . "\n"
-			. $this->ACTION_TIMING . ' ' . $this->EVENT_MANIPULATION . "\n"
-			. 'ON ' . self::$db->quoteTableName($this->EVENT_OBJECT_TABLE) . ' FOR EACH ROW' . "\n"
-			. $this->ACTION_STATEMENT;
-	}
-
+    /**
+     * Returns the CREATE TRIGGER statement for this trigger.
+     *
+     * @return string
+     */
+    public function getCreateTrigger()
+    {
+        return 'CREATE TRIGGER ' . self::$db->quoteTableName($this->TRIGGER_SCHEMA) . '.' . self::$db->quoteTableName($this->TRIGGER_NAME) . "\n"
+        . $this->ACTION_TIMING . ' ' . $this->EVENT_MANIPULATION . "\n"
+        . 'ON ' . self::$db->quoteTableName($this->EVENT_OBJECT_TABLE) . ' FOR EACH ROW' . "\n"
+        . $this->ACTION_STATEMENT;
+    }
 }

@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -19,69 +18,67 @@
  * You should have received a copy of the GNU General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
+
 class UserIdentity extends CUserIdentity
 {
-	/**
-	 * @var string host
-	 */
-	public $host;
-	/**
-	 * @var int port
-	 */
-	public $port;
+    /**
+     * @var string
+     */
+    public $host;
 
-	/**
-	 * Constructor.
-	 * @param string username
-	 * @param string password
-	 */
-	public function __construct($username,$password,$host,$port)
-	{
-		$this->username=$username;
-		$this->password=$password;
-		$this->host=$host;
-		$this->port=$port;
-	}
+    /**
+     * @var int
+     */
+    public $port;
 
-	/*
-	 * Authenticates the user against database
-	 * @return bool
-	 */
-	public function authenticate()
-	{
+    /**
+     * @param string $username
+     * @param string $password
+     * @param string $host
+     * @param int $port
+     */
+    public function __construct($username, $password, $host, $port)
+    {
+        $this->username = $username;
+        $this->password = $password;
+        $this->host = $host;
+        $this->port = $port;
+    }
 
-		$db = new CDbConnection();
+    /**
+     * Authenticates the user against database
+     *
+     * @return bool
+     */
+    public function authenticate()
+    {
+        $dbClass = Yii::app()->getComponentConfig("db/class");
+        $db = new $dbClass();
 
-		// Set username and password
-		$db->username = $this->username;
-		$db->password = $this->password;
-		$db->emulatePrepare = true;
-		$db->connectionString = 'mysql:host=' . $this->host . ';dbname=information_schema;port=' . $this->port;
+        // Set username and password
+        $db->username = $this->username;
+        $db->password = $this->password;
+        $db->emulatePrepare = true;
+        $db->connectionString = 'mysql:host=' . $this->host . ';dbname=information_schema;port=' . $this->port;
 
-		try {
+        try {
+            $db->active = true;
 
-			$db->active = true;
+            Yii::app()->setComponent('db', $db);
 
-			Yii::app()->setComponent('db', $db);
+            // Store password in UserIdentity
+            $this->setState('password', $this->password);
 
-			// Store password in UserIdentity
-			$this->setState('password', $this->password);
+            // Create settings array
+            $this->setState('settings', new UserSettingsManager($this->host, $this->username, $this->port));
+            $this->setState('privileges', new UserPrivilegesManager($this->host, $this->username));
+            $this->setState("host", $this->host);
+            $this->setState("port", $this->port);
+        } catch (CDbException $ex) {
+            $this->errorMessage = $ex->getMessage();
+            return false;
+        }
 
-			// Create settings array
-			$this->setState('settings', new UserSettingsManager($this->host, $this->username));
-			$this->setState('privileges', new UserPrivilegesManager($this->host, $this->username));
-			$this->setState("host", $this->host);
-			$this->setState("port", $this->port);
-
-		}
-		catch (CDbException $ex)
-		{
-			$this->errorMessage = $ex->getMessage();
-			return false;
-		}
-
-		return true;
-
-	}
-
+        return true;
+    }
 }

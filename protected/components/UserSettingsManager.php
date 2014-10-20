@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,243 +19,206 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class UserSettingsManager
 {
+    protected $configPath;
+    protected $host, $user, $port;
+    protected $defaultSettings = array();
+    protected $userSettings = array();
 
-	private $configPath;
-	private $host, $user;
-	private $defaultSettings = array();
-	private $userSettings = array();
+    public function __construct($host, $user, $port)
+    {
+        $this->host = $host;
+        $this->user = $user;
+        $this->port = $port;
 
-	public function __construct($host, $user)
-	{
+        // Get config path
+        $this->configPath = self::getConfigPath();
 
-		$this->host = $host;
-		$this->user = $user;
+        // Load settings
+        $this->loadSettings();
+    }
 
-		// Get config path
-		$this->configPath = Yii::app()->getRuntimePath() . DIRECTORY_SEPARATOR . 'user-config' . DIRECTORY_SEPARATOR;
+    /**
+     * @return string
+     */
+    public static function getConfigPath()
+    {
+        return Yii::app()->getRuntimePath() . DIRECTORY_SEPARATOR . 'user-config' . DIRECTORY_SEPARATOR;
+    }
 
-		// Load settings
-		$this->loadSettings();
+    /**
+     * Creates JavaScript representation of settings.
+     * @todo (mburtscher): Support arrays.
+     * @return	string
+     */
+    public function getJsObject()
+    {
+        $jsSettings = 'var userSettings = {};' . "\n";
+        foreach ($this->defaultSettings as $key => $value) {
+            $value = $value[null];
+            if (is_array($value)) {
+                continue;
+            }
+            if (isset($this->userSettings[$key])) {
+                foreach ($this->userSettings[$key] as $key2 => $value2) {
+                    if (is_array($value2)) {
+                        continue;
+                    }
+                    if (!$key2) {
+                        $value = $value2;
+                    } else {
+                        $jsSettings .= 'userSettings.' . $key . '__' . str_replace('.', '_', $key2) . ' = "' . str_replace('"', '\"', $value2) . '";' . "\n";
+                    }
+                }
+            }
+            $jsSettings .= 'userSettings.' . $key . ' = "' . str_replace('"', '\"', $value) . '";' . "\n";
+        }
+        return $jsSettings;
+    }
 
-	}
+    public function get($name, $scope = null, $object = null, $attribute = null, $value = null)
+    {
+        $id = $this->getSettingId($name, $scope);
 
-	/**
-	 * Creates JavaScript representation of settings.
-	 * @todo(mburtscher): Support arrays.
-	 * @return	string
-	 */
-	public function getJsObject()
-	{
-		$jsSettings = 'var userSettings = {};' . "\n";
-		foreach($this->defaultSettings AS $key => $value) {
+        if (isset($this->userSettings[$id])) {
+            if (isset($this->userSettings[$id][$object])) {
+                if ($attribute && $value) {
+                    return self::findByAttributeValue($this->userSettings[$id][$object], $attribute, $value);
+                } else {
+                    return $this->userSettings[$id][$object];
+                }
+            } elseif (isset($this->userSettings[$id][null])) {
+                if ($attribute && $value) {
+                    return self::findByAttributeValue($this->userSettings[$id][null], $attribute, $value);
+                } else {
+                    return $this->userSettings[$id][null];
+                }
+            }
+        } elseif (isset($this->defaultSettings[$id])) {
+            if ($attribute && $value) {
+                return self::findByAttributeValue($this->defaultSettings[$id][null], $attribute, $value);
+            } else {
+                return $this->defaultSettings[$id][null];
+            }
+        } else {
+            throw new CException(Yii::t('core','The setting {setting} does not exist.',
+                array('{setting}' => $id)));
+        }
+    }
 
-			$value = $value[null];
-			if(is_array($value))
-			{
-				continue;
-			}
-			if(isset($this->userSettings[$key]))
-			{
-				foreach($this->userSettings[$key] AS $key2 => $value2)
-				{
-					if(is_array($value2))
-					{
-						continue;
-					}
-					if(!$key2)
-					{
-						$value = $value2;
-					}
-					else
-					{
-						$jsSettings .= 'userSettings.' . $key . '__' . str_replace('.', '_', $key2) . ' = "' . str_replace('"', '\"', $value2) . '";' . "\n";
-					}
-				}
-			}
-			$jsSettings .= 'userSettings.' . $key . ' = "' . str_replace('"', '\"', $value) . '";' . "\n";
-		}
-		return $jsSettings;
-	}
+    public function set($name, $value, $scope = null, $object = null)
+    {
+        $id = $this->getSettingId($name, $scope);
+        if (isset($this->defaultSettings[$id])) {
+            $this->userSettings[$id][$object] = $value;
+        } else {
+            throw new CException(Yii::t('core', 'The setting {setting} does not exist.',
+                array('{setting}' => $id)));
+        }
+    }
 
-	public function get($name, $scope = null, $object = null, $attribute = null, $value = null)
-	{
-		$id = $this->getSettingId($name, $scope);
+    protected function loadSettings()
+    {
+        // Load settings
+        $this->defaultSettings = $this->loadSettingsFile($this->configPath . 'default.xml');
+        $userSettingsFilename = $this->configPath . $this->host . "." . $this->user . ".xml";
+        if (is_readable($userSettingsFilename)) {
+            $this->userSettings = $this->loadSettingsFile($userSettingsFilename);
+        }
+    }
 
-		if(isset($this->userSettings[$id]))
-		{
-			if(isset($this->userSettings[$id][$object]))
-			{
-				if($attribute && $value)
-				{
-					return self::findByAttributeValue($this->userSettings[$id][$object], $attribute, $value);
-				}
-				else
-				{
-					return $this->userSettings[$id][$object];
-				}
-			}
-			elseif(isset($this->userSettings[$id][null]))
-			{
-				if($attribute && $value)
-				{
-					return self::findByAttributeValue($this->userSettings[$id][null], $attribute, $value);
-				}
-				else
-				{
-					return $this->userSettings[$id][null];
-				}
+    /**
+     * @param string $filename
+     * @return array
+     */
+    public function loadSettingsFile($filename)
+    {
+        $defaultXml = new SimpleXMLElement(file_get_contents($filename));
+        $settings = array();
+        foreach ($defaultXml->children() as $setting) {
+            $name = $setting->getName();
+            if (isset($setting['serialized'])) {
+                $value = unserialize((string) $setting);
+            } else {
+                $value = (string) $setting;
+            }
+            $scope = (isset($setting['scope']) ? (string) $setting['scope'] : null);
+            $object = (isset($setting['object']) ? (string) $setting['object'] : null);
 
-			}
-		}
-		elseif(isset($this->defaultSettings[$id]))
-		{
-			if($attribute && $value)
-			{
-				return self::findByAttributeValue($this->defaultSettings[$id][null], $attribute, $value);
-			}
-			else
-			{
-				return $this->defaultSettings[$id][null];
-			}
-		}
-		else
-		{
-			throw new CException(Yii::t('core','The setting {setting} does not exist.',
-				array('{setting}' => $id)));
-		}
-	}
+            $id = $this->getSettingId($name, $scope);
 
-	public function set($name, $value, $scope = null, $object = null)
-	{
-		$id = $this->getSettingId($name, $scope);
-		if(isset($this->defaultSettings[$id]))
-		{
-			$this->userSettings[$id][$object] = $value;
-		}
-		else
-		{
-			throw new CException(Yii::t('core','The setting {setting} does not exist.',
-				array('{setting}'=>$id)));
-		}
-	}
+            $settings[$id][$object] = $value;
+        }
+        return $settings;
+    }
 
-	private function loadSettings()
-	{
-		// Load settings
-		$this->defaultSettings = $this->loadSettingsFile($this->configPath . 'default.xml');
-		if(is_file($this->configPath . $this->host . '.' . $this->user . '.xml'))
-		{
-			$this->userSettings = $this->loadSettingsFile($this->configPath . $this->host . '.' . $this->user . '.xml');
-		}
-	}
+    public function saveSettings()
+    {
+        $xml = new SimpleXmlElement('<settings host="' . $this->host . '" user="' . $this->user . '" port="' . $this->port . '" />');
+        foreach ($this->userSettings as $key => $values) {
+            list($name, $scope) = $this->getSettingNameScope($key);
+            foreach ($values as $object => $value) {
+                if (is_array($value)) {
+                    $value = serialize($value);
+                    $setSerialized = true;
+                } else {
+                    $setSerialized = false;
+                }
+                $settingXml = $xml->addChild($name, $value);
+                if ($setSerialized) {
+                    $settingXml['serialized'] = true;
+                }
+                if ($scope) {
+                    $settingXml['scope'] = $scope;
+                }
+                if ($object) {
+                    $settingXml['object'] = $object;
+                }
+            }
+        }
+        $xml->asXML($this->configPath . $this->host . '.' . $this->user . '.xml');
+    }
 
-	private function loadSettingsFile($filename)
-	{
-		$defaultXml = new SimpleXMLElement(file_get_contents($filename));
-		$settings = array();
-		foreach($defaultXml->children() AS $setting)
-		{
-			$name = $setting->getName();
-			if(isset($setting['serialized']))
-			{
-				$value = unserialize((string)$setting);
-			}
-			else
-			{
-				$value = (string)$setting;
-			}
-			$scope = (isset($setting['scope']) ? (string)$setting['scope'] : null);
-			$object = (isset($setting['object']) ? (string)$setting['object'] : null);
+    /**
+     * @param string $name
+     * @param string $scope
+     * @return string
+     */
+    protected function getSettingId($name, $scope)
+    {
+        return $name . ($scope ? '__' . str_replace(".", "_", $scope) : '');
+    }
 
-			$id = $this->getSettingId($name, $scope);
+    /**
+     * @param string
+     * @return array
+     */
+    protected function getSettingNameScope($id)
+    {
+        $return = explode('__', $id);
+        if (is_array($return)) {
+            if (isset($return[1])) {
+                $return[1] = str_replace("_", ".", $return[1]);
+            } else {
+                $return[1] = null;
+            }
+            return $return;
+        } else {
+            return array($return, null);
+        }
+    }
 
-			$settings[$id][$object] = $value;
-		}
-		return $settings;
-	}
+    protected function findByAttributeValue($array, $attribute, $value)
+    {
+        $array = CPropertyValue::ensureArray($array);
 
-	public function saveSettings()
-	{
-		if(count($this->userSettings) > 0)
-		{
-			$xml = new SimpleXmlElement('<settings host="' . $this->host . '" user="' . $this->user . '" />');
-			foreach($this->userSettings AS $key => $values)
-			{
-				list($name, $scope) = $this->getSettingNameScope($key);
-				foreach($values AS $object => $value)
-				{
-					if(is_array($value))
-					{
-						$value = serialize($value);
-						$setSerialized = true;
-					}
-					else
-					{
-						$setSerialized = false;
-					}
-					$settingXml = $xml->addChild($name, $value);
-					if($setSerialized)
-					{
-						$settingXml['serialized'] = true;
-					}
-					if($scope)
-					{
-						$settingXml['scope'] = $scope;
-					}
-					if($object)
-					{
-						$settingXml['object'] = $object;
-					}
-				}
-			}
-		}
-		elseif(is_file($this->configPath . $this->host . '.' . $this->user . '.xml'))
-		{
-			unlink($this->configPath . $this->host . '.' . $this->user . '.xml');
-		}
-		$xml->asXML($this->configPath . $this->host . '.' . $this->user . '.xml');
-	}
+        foreach ($array as $key => $entry) {
+            if ($entry[$attribute] == $value) {
+                return $entry;
+            }
+        }
 
-	private function getSettingId($name, $scope)
-	{
-		return $name . ($scope ? '__' . str_replace(".", "_", $scope) : '');
-	}
-
-	private function getSettingNameScope($id)
-	{
-		$return = explode('__', $id);
-		if(is_array($return))
-		{
-			if(isset($return[1]))
-			{
-				$return[1] = str_replace("_", ".", $return[1]);
-			}
-			else
-			{
-				$return[1] = null;
-			}
-			return $return;
-		}
-		else
-		{
-			return array($return, null);
-		}
-	}
-
-	private function findByAttributeValue($array, $attribute, $value)
-	{
-		$array = CPropertyValue::ensureArray($array);
-
-		foreach($array AS $key=>$entry)
-		{
-			if($entry[$attribute] == $value)
-				return $entry;
-		}
-
-		return false;
-	}
-
+        return false;
+    }
 }

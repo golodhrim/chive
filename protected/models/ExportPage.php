@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -19,383 +18,374 @@
  * You should have received a copy of the GNU General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
+
 class ExportPage extends CModel
 {
+    /**
+     * @var array
+     */
+    protected $exporters;
 
-	private $exporters;
-	private $mode;
-	private $objects;
-	private $rows;
-	private $selectedObjects = null;
-	private $selectedRows = null;
-	private $result;
-	private $schema;
-	private $table;
-	private $view = 'form';
-	private $compressionChunkSize = 8192;
-	private $compression = null;
+    /**
+     * @var string
+     */
+    protected $mode;
 
-	/**
-	 * Constructor
-	 *
-	 * @param	string					mode (objects/schemata)
-	 * @param	string					selected schema (when mode == objects)
-	 */
-	public function __construct($mode, $schema = null, $table = null)
-	{
-		$this->mode = $mode;
-		$this->schema = $schema;
-		$this->table = $table;
-	}
+    /**
+     * @var array
+     */
+    protected $objects;
 
-	/**
-	 * @see		CModel::attributeNames()
-	 */
-	public function attributeNames()
-	{
-		return array();
-	}
+    /**
+     * @var array
+     */
+    protected $rows;
 
-	/**
-	 * Runs the ExportPage decides wether to show form or do export.
-	 */
-	public function run()
-	{
-		if(isset($_POST['Export']))
-		{
-			$this->view = 'result';
+    protected $selectedObjects = null;
+    protected $selectedRows = null;
 
-			// Check for compression
-			if(isset($_POST['Export']['compression']) && $_POST['Export']['compression'])
-			{
-				$this->compression = $_POST['Export']['compression'];
-			}
+    /**
+     * @var string
+     */
+    protected $result;
 
-			$this->runSubmit();
-		}
-		else
-		{
-			$this->view = 'form';
-			$this->runForm();
-		}
-	}
+    /**
+     * @var string
+     */
+    protected $schema;
 
-	/**
-	 * Performs the actual export functions.
-	 */
-	public function runSubmit()
-	{
-		// Initialize exporter
-		$exporterName = $_POST['Export']['exporter'];
-		$exporter = new $exporterName($this->mode);
-		
-		$extension = strtolower($exporter->getTitle());
+    /**
+     * @var string
+     */
+    protected $table;
 
-		if(isset($_POST['Export']['objects']))
-		{
-			// Load items and assign to exporter
-			$items = (array)$_POST['Export']['objects'];
-			$exporter->setItems($items, $this->schema);
-		}
-		elseif(isset($_POST['Export']['rows']))
-		{
-			// Load rows and assign to exporter
-			$rowAttributes = (array)CJSON::decode($_POST['Export']['rows'], true);
-			$rows = array();
+    /**
+     * @var string
+     */
+    protected $view = 'form';
 
-			foreach($rowAttributes AS $row)
-			{
-				$rows[] = Row::model()->findByAttributes($row);
-			}
+    protected $compressionChunkSize = 8192;
+    protected $compression = null;
 
-			$exporter->setRows($rows, $this->table, $this->schema);
-		}
+    /**
+     * Constructor
+     *
+     * @param string $mode mode (objects/schemata)
+     * @param string $schema selected schema (when mode == objects)
+     * @param string $table
+     */
+    public function __construct($mode, $schema = null, $table = null)
+    {
+        $this->mode = $mode;
+        $this->schema = $schema;
+        $this->table = $table;
+    }
 
-		// Calculate step count
-		$exporter->calculateStepCount();
+    /**
+     * @see CModel::attributeNames()
+     */
+    public function attributeNames()
+    {
+        return array();
+    }
 
-		// If it was not an ajax request, we have to serve the file for download
-		if(!Yii::app()->getRequest()->isAjaxRequest)
-		{
-			if($this->compression == 'gzip' && function_exists('gzencode'))
-			{
-				$mimeType = 'application/x-gzip';
-				$filenameSuffix = '.gz';
-			}
-			elseif($this->compression == 'bzip2' && function_exists('bzcompress'))
-			{
-				$mimeType = 'application/x-bzip2';
-				$filenameSuffix = '.bz2';
-			}
-			else
-			{
-				$mimeType = 'text/plain';
-				$filenameSuffix = '';
-			}
-			
-			$filename = $this->schema . "_" . date("Y_m_d");
+    /**
+     * Runs the ExportPage decides wether to show form or do export.
+     */
+    public function run()
+    {
+        if (isset($_POST['Export'])) {
+            $this->view = 'result';
 
-			// Send headers
-			header('Content-type: ' . $mimeType);
-			header('Content-disposition: attachment; filename="' . $filename . "." . $extension . $filenameSuffix . '"');
+            // Check for compression
+            if (isset($_POST['Export']['compression']) && $_POST['Export']['compression']) {
+                $this->compression = $_POST['Export']['compression'];
+            }
 
-			// Set handlers
-			if($this->compression == 'gzip' && function_exists('gzencode'))
-			{
-				ob_start(array('ExportPage', 'gzEncode'), $this->compressionChunkSize);
-			}
-			elseif($this->compression == 'bzip2' && function_exists('bzcompress'))
-			{
-				ob_start(array('ExportPage', 'bz2Encode'), $this->compressionChunkSize);
-			}
+            $this->runSubmit();
+        } else {
+            $this->view = 'form';
+            $this->runForm();
+        }
+    }
 
-			$collect = false;
-		}
-		else
-		{
-			$collect = true;
-		}
+    /**
+     * Performs the actual export functions.
+     */
+    public function runSubmit()
+    {
+        // Initialize exporter
+        $exporterName = $_POST['Export']['exporter'];
+        $exporter = new $exporterName($this->mode);
 
-		// Disable XDebug
-		if(function_exists('xdebug_disable'))
-		{
-			@xdebug_disable();
-		}
-		// Time limit 0
-		@set_time_limit(0);
+        $extension = strtolower($exporter->getTitle());
 
-		// Run step 0, we only support 1-step-expots by now
-		$exporter->runStep(0, $collect);
+        if (isset($_POST['Export']['objects'])) {
+            // Load items and assign to exporter
+            $items = (array)$_POST['Export']['objects'];
+            $exporter->setItems($items, $this->schema);
+        } elseif(isset($_POST['Export']['rows'])) {
+            // Load rows and assign to exporter
+            $rowAttributes = (array)CJSON::decode($_POST['Export']['rows'], true);
+            $rows = array();
 
-		// Die after file output when downloading ...
-		if(!$collect)
-		{
-			ob_end_flush();
-			die();
-		}
+            foreach ($rowAttributes as $row) {
+                $rows[] = Row::model()->findByAttributes($row);
+            }
 
-		// Save result
-		$this->result = $exporter->getResult();
-	}
+            $exporter->setRows($rows, $this->table, $this->schema);
+        }
 
-	/**
-	 * Runs the form.
-	 */
-	private function runForm()
-	{
-		// @todo: Load all exporters
-		$exporterNames = array('SqlExporter', 'CsvExporter');
+        // Calculate step count
+        $exporter->calculateStepCount();
 
-		// Instantiate supported exporters
-		$this->exporters = array();
-		foreach($exporterNames AS $exporter)
-		{
-			$supported = call_user_func(array($exporter, 'getSupportedModes'));
-			if(in_array($this->mode, $supported))
-			{
-				$this->exporters[] = new $exporter($this->mode);
-			}
-		}
+        // If it was not an ajax request, we have to serve the file for download
+        if (!Yii::app()->getRequest()->isAjaxRequest) {
+            if ($this->compression == 'gzip' && function_exists('gzencode')) {
+                $mimeType = 'application/x-gzip';
+                $filenameSuffix = '.gz';
+            } elseif($this->compression == 'bzip2' && function_exists('bzcompress')) {
+                $mimeType = 'application/x-bzip2';
+                $filenameSuffix = '.bz2';
+            } else {
+                $mimeType = 'text/plain';
+                $filenameSuffix = '';
+            }
 
-		// Create the object list
-		$this->objects = array();
-		if($this->mode == 'objects')
-		{
-			// Load schema
-			$schema = Schema::model()->findByPk($this->schema);
+            $filename = $this->schema . "_" . date("Y_m_d");
 
-			// Tables
-			$tables = $schema->tables;
-			if(count($tables) > 0)
-			{
-				$data = array();
-				foreach($tables AS $table)
-				{
-					$data['t:' . $table->TABLE_NAME] = $table->TABLE_NAME;
-				}
-				$this->objects[Yii::t('core', 'tables')] = $data;
-			}
+            // Send headers
+            header('Content-type: ' . $mimeType);
+            header('Content-disposition: attachment; filename="' . $filename . "." . $extension . $filenameSuffix . '"');
 
-			// Views
-			$views = $schema->views;
-			if(count($views) > 0)
-			{
-				$data = array();
-				foreach($views AS $view)
-				{
-					$data['v:' . $view->TABLE_NAME] = $view->TABLE_NAME;
-				}
-				$this->objects[Yii::t('core', 'views')] = $data;
-			}
+            // Set handlers
+            if ($this->compression == 'gzip' && function_exists('gzencode')) {
+                ob_start(array('ExportPage', 'gzEncode'), $this->compressionChunkSize);
+            } elseif($this->compression == 'bzip2' && function_exists('bzcompress')) {
+                ob_start(array('ExportPage', 'bz2Encode'), $this->compressionChunkSize);
+            }
 
-			// Routines
-			$routines = $schema->routines;
-			if(count($routines) > 0)
-			{
-				$data = array();
-				foreach($routines AS $routine)
-				{
-					$data['r:' . $routine->ROUTINE_NAME] = $routine->ROUTINE_NAME;
-				}
-				$this->objects[Yii::t('core', 'routines')] = $data;
-			}
-		}
+            $collect = false;
+        } else {
+            $collect = true;
+        }
 
-	}
+        // Disable XDebug
+        if (function_exists('xdebug_disable')) {
+            @xdebug_disable();
+        }
+        // Time limit 0
+        @set_time_limit(0);
 
-	/**
-	 * Returns all selectable objects.
-	 *
-	 * @return	array
-	 */
-	public function getObjects()
-	{
-		return $this->objects;
-	}
+        // Run step 0, we only support 1-step-expots by now
+        $exporter->runStep(0, $collect);
 
-	/**
-	 * Returns all keys of selectable objects.
-	 *
-	 * @return	array
-	 */
-	public function getObjectKeys()
-	{
-		$keys = array();
-		foreach($this->objects AS $key => $value)
-		{
-			if(is_array($value))
-			{
-				foreach($value AS $key2 => $value2)
-				{
-					$keys[] = $key2;
-				}
-			}
-			else
-			{
-				$keys[] = $key;
-			}
-		}
-		return $keys;
-	}
+        // Die after file output when downloading ...
+        if (!$collect) {
+            ob_end_flush();
+            die();
+        }
 
-	/**
-	 * Returns keys of all selected objects.
-	 *
-	 * @return	array
-	 */
-	public function getSelectedObjects()
-	{
-		if($this->selectedObjects)
-		{
-			return $this->selectedObjects;
-		}
-		else
-		{
-			return $this->getObjectKeys();
-		}
-	}
+        // Save result
+        $this->result = $exporter->getResult();
+    }
 
-	/**
-	 * Sets the selected object keys.
-	 *
-	 * @param	mixed					selected objects
-	 */
-	public function setSelectedObjects($objects)
-	{
-		if($objects)
-		{
-			$this->selectedObjects = (array)$objects;
-		}
-		else
-		{
-			$this->selectedObjects = null;
-		}
-	}
+    /**
+     * Runs the form.
+     */
+    private function runForm()
+    {
+        // @todo: Load all exporters
+        $exporterNames = array('SqlExporter', 'CsvExporter');
 
-	/**
-	 * Sets the chosen row attributes.
-	 *
-	 * @param	mixed					row attributes
-	 */
-	public function setRows($rows)
-	{
-		$this->rows = (array)$rows;
-	}
+        // Instantiate supported exporters
+        $this->exporters = array();
+        foreach ($exporterNames as $exporter) {
+            $supported = call_user_func(array($exporter, 'getSupportedModes'));
+            if (in_array($this->mode, $supported)) {
+                $this->exporters[] = new $exporter($this->mode);
+            }
+        }
 
-	/**
-	 * Gets the chosen row attributes.
-	 *
-	 */
-	public function getRows()
-	{
-		return $this->rows;
-	}
+        // Create the object list
+        $this->objects = array();
+        if ($this->mode == 'objects') {
+            // Load schema
+            $schema = Schema::model()->findByPk($this->schema);
 
-	/**
-	 * Returns all exporter names.
-	 *
-	 * @return	array
-	 */
-	public function getExporters()
-	{
-		$data = array();
-		foreach($this->exporters AS $exporter)
-		{
-			$data[get_class($exporter)] = call_user_func(array(get_class($exporter), 'getTitle'));
-		}
-		return $data;
-	}
+            // Tables
+            $tables = $schema->tables;
+            if (count($tables) > 0) {
+                $data = array();
+                foreach ($tables as $table) {
+                    $data['t:' . $table->TABLE_NAME] = $table->TABLE_NAME;
+                }
+                $this->objects[Yii::t('core', 'tables')] = $data;
+            }
 
-	/**
-	 * Returns all exporter instances.
-	 *
-	 * @return	array
-	 */
-	public function getExporterInstances()
-	{
-		return $this->exporters;
-	}
+            // Views
+            $views = $schema->views;
+            if (count($views) > 0) {
+                $data = array();
+                foreach ($views as $view) {
+                    $data['v:' . $view->TABLE_NAME] = $view->TABLE_NAME;
+                }
+                $this->objects[Yii::t('core', 'views')] = $data;
+            }
 
-	/**
-	 * Returns the current view type.
-	 *
-	 * @return	string
-	 */
-	public function getView()
-	{
-		return $this->view;
-	}
+            // Routines
+            $routines = $schema->routines;
+            if (count($routines) > 0) {
+                $data = array();
+                foreach ($routines as $routine) {
+                    $data['r:' . $routine->ROUTINE_NAME] = $routine->ROUTINE_NAME;
+                }
+                $this->objects[Yii::t('core', 'routines')] = $data;
+            }
+        }
+    }
 
-	/**
-	 * Returns the export result.
-	 *
-	 * @return	string
-	 */
-	public function getResult()
-	{
-		return $this->result;
-	}
+    /**
+     * Returns all selectable objects.
+     *
+     * @return array
+     */
+    public function getObjects()
+    {
+        return $this->objects;
+    }
 
-	/**
-	 * Callback for output handler to "gzencode".
-	 *
-	 * @param	string					content to encode
-	 * @return	string					encoded content
-	 */
-	public static function gzEncode($content)
-	{
-		return gzencode($content, 1);
-	}
+    /**
+     * Returns all keys of selectable objects.
+     *
+     * @return array
+     */
+    public function getObjectKeys()
+    {
+        $keys = array();
+        foreach ($this->objects as $key => $value) {
+            if (is_array($value)) {
+                foreach ($value as $key2 => $value2) {
+                    $keys[] = $key2;
+                }
+            } else {
+                $keys[] = $key;
+            }
+        }
+        return $keys;
+    }
 
-	/**
-	 * Callback for output handler to "bzcompress".
-	 *
-	 * @param	string					content to encode
-	 * @return	string					encoded content
-	 */
-	public static function bz2Encode($content)
-	{
-		return bzcompress($content);
-	}
+    /**
+     * Returns keys of all selected objects.
+     *
+     * @return array
+     */
+    public function getSelectedObjects()
+    {
+        if ($this->selectedObjects) {
+            return $this->selectedObjects;
+        } else {
+            return $this->getObjectKeys();
+        }
+    }
 
+    /**
+     * Sets the selected object keys.
+     *
+     * @param mixed $objects selected objects
+     */
+    public function setSelectedObjects($objects)
+    {
+        if ($objects) {
+            $this->selectedObjects = (array) $objects;
+        } else {
+            $this->selectedObjects = null;
+        }
+    }
+
+    /**
+     * Sets the chosen row attributes.
+     *
+     * @param mixed $rows row attributes
+     */
+    public function setRows($rows)
+    {
+        $this->rows = (array) $rows;
+    }
+
+    /**
+     * Gets the chosen row attributes.
+     *
+     * @return array
+     */
+    public function getRows()
+    {
+        return $this->rows;
+    }
+
+    /**
+     * Returns all exporter names.
+     *
+     * @return array
+     */
+    public function getExporters()
+    {
+        $data = array();
+        foreach ($this->exporters as $exporter) {
+            $data[get_class($exporter)] = call_user_func(array(get_class($exporter), 'getTitle'));
+        }
+        return $data;
+    }
+
+    /**
+     * Returns all exporter instances.
+     *
+     * @return array
+     */
+    public function getExporterInstances()
+    {
+        return $this->exporters;
+    }
+
+    /**
+     * Returns the current view type.
+     *
+     * @return string
+     */
+    public function getView()
+    {
+        return $this->view;
+    }
+
+    /**
+     * Returns the export result.
+     *
+     * @return string
+     */
+    public function getResult()
+    {
+        return $this->result;
+    }
+
+    /**
+     * Callback for output handler to "gzencode".
+     *
+     * @param string $content content to encode
+     * @return string encoded content
+     */
+    public static function gzEncode($content)
+    {
+        return gzencode($content, 1);
+    }
+
+    /**
+     * Callback for output handler to "bzcompress".
+     *
+     * @param string $content content to encode
+     * @return string encoded content
+     */
+    public static function bz2Encode($content)
+    {
+        return bzcompress($content);
+    }
 }

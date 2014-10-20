@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,14 +20,13 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 return CMap::mergeArray(
-	require(dirname(__FILE__) . '/main.php'),
+	require(__DIR__ . '/main.php'),
 	array(
 		'components' => array(
 			// Database settings
 			'db' => array(
-				'class' => 'CDbConnection',
+				'class' => 'DbConnection',
 				'connectionString' => 'mysql:host=localhost;dbname=information_schema',
 				'username' => 'root',
 				'charset' => 'utf8',

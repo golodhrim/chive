@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,17 +19,15 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 abstract class ActiveRecord extends CActiveRecord
 {
-
 	public static $db;
 
 	public $throwExceptions = false;
 	public $originalAttributes = array();
 
 	/**
-	 * @see		CActiveRecord::instantiate()
+	 * @see CActiveRecord::instantiate()
 	 */
 	public function instantiate($attributes)
 	{
@@ -45,37 +42,35 @@ abstract class ActiveRecord extends CActiveRecord
 	/**
 	 * Returns the sql statement(s) needed to update the record.
 	 *
-	 * @return	mixed					sql satement(s)
+	 * @return mixed sql satement(s)
 	 */
 	protected abstract function getUpdateSql();
 
 	/**
 	 * Returns the sql statement(s) needed to insert the record.
 	 *
-	 * @return	mixed					sql satement(s)
+	 * @return mixed sql satement(s)
 	 */
 	protected abstract function getInsertSql();
 
 	/**
 	 * Returns the sql statement(s) needed to delete the record.
 	 *
-	 * @return	mixed					sql satement(s)
+	 * @return mixed sql satement(s)
 	 */
 	protected abstract function getDeleteSql();
 
 	/**
 	 * Executes the given sql statement(s).
 	 *
-	 * @param	mixed					sql statement(s)
-	 * @return	mixed					sql statement(s) (imploded) or false
+	 * @param mixed sql statement(s)
+	 * @return mixed sql statement(s) (imploded) or false
 	 */
-	private function executeSql($sql)
+	protected function executeSql($sql)
 	{
-		try
-		{
-			$sql = (array)$sql;
-			foreach($sql AS $sql1)
-			{
+		try {
+			$sql = (array) $sql;
+			foreach ($sql as $sql1) {
 				$cmd = new CDbCommand(self::$db, $sql1);
 				$cmd->prepare();
 				$cmd->execute();
@@ -83,16 +78,11 @@ abstract class ActiveRecord extends CActiveRecord
 				$this->refresh();
 			}
 			return implode("\n", $sql);
-		}
-		catch(CDbException $ex)
-		{
+		} catch (CDbException $ex) {
 			$this->afterSave();
-			if($this->throwExceptions)
-			{
+			if ($this->throwExceptions) {
 				throw new DbException($cmd);
-			}
-			else
-			{
+			} else {
 				$errorInfo = $cmd->getPdoStatement()->errorInfo();
 				$this->addError(null, Yii::t('core', 'sqlErrorOccured', array('{errno}' => $errorInfo[1], '{errmsg}' => $errorInfo[2])));
 				return false;
@@ -102,16 +92,14 @@ abstract class ActiveRecord extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::update()
+	 * @see CActiveRecord::update()
 	 */
 	public function update($attributes = null)
 	{
-		if($this->getIsNewRecord())
-		{
-			throw new CDbException(Yii::t('core','The active record cannot be updated because it is new.'));
+		if ($this->getIsNewRecord()) {
+			throw new CDbException(Yii::t('core', 'The active record cannot be updated because it is new.'));
 		}
-		if(!$this->beforeSave())
-		{
+		if (!$this->beforeSave()) {
 			return false;
 		}
 
@@ -119,16 +107,14 @@ abstract class ActiveRecord extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::insert()
+	 * @see CActiveRecord::insert()
 	 */
 	public function insert($attributes = null)
 	{
-		if(!$this->getIsNewRecord())
-		{
-			throw new CDbException(Yii::t('core','The active record cannot be inserted to database because it is not new.'));
+		if (!$this->getIsNewRecord()) {
+			throw new CDbException(Yii::t('core', 'The active record cannot be inserted to database because it is not new.'));
 		}
-		if(!$this->beforeSave())
-		{
+		if (!$this->beforeSave()) {
 			return false;
 		}
 
@@ -136,20 +122,17 @@ abstract class ActiveRecord extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::delete()
+	 * @see CActiveRecord::delete()
 	 */
 	public function delete()
 	{
-		if($this->getIsNewRecord())
-		{
-			throw new CDbException(Yii::t('core','The active record cannot be deleted because it is new.'));
+		if ($this->getIsNewRecord()) {
+			throw new CDbException(Yii::t('core', 'The active record cannot be deleted because it is new.'));
 		}
-		if(!$this->beforeDelete())
-		{
+		if (!$this->beforeDelete()) {
 			return false;
 		}
 
 		return $this->executeSql($this->getDeleteSql());
 	}
-
 }

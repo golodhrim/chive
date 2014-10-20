@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,27 +19,31 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class ChiveTestCase extends CTestCase
 {
-	
-	const DB_HOST = 'localhost';
-	const DB_USER = 'root';
-	const DB_PASSWORD = '';
-	const DB_NAME = 'chive_fixed';
+    const DB_HOST = 'localhost';
+    const DB_USER = 'root';
+    const DB_PASSWORD = '';
+    const DB_NAME = 'chive_fixed';
 
-	protected function executeSqlFile($file)
-	{
-		echo exec('mysql -h' . ChiveTestCase::DB_HOST . ' -u' . ChiveTestCase::DB_USER . (ChiveTestCase::DB_PASSWORD ? ' -p' . ChiveTestCase::DB_PASSWORD : '') . ' --default-character-set=utf8 <"sql/' . $file . '"');
-	}
-	
-	protected function createDbConnection($dbName)
-	{
-		$db = new CDbConnection('mysql:host=' . ChiveTestCase::DB_HOST . ';dbname=' . $dbName, ChiveTestCase::DB_USER, ChiveTestCase::DB_PASSWORD);
-		$db->emulatePrepare = true;
-		$db->charset = 'utf8';
-		$db->active = true;
-		return $db;
-	}
+    /**
+     * @param string $file
+     */
+    protected function executeSqlFile($file)
+    {
+        echo exec('mysql -h' . ChiveTestCase::DB_HOST . ' -u' . ChiveTestCase::DB_USER . (ChiveTestCase::DB_PASSWORD ? ' -p' . ChiveTestCase::DB_PASSWORD : '') . ' --default-character-set=utf8 <"sql/' . $file . '"');
+    }
 
+    /**
+     * @param string $dbName
+     * @return CDbConnection
+     */
+    protected function createDbConnection($dbName)
+    {
+        $db = new CDbConnection('mysql:host=' . ChiveTestCase::DB_HOST . ';dbname=' . $dbName, ChiveTestCase::DB_USER, ChiveTestCase::DB_PASSWORD);
+        $db->emulatePrepare = true;
+        $db->charset = 'utf8';
+        $db->active = true;
+        return $db;
+    }
 }

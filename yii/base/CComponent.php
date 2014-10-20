@@ -108,10 +108,9 @@ class CComponent
 	public function __get($name)
 	{
 		$getter='get'.$name;
-		if(method_exists($this,$getter))
+		if (method_exists($this,$getter)) {
 			return $this->$getter();
-		else if(strncasecmp($name,'on',2)===0 && method_exists($this,$name))
-		{
+        } elseif (strncasecmp($name,'on',2)===0 && method_exists($this,$name)) {
 			// duplicating getEventHandlers() here for performance
 			$name=strtolower($name);
 			if(!isset($this->_e[$name]))
@@ -148,9 +147,9 @@ class CComponent
 	public function __set($name,$value)
 	{
 		$setter='set'.$name;
-		if(method_exists($this,$setter))
+		if(method_exists($this,$setter)) {
 			return $this->$setter($value);
-		else if(strncasecmp($name,'on',2)===0 && method_exists($this,$name))
+        } elseif(strncasecmp($name,'on',2)===0 && method_exists($this,$name))
 		{
 			// duplicating getEventHandlers() here for performance
 			$name=strtolower($name);

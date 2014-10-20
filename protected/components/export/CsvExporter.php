@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,20 +20,18 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class CsvExporter implements IExporter
 {
-	
 	private $items = array();
 	private $mode;
 	private $schema;
 	private $settings = array(
-		'fieldTerminator' => ';',
-		'fieldEncloseString' => '"',
-		'fieldEscapeString' => '\\',
-		'fieldsFirstRow' => true,
-		'rowsPerInsert' => 1000,		// Specifies the number of rows per INSERT statement
-		'hexBlobs' => true				// Use HEX for blob fields
+		'fieldTerminator' 		=> ';',
+		'fieldEncloseString' 	=> '"',
+		'fieldEscapeString' 	=> '\\',
+		'fieldsFirstRow' 		=> true,
+		'rowsPerInsert' 		=> 1000, // Specifies the number of rows per INSERT statement
+		'hexBlobs' 				=> true	 // Use HEX for blob fields
 	);
 	private $stepCount;
 
@@ -42,23 +40,18 @@ class CsvExporter implements IExporter
 	private $result;
 
 	/**
-	 * @see		IExporter::__construct()
+	 * @see IExporter::__construct()
 	 */
 	public function __construct($mode)
 	{
 		$this->mode = $mode;
 
 		// Reload settings from request
-		if($r = @$_REQUEST['Export']['settings']['CsvExporter'])
-		{
-			foreach($this->settings AS $key => $value)
-			{
-				if(is_bool($this->settings[$key]))
-				{
+		if ($r = @$_REQUEST['Export']['settings']['CsvExporter']) {
+			foreach ($this->settings as $key => $value) {
+				if (is_bool($this->settings[$key])) {
 					$this->settings[$key] = isset($r[$key]);
-				}
-				elseif(isset($r[$key]))
-				{
+				} elseif(isset($r[$key])) {
 					$this->settings[$key] = $r[$key];
 				}
 			}
@@ -66,7 +59,7 @@ class CsvExporter implements IExporter
 	}
 
 	/**
-	 * @see		IExporter::getSettingsView()
+	 * @see IExporter::getSettingsView()
 	 */
 	public function getSettingsView()
 	{
@@ -95,7 +88,7 @@ class CsvExporter implements IExporter
 	}
 
 	/**
-	 * @see		IExporter::calculateStepCount()
+	 * @see IExporter::calculateStepCount()
 	 */
 	public function calculateStepCount()
 	{
@@ -105,7 +98,7 @@ class CsvExporter implements IExporter
 	}
 
 	/**
-	 * @see		IExporter::getStepCount()
+	 * @see IExporter::getStepCount()
 	 */
 	public function getStepCount()
 	{
@@ -113,7 +106,7 @@ class CsvExporter implements IExporter
 	}
 
 	/**
-	 * @see		IExporter::setItems()
+	 * @see IExporter::setItems()
 	 */
 	public function setItems(array $items, $schema = null)
 	{
@@ -122,7 +115,7 @@ class CsvExporter implements IExporter
 	}
 	
 	/**
-	 * @see		IExporter::setItems()
+	 * @see IExporter::setItems()
 	 */
 	public function setRows(array $rows, $table = null, $schema = null)
 	{
@@ -132,12 +125,11 @@ class CsvExporter implements IExporter
 	}
 
 	/**
-	 * @see		IExporter::runStep()
+	 * @see IExporter::runStep()
 	 */
 	public function runStep($i, $collect = false)
 	{
-		if($collect)
-		{
+		if ($collect) {
 			ob_start();
 		}
 
@@ -151,15 +143,14 @@ class CsvExporter implements IExporter
 				$this->exportRows($i);
 		}
 
-		if($collect)
-		{
+		if ($collect) {
 			$this->result = ob_get_contents();
 			ob_end_clean();
 		}
 	}
 
 	/**
-	 * @see		IExporter::getResult()
+	 * @see IExporter::getResult()
 	 */
 	public function getResult()
 	{
@@ -167,7 +158,7 @@ class CsvExporter implements IExporter
 	}
 
 	/**
-	 * @see		IExporter::getSupportedModes()
+	 * @see IExporter::getSupportedModes()
 	 */
 	public static function getSupportedModes()
 	{
@@ -175,28 +166,25 @@ class CsvExporter implements IExporter
 	}
 
 	/**
-	 * @see		IExporter::getTitle()
+	 * @see IExporter::getTitle()
 	 */
 	public static function getTitle()
 	{
 		return 'CSV';
 	}
 
-
 	/**
 	 * Exports all specified database objects (tables, views, routines, ...).
 	 *
-	 * @return	boolean
+	 * @return bool
 	 */
 	private function exportObjects()
 	{
 		// Find elements
 		$tables = $views = $routines = array();
-		if(count($this->items) > 0)
-		{
-			foreach($this->items AS $item)
-			{
-				switch($item{0})
+		if (count($this->items) > 0) {
+			foreach ($this->items as $item) {
+				switch ($item{0})
 				{
 					case 't':
 						$tables[] = substr($item, 2);
@@ -206,26 +194,25 @@ class CsvExporter implements IExporter
 		}
 
 		// Export everything
-		if(count($tables) > 0)
-		{
+		if (count($tables) > 0) {
 			$this->exportTables($tables);
 		}
 	}
-	
+
 	/**
 	 * Exports (selected) rows
 	 *
-	 * @return	boolean
+	 * @return bool
 	 */
 	private function exportRows()
-	{		
+	{
 		$this->exportRowData();
 	}
-	
+
 	/**
 	 * Exports all tables of the given array and writes the dump to the output buffer.
 	 *
-	 * @param	array					list of tables
+	 * @param array list of tables
 	 */
 	private function exportTables($tables)
 	{
@@ -234,8 +221,7 @@ class CsvExporter implements IExporter
 
 		// Escape all table names
 		$tableNames = array();
-		foreach($tables AS $table)
-		{
+		foreach ($tables as $table) {
 			$tableNames[] = Yii::app()->db->quoteValue($table);
 		}
 
@@ -243,8 +229,7 @@ class CsvExporter implements IExporter
 		$tables = Table::model()->findAll('TABLE_NAME IN (' . implode(',', $tableNames) . ') '
 			. 'AND TABLE_SCHEMA = ' . Yii::app()->db->quoteValue($this->schema));
 
-		foreach($tables AS $table)
-		{
+		foreach ($tables as $table) {
 			$this->exportTableData($table);
 		}
 	}
@@ -252,7 +237,7 @@ class CsvExporter implements IExporter
 	/**
 	 * Exports data of the specified table and writes the sql dump to the output buffer.
 	 *
-	 * @param	string					name of table
+	 * @param string name of table
 	 */
 	private function exportTableData($table)
 	{
@@ -268,11 +253,9 @@ class CsvExporter implements IExporter
 
 		$columns = array();
 		$i = 0;
-		foreach($cols AS $col)
-		{
+		foreach ($cols as $col) {
 			$columns[] = $this->settings['fieldEncloseString'] . $col->COLUMN_NAME . $this->settings['fieldEncloseString'];
-			if(in_array(DataType::getBaseType($col->DATA_TYPE), array('smallblob', 'blob', 'mediumblob', 'longblob')))
-			{
+			if (in_array(DataType::getBaseType($col->DATA_TYPE), array('smallblob', 'blob', 'mediumblob', 'longblob'))) {
 				$blobCols[] = $i;
 			}
 			$i++;
@@ -291,46 +274,37 @@ class CsvExporter implements IExporter
 		// Cycle rows
 		$i = 0;
 		$k = 1;
-		while($row = $statement->fetch())
-		{
-			if($i == 0 && $this->settings['fieldsFirstRow'])
-			{
+		while ($row = $statement->fetch()) {
+			if ($i == 0 && $this->settings['fieldsFirstRow']) {
 				echo $columns;
 			}
-			
+
 			SqlUtil::FixRow($row);
 
 			// Escape all contents
-			foreach($row AS $key => $value)
-			{
-				if($value === null)
-				{
+			foreach ($row as $key => $value) {
+				if ($value === null) {
 					$row[$key] = 'NULL';
-				}
-				elseif($hexBlobs && in_array($key, $blobCols) && $value)
-				{
+				} elseif ($hexBlobs && in_array($key, $blobCols) && $value) {
 					$row[$key] = '0x' . bin2hex($value);
-				}
-				else
-				{
+				} else {
 					$row[$key] = $this->settings['fieldEncloseString'] . addcslashes($value, $this->settings['fieldEncloseString']) . $this->settings['fieldEncloseString'];
 				}
 			}
-			
+
 			echo "\n", implode($this->settings['fieldTerminator'], $row);
-			if($i == $rowCount - 1)
-			{
+			if ($i == $rowCount - 1) {
 				echo "\n\n";
 			}
 			$i++;
 			$k++;
 		}
 	}
-	
+
 	/**
 	 * Exports all rows of the given array and writes the dump to the output buffer.
 	 *
-	 * @param	array					array with identifiers of rows
+	 * @param array array with identifiers of rows
 	 */
 	private function exportRowData()
 	{
@@ -346,17 +320,15 @@ class CsvExporter implements IExporter
 
 		$columns = array();
 		$i = 0;
-		foreach($cols AS $col)
-		{
+		foreach ($cols as $col) {
 			$columns[] = $db->quoteColumnName($col->COLUMN_NAME);
-			if(in_array(DataType::getBaseType($col->DATA_TYPE), array('smallblob', 'blob', 'mediumblob', 'longblob')))
-			{
+			if (in_array(DataType::getBaseType($col->DATA_TYPE), array('smallblob', 'blob', 'mediumblob', 'longblob'))) {
 				$blobCols[] = $i;
 			}
 			$i++;
 		}
 		$columns = implode($this->settings['fieldTerminator'], $columns);
-		
+
 		$insert = "";
 
 		// Find all rows
@@ -369,59 +341,47 @@ class CsvExporter implements IExporter
 		// Cycle rows
 		$i = 0;
 		$k = 1;
-		
-		foreach($this->rows AS $row)
-		{
-			if($i == 0 && $this->settings['fieldsFirstRow'])
-			{
+
+		foreach ($this->rows as $row) {
+			if ($i == 0 && $this->settings['fieldsFirstRow']) {
 				echo $columns;
 			}
-			
+
 			$attributes = $row->getAttributes();
 			SqlUtil::FixRow($attributes);
 
 			// Escape all contents
-			foreach($attributes AS $key => $value)
-			{
-				if($value === null)
-				{
+			foreach ($attributes as $key => $value) {
+				if ($value === null) {
 					$attributes[$key] = 'NULL';
-				}
-				elseif($hexBlobs && in_array($key, $blobCols) && $value)
-				{
+				} elseif($hexBlobs && in_array($key, $blobCols) && $value) {
 					$attributes[$key] = '0x' . bin2hex($value);
-				}
-				else
-				{
+				} else {
 					$attributes[$key] = $this->settings['fieldEncloseString'] . addcslashes($value, $this->settings['fieldEncloseString']) . $this->settings['fieldEncloseString'];
 				}
 			}
 
 			echo "\n", implode($this->settings['fieldTerminator'], $attributes);
-			if($i == $rowCount - 1)
-			{
+			if ($i == $rowCount - 1) {
 				echo "\n\n";
 			}
 			$i++;
 			$k++;
 		}
-		
 	}
 
 	/**
 	 * Writes a sql comment to the output buffer.
 	 *
-	 * @param	array					lines of comment
+	 * @param array lines of comment
 	 */
 	private function comment($items)
 	{
 		$items = (array)$items;
 		echo "-- \n";
-		foreach($items AS $item)
-		{
+		foreach ($items AS $item) {
 			echo '-- ', $item, "\n";
 		}
 		echo '-- ';
 	}
-
 }

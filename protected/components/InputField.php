@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,68 +20,63 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class InputField extends CWidget
 {
-
 	public $column;
 	public $row;
 	public $htmlOptions;
 	public $value;
 	public $id;
-	
+
 	private $fixedHtmlOptions = array(
-		'number' =>				array(),
-		'select' =>				array(),
-		'file' =>				array(),
-		'select' =>				array(),
-		'date' =>				array(),
-		'datetime' =>			array(),
-		'select-multiple' => 	array('multiple'=>'multiple'),
-		'text' => 				array('style'=>'min-width: 500px; min-height: 100px;'),
-		'single' => 			array('class'=>'text'),
+		'number' 			=> array(),
+		'select'			=> array(),
+		'file'				=> array(),
+		'select'			=> array(),
+		'date'				=> array(),
+		'datetime'			=> array(),
+		'select-multiple'	=> array('multiple' => 'multiple'),
+		'text'				=> array('style' => 'min-width: 500px; min-height: 100px;'),
+		'single'	 		=> array('class' => 'text'),
 	);
-	
+
 	public function run()
 	{
-
 		$type = DataType::getInputType($this->column->dbType);		
 		$this->htmlOptions += $this->fixedHtmlOptions[$type];
 		$column = $this->column->name;
-		
+
 		$name = isset($this->htmlOptions['name']) ? $this->htmlOptions['name'] : 'Row[' . $column . ']';
-		
-		switch($type) {
-	
+
+		switch ($type) {
 			case 'number':
 				echo CHtml::activeTextField($this->row, $column, $this->htmlOptions);
 				break;
-		
+
 			case 'select':
 				echo CHtml::activeDropDownList($this->row, $column, $this->getEnumValues(), $this->htmlOptions);
 				break;
-				
+
 			case 'select-multiple':
 				#echo CHtml::activeListBox($this->row, $column, $this->getSetValues(), $this->htmlOptions);
 				echo CHtml::listBox($name, $this->row->getAttributeAsArray($column), $this->getSetValues(),  $this->htmlOptions);
 				break;
-		
+
 			case 'text':
 				echo CHtml::activeTextArea($this->row, $column, $this->htmlOptions);
 				break;
-		
+
 			case 'file':
 				echo '<script type="text/javascript">
 					$(document).ready(function() {
 						$("# echo CHtml::$idPrefix; ?>").submit(function() {
 							alert("ok1");
-							
 						});
 					});
 					</script>';
 				echo CHtml::activeFileField($this->row, $column, $this->htmlOptions);
-				break;	
-				
+				break;
+
 			case 'date':
 				$this->SetDateTimeHtmlOptions($column);
 				echo CHtml::activeTextField($this->row, $column, $this->htmlOptions);
@@ -91,7 +86,7 @@ class InputField extends CWidget
 						});
 						</script>';
 				break;
-				
+
 			case 'datetime':
 				$this->SetDateTimeHtmlOptions($column);
 				echo CHtml::activeTextField($this->row, $column, $this->htmlOptions);
@@ -102,14 +97,13 @@ class InputField extends CWidget
 						});
 						</script>';
 				break;
-				
+
 			default:
 				echo CHtml::activeTextField($this->row, $column, $this->htmlOptions);
 				break;
 		}
-		
 	}
-	
+
 	private function SetDateTimeHtmlOptions($column)
 	{
 		$this->htmlOptions += array("id" => mt_rand(1000, 10000) . "_" . $column);
@@ -121,27 +115,23 @@ class InputField extends CWidget
 		$values = explode('\',\'', $res[1]);
 
 		$return = array();
-		foreach($values AS $value)
-		{
+		foreach ($values as $value) {
 			$return[$value] = $value;
 		}
 
 		return $return;
 	}
-	
+
 	public function getSetValues() 
 	{
 		$type = preg_match('/\(\'(.+)\'\)/i', $this->column->dbType, $res);
 		$values = explode('\',\'', $res[1]);
 
 		$return = array();
-		foreach($values AS $value)
-		{
+		foreach ($values AS $value) {
 			$return[$value] = $value;
 		}
 
 		return $return;
 	}
-
-
 }

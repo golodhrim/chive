@@ -1,4 +1,4 @@
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -19,12 +19,10 @@
  */
 
 var indexForm = {
-	
-	/*
+	/**
 	 * Add column
 	 */
-	addColumn: function(idPrefix, col)
-	{
+	addColumn: function(idPrefix, col) {
 		$('#' + idPrefix + 'columns tbody.content').append('<tr>'
 			+ '<td>'
 				+ '<input type="hidden" name="columns[]" value="' + col + '" />'
@@ -46,75 +44,62 @@ var indexForm = {
 		+ '</tr>');
 		indexForm.setup(idPrefix);
 	},
-	
-	/*
+
+	/**
 	 * Remove column
 	 */
-	removeColumn: function(idPrefix, obj) 
-	{
+	removeColumn: function(idPrefix, obj) {
 		$(obj).closest('tr').remove();
 		indexForm.setup(idPrefix);
 	},
-	
-	/*
+
+	/**
 	 * Setup form
 	 */
-	setup: function(idPrefix)
-	{
+	setup: function(idPrefix) {
 		// Primary key
-		if($('#' + idPrefix + 'Index_type').val() == 'PRIMARY')
-		{
+		if ($('#' + idPrefix + 'Index_type').val() == 'PRIMARY') {
 			$('#' + idPrefix + 'Index_INDEX_NAME').val('PRIMARY');
 			$('#' + idPrefix + 'Index_INDEX_NAME').attr('readonly', true);
-		}
-		else
-		{
+		} else {
 			$('#' + idPrefix + 'Index_INDEX_NAME').attr('readonly', false);
 		}
 		
 		// Number of added columns
-		if($('#' + idPrefix + 'columns>tbody.content>tr').length > 0)
-		{
+		if ($('#' + idPrefix + 'columns>tbody.content>tr').length > 0) {
 			$('#' + idPrefix + 'columns>tbody.noItems').hide();
 			$('#' + idPrefix + 'columns>tbody.content').show();
-		}
-		else
-		{
+		} else {
 			$('#' + idPrefix + 'columns>tbody.noItems').show();
 			$('#' + idPrefix + 'columns>tbody.content').hide();
 		}
 	},
-	
-	create: function(idPrefix)
-	{
-		/*
+
+	create: function(idPrefix) {
+		/**
 		 * Setup sortable columns
 		 */
 		$('#' + idPrefix + 'columns tbody.content').sortable({
 			handle: 'img.icon_arrow_move'
 		});
-		
-		/*
+
+		/**
 		 * Setup add column select
 		 */
 		$('#' + idPrefix + 'addColumn').change(function() {
-			
 			var obj = $(this);
 			var idPrefix = this.id.substr(0, 4);
-			
-			if(obj.val() == '')
-			{
+
+			if (obj.val() == '') {
 				return;
 			}
-			
+
 			indexForm.addColumn(idPrefix, obj.val());
 			obj.selectOptions('');
-			
 		});
-		
+
 		indexForm.setup(idPrefix);
-		
+
 		$('#' + idPrefix + 'Index_type').change(new Function('indexForm.setup("' + idPrefix + '")'));
 	}
-	
 };

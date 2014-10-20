@@ -1,4 +1,4 @@
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -17,31 +17,48 @@
  * You should have received a copy of the GNU General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
-var login = {
-	
-	setup: function() 
-	{
-	
-		/*
-		 * Setup language dialog
-		 */
-		$('#languageDialog').dialog({
-			modal: true,
-			resizable: false,
-			autoOpen: false,
-			minWidth: 400
-		});
-		
-		/*
-		 * Setup theme dialog
-		 */
-		$('#themeDialog').dialog({
-			modal: true,
-			resizable: false,
-			autoOpen: false,
-			minWidth: 400
-		});		
-		
+
+/**
+ * Setup language dialog
+ */
+$("#languageDialog").dialog({
+	modal: true,
+	resizable: false,
+	autoOpen: false,
+	minWidth: 400
+});
+
+/**
+ * Setup theme dialog
+ */
+$("#themeDialog").dialog({
+	modal: true,
+	resizable: false,
+	autoOpen: false,
+	minWidth: 400
+});
+
+$("#username").focus();
+
+if ($("#redirectUrl").val() == "") {
+	$("#redirectUrl").val(window.location.href);
+}
+
+$("#existinghosts").change(function(eventObject) {
+	var selected = parseInt($(eventObject.target).val());
+	if (isNaN(selected)) {
+		fillLoginForm(defaultHost, defaultPort, "");
+		return;
 	}
-	
-};
+
+	var selectedHost = existingHosts[selected];
+	fillLoginForm(selectedHost.host, selectedHost.port, selectedHost.username);
+	$("#password").focus();
+});
+
+function fillLoginForm(host, port, username) {
+	$("#host").val(host);
+	$("#port").val(port);
+	$("#username").val(username);
+}
+

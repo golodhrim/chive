@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -22,7 +21,6 @@
 
 class AssetController extends Controller
 {
-
     public function accessRules()
     {
         return array(
@@ -39,5 +37,4 @@ class AssetController extends Controller
         readfile($assetPath);
         Yii::app()->end();
     }
-
 }

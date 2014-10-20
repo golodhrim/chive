@@ -82,10 +82,11 @@ abstract class CModule extends CComponent
 	 */
 	public function __get($name)
 	{
-		if($this->hasComponent($name))
+		if ($this->hasComponent($name)) {
 			return $this->getComponent($name);
-		else
+        } else {
 			return parent::__get($name);
+        }
 	}
 
 	/**
@@ -97,10 +98,11 @@ abstract class CModule extends CComponent
 	 */
 	public function __isset($name)
 	{
-		if($this->hasComponent($name))
+		if ($this->hasComponent($name)) {
 			return $this->getComponent($name)!==null;
-		else
+        } else {
 			return parent::__isset($name);
+        }
 	}
 
 	/**
@@ -349,14 +351,12 @@ abstract class CModule extends CComponent
 	 */
 	public function getComponent($id,$createIfNull=true)
 	{
-		if(isset($this->_components[$id]))
+		if (isset($this->_components[$id])) {
 			return $this->_components[$id];
-		else if(isset($this->_componentConfig[$id]) && $createIfNull)
-		{
+        } elseif (isset($this->_componentConfig[$id]) && $createIfNull) {
 			$config=$this->_componentConfig[$id];
-			unset($this->_componentConfig[$id]);
-			if(!isset($config['enabled']) || $config['enabled'])
-			{
+			//unset($this->_componentConfig[$id]);
+			if (!isset($config['enabled']) || $config['enabled']) {
 				Yii::trace("Loading \"$id\" application component",'system.CModule');
 				unset($config['enabled']);
 				$component=Yii::createComponent($config);
@@ -365,6 +365,28 @@ abstract class CModule extends CComponent
 			}
 		}
 	}
+
+    /**
+     * @param string|null $id
+     * @return array|null
+     */
+    public function getComponentConfig($id = null)
+    {
+        if ($id === null) {
+            return $this->_componentConfig;
+        }
+        if (strpos($id, "/", 1)) {
+            $parts = explode("/", $id);
+            if (!isset($this->_componentConfig[$parts[0]]) || !isset($this->_componentConfig[$parts[0]][$parts[1]])) {
+                return null;
+            }
+            return $this->_componentConfig[$parts[0]][$parts[1]];
+        } elseif (isset($this->_componentConfig[$id])) {
+            return $this->_componentConfig[$id];
+        } else {
+            return null;
+        }
+    }
 
 	/**
 	 * Puts a component under the management of the module.
@@ -428,12 +450,13 @@ abstract class CModule extends CComponent
 	{
 		foreach($components as $id=>$component)
 		{
-			if($component instanceof IApplicationComponent)
+			if($component instanceof IApplicationComponent) {
 				$this->setComponent($id,$component);
-			else if(isset($this->_componentConfig[$id]))
+            } elseif (isset($this->_componentConfig[$id])) {
 				$this->_componentConfig[$id]=CMap::mergeArray($this->_componentConfig[$id],$component);
-			else
+            } else {
 				$this->_componentConfig[$id]=$component;
+            }
 		}
 	}
 
@@ -445,8 +468,9 @@ abstract class CModule extends CComponent
 	{
 		if(is_array($config))
 		{
-			foreach($config as $key=>$value)
+			foreach($config as $key=>$value) {
 				$this->$key=$value;
+            }
 		}
 	}
 

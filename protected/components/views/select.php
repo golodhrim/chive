@@ -5,7 +5,7 @@
 		<% } %>
 	<% } %>
 	<ul class="select">
-	<?php foreach($items as $key=>$item): ?>
+	<?php foreach ($items as $key => $item): ?>
 		<li>
 			<% if($item['url']) { %>
 				<%= CHtml::openTag('a', array('href'=>$item['url'], 'class'=>'icon')); %>

@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Chive - web based MySQL database management
  * Copyright (C) 2010 Fusonic GmbH
  *
@@ -20,19 +20,17 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 class AjaxResponse
 {
-
-	/*
+	/**
 	 * Public members
 	 */
-	public $redirectUrl;		// Redirects the user to the given url
+	public $redirectUrl; 	// Redirects the user to the given url
 
-	public $refresh;			// Refresh content in center area
-	public $reload;				// Reload the complete site
+	public $refresh;		// Refresh content in center area
+	public $reload;			// Reload the complete site
 
-	/*
+	/**
 	 * Private members
 	 */
 	private $data;
@@ -42,11 +40,11 @@ class AjaxResponse
 	/**
 	 * Adds a notification to the response which will be shown on the client's UI.
 	 *
-	 * @param	string					Type
-	 * @param	string					Title
-	 * @param	string					Message
-	 * @param	string					Code
-	 * @param	string					Options
+	 * @param string $type
+	 * @param string $title
+	 * @param string $message
+	 * @param string $code
+	 * @param string $options
 	 */
 	public function addNotification($type, $title, $message = false, $code = false, $options = false)
 	{
@@ -62,23 +60,17 @@ class AjaxResponse
 	/**
 	 * Adds data to the response.
 	 *
-	 * @param	string					Key
-	 * @param	string					Value
+	 * @param string $key
+	 * @param string $value
 	 */
 	public function addData($name, $value)
 	{
-		if($name !== null)
-		{
+		if ($name !== null) {
 			$this->data[$name] = $value;
-		}
-		else
-		{
-			if($this->data)
-			{
+		} else {
+			if ($this->data) {
 				$this->data += $value;
-			}
-			else
-			{
+			} else {
 				$this->data = $value;
 			}
 		}
@@ -87,7 +79,7 @@ class AjaxResponse
 	/**
 	 * Adds JavaScript code to be executed on the client side.
 	 *
-	 * @param	string					JavaScript code to execute
+	 * @param string JavaScript code to execute
 	 */
 	public function executeJavaScript($code)
 	{
@@ -97,20 +89,19 @@ class AjaxResponse
 	/**
 	 * Returns the JSON representation of the response.
 	 *
-	 * @return	string
+	 * @return string
 	 */
 	public function __toString()
 	{
 		$data = array(
-			'redirectUrl' => $this->redirectUrl,
-			'reload' => $this->reload,
-			'refresh' => $this->refresh,
+			'redirectUrl' 	=> $this->redirectUrl,
+			'reload' 		=> $this->reload,
+			'refresh' 		=> $this->refresh,
 			'notifications' => $this->notifications,
-			'data' => $this->data,
-			'js' => $this->jsCode,
+			'data' 			=> $this->data,
+			'js' 			=> $this->jsCode,
 		);
 		
 		return CJSON::encode($data);
-
 	}
 }
